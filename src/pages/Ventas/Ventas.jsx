@@ -238,7 +238,7 @@ export default function Ventas() {
         </div>
 
 
-{/* Pendientes */}
+        {/* Pendientes */}
         <div
           className='bg-[#1B1D2E] rounded-2xl  flex items-center gap-4 hover:scale-[1.02] transition-all'
           onMouseEnter={e => {

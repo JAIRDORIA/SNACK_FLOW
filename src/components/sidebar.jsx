@@ -18,19 +18,19 @@ import {
 } from 'lucide-react'
 
 const menuPrincipal = [
-  { id: 'dashboard',    label: 'Dashboard',    icon: LayoutDashboard, path: '/' },
-  { id: 'ventas',       label: 'Ventas',       icon: ShoppingCart,    path: '/ventas' },
-  { id: 'compras',      label: 'Compras',      icon: ShoppingBag,     path: '/compras' },
-  { id: 'clientes',     label: 'Clientes',     icon: Users,           path: '/clientes' },
-  { id: 'proveedores',  label: 'Proveedores',  icon: Truck,           path: '/proveedores' },
-  { id: 'balance',      label: 'Balance',      icon: Scale,           path: '/balance' },
-  { id: 'abonos',       label: 'Abonos',       icon: DollarSign,      path: '/abonos' },
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+  { id: 'ventas', label: 'Ventas', icon: ShoppingCart, path: '/ventas' },
+  { id: 'compras', label: 'Compras', icon: ShoppingBag, path: '/compras' },
+  { id: 'clientes', label: 'Clientes', icon: Users, path: '/clientes' },
+  { id: 'proveedores', label: 'Proveedores', icon: Truck, path: '/proveedores' },
+  { id: 'balance', label: 'Balance', icon: Scale, path: '/balance' },
+  { id: 'abonos', label: 'Abonos', icon: DollarSign, path: '/abonos' },
 ]
 
 const inventarioSubMenu = [
-  { id: 'inventario',          label: 'Ver Inventario', icon: List,   path: '/inventario/ver' },
-  { id: 'inventario-productos',label: 'Productos',      icon: Grid,   path: '/inventario/productos' },
-  { id: 'inventario-combos',   label: 'Combos',         icon: Layers, path: '/inventario/combos' },
+  { id: 'inventario', label: 'Ver Inventario', icon: List, path: '/inventario/ver' },
+  { id: 'inventario-productos', label: 'Productos', icon: Grid, path: '/inventario/productos' },
+  { id: 'inventario-combos', label: 'Combos', icon: Layers, path: '/inventario/combos' },
 ]
 
 export default function Sidebar() {
@@ -45,26 +45,22 @@ export default function Sidebar() {
 
       {/* Logo */}
       <div style={{
-        padding: '24px',
+        padding: '0px',
         borderBottom: '1px solid #1f2937'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '40px', height: '40px',
-            background: '#4f46e5',
-            borderRadius: '8px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }}>
-            <Package size={22} color="white" />
-          </div>
-          <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 700, margin: 0, color: 'white' }}>
-              SnacFlow
-            </h2>
-            <p style={{ fontSize: '15px', color: '#9ca3af', margin: 0 }}>
-              Sistema de Gestión
-            </p>
-          </div>
+        <div style={{ marginTop: "6px",marginLeft:"20px", display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', borderRadius: '8px', width: '180px', height: '100px' }}>
+          {/* Imagen que contiene logo + nombre + slogan */}
+          <img
+            src="/logo real sin fondo.png"
+            alt="SnacFlow"
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center', // Ajusta a 'top', 'bottom' si es necesario
+              display: 'block',
+            }}
+          />
         </div>
       </div>
 

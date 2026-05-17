@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+/* etc. para las clases que no te funcionen */
 * {
   font-family: 'Outfit', sans-serif;
   box-sizing: border-box;
@@ -9,4 +11,29 @@
 
 body {
   background-color: #1a1814;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  .print-container {
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 20px !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .print-container, .print-container * {
+    visibility: visible;
+  }
+  .print-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
 }

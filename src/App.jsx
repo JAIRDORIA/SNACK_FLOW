@@ -28,9 +28,17 @@ export default function App() {
           <Route path="compras"      element={<Placeholder name="compras" />} />
           <Route path="balance"      element={<Placeholder name="balance" />} />  
           <Route path="cortes"      element={<Cortes />} />
-          <Route path="proveedores"      element={<Placeholder name="proveedores" />} /> 
+          <Route path="proveedores"      element={<Placeholder name="proveedores" />} />
         </Route>
       </Routes>
     </BrowserRouter>
   )
 }
+
+
+
+
+// Fuera del Layout (sin sidebar ni header):
+
+
+// Y la ruta raíz queda dentro del Layout como siempre

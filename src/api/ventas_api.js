@@ -18,3 +18,6 @@ export const anularVenta = (id) =>
 
 export const getVentaDetalle = (id) =>
     api.get(`/ventas/${id}/detalle`)
+
+export const getVentaComprobante = (id) => 
+    api.get(`/ventas/${id}/comprobante`)

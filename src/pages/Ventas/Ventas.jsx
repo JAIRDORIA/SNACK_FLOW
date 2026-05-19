@@ -4,10 +4,10 @@ import {
   AlertTriangle, CheckCircle, Clock, XCircle,
   SlidersHorizontal, ChevronDown, Info,
   TrendingUp, DollarSign, Clock3, ShoppingBag,
-  PanelBottom, CheckCheck,Receipt,Printer
+  PanelBottom, CheckCheck, Receipt, Printer
 } from 'lucide-react'
 import useVentasStore from '@/store/useVentasStore'
-import { getVentaDetalle,getVentaComprobante } from '@/api/ventas_api'
+import { getVentaDetalle, getVentaComprobante } from '@/api/ventas_api'
 
 // ══════════════════════════════════════════
 // CONFIGURACION DE ESTILOS
@@ -54,7 +54,7 @@ export default function Ventas() {
   const [filtroEstados, setFiltroEstados] = useState([])
   const [filtroTipos, setFiltroTipos] = useState([])
   const filtroRef = useRef(null)
-const verComprobante = async (id) => {
+  const verComprobante = async (id) => {
     setCargandoComprobante(true)
     try {
       const res = await getVentaComprobante(id)
@@ -67,6 +67,98 @@ const verComprobante = async (id) => {
       setCargandoComprobante(false)
     }
   }
+
+  const imprimirComprobante = (data) => {
+  // Construir HTML con los datos
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Comprobante ${data.numero}</title>
+      <style>
+        body { font-family: system-ui, -apple-system, sans-serif; padding: 40px; color: #1e293b; }
+        h2 { color: #4f46e5; }
+        .header { display: flex; justify-content: space-between; align-items: center; }
+        .info { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
+        .info p { margin: 4px 0; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; font-size: 14px; }
+        th { background-color: #f1f5f9; }
+        .total { font-weight: bold; }
+        .abonos { margin-top: 20px; }
+        @media print { button { display: none; } }
+      </style>
+    </head>
+    <body>
+      <button onclick="window.print()" style="margin-bottom:20px;padding:8px 16px;background:#4f46e5;color:white;border:none;border-radius:8px;cursor:pointer;">
+        🖨️ Imprimir comprobante
+      </button>
+
+      <h2>COMPROBANTE ${data.numero}</h2>
+
+      <div class="info">
+        <div>
+          <p><strong>Cliente:</strong> ${data.nombre_cliente || 'N/A'}</p>
+          <p><strong>N° Venta:</strong> #${String(data.venta_id).padStart(3, '0')}</p>
+        </div>
+        <div>
+          <p><strong>Fecha venta:</strong> ${data.fecha_venta || 'N/A'}</p>
+          <p><strong>Fecha entrega:</strong> ${data.fecha_entrega || 'N/A'}</p>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio unit.</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${(data.detalle || []).map(item => `
+            <tr>
+              <td>${item.nombre_producto}</td>
+              <td>${item.cantidad}</td>
+              <td>$${item.precio_unitario?.toLocaleString('es-CO')}</td>
+              <td>$${item.subtotal?.toLocaleString('es-CO')}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+
+      <div style="display: flex; justify-content: flex-end;">
+        <div style="width: 250px;">
+          <p style="display: flex; justify-content: space-between;"><span>Total:</span> <strong>$${data.total?.toLocaleString('es-CO')}</strong></p>
+        </div>
+      </div>
+
+      ${data.abonos?.length ? `
+      <div class="abonos">
+        <h3>Abonos</h3>
+        <table>
+          <thead><tr><th>Fecha</th><th>Monto</th><th>Medio</th></tr></thead>
+          <tbody>
+            ${data.abonos.map(a => `
+              <tr>
+                <td>${a.fecha}</td>
+                <td>$${a.monto?.toLocaleString('es-CO')}</td>
+                <td>${a.medio_pago}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      ` : ''}
+    </body>
+    </html>
+  `;
+
+  const ventana = window.open('', '_blank', 'width=800,height=600');
+  ventana.document.write(html);
+  ventana.document.close();
+};
   useEffect(() => {
     fetchVentas()
   }, [])
@@ -81,7 +173,7 @@ const verComprobante = async (id) => {
   }, [])
 
 
-  
+
   const toggleEstado = (v) =>
     setFiltroEstados(p => p.includes(v) ? p.filter(x => x !== v) : [...p, v])
   const toggleTipo = (v) =>
@@ -710,7 +802,7 @@ const verComprobante = async (id) => {
                     background: ESTADOS_CONFIG[detalleVenta.estado]?.bg,
                     color: ESTADOS_CONFIG[detalleVenta.estado]?.color,
                     borderColor: ESTADOS_CONFIG[detalleVenta.estado]?.border,
-                    padding: "2px 4px"
+                    padding: "4px 6px"
                   }}
                 >
                   {ESTADOS_CONFIG[detalleVenta.estado]?.icon}
@@ -749,10 +841,10 @@ const verComprobante = async (id) => {
       )}
       {/* Modal comprobante */}
       {mostrarComprobante && comprobante && (
-        <div style={{padding:"16px"}} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50  no-print">
+        <div style={{ padding: "16px" }} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50  no-print">
           <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden print-container">
             {/* Header del comprobante */}
-            <div style={{padding:"16px 24px"}} className="flex items-center justify-between  border-b border-slate-200 bg-indigo-50 no-print">
+            <div style={{ padding: "16px 24px" }} className="flex items-center justify-between  border-b border-slate-200 bg-indigo-50 no-print">
               <div>
                 <h3 className="font-bold text-lg text-slate-800">
                   Comprobante {comprobante.numero}
@@ -763,8 +855,9 @@ const verComprobante = async (id) => {
               </div>
               <div className="flex gap-2 no-print">
                 <button
-                  onClick={() => window.print()}
+                  onClick={() => imprimirComprobante(comprobante)}
                   className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-indigo-700 transition-colors"
+                  style={{padding:"8px 16px"}}
                 >
                   <Printer size={16} />
                   Imprimir
@@ -779,12 +872,12 @@ const verComprobante = async (id) => {
             </div>
 
             {/* Contenido imprimible */}
-            <div style={{padding:"24px"}} className="p-6 max-h-[70vh] overflow-y-auto print-content">
+            <div style={{ padding: "24px" }} className="p-6 max-h-[70vh] overflow-y-auto print-content">
               {/* Datos del cliente y venta */}
-              <div style={{marginBottom:"24px"}} className="grid grid-cols-2 gap-4 mb-6">
+              <div style={{ marginBottom: "24px" }} className="grid grid-cols-2 gap-4 mb-6">
                 <div>
                   <p className="text-xs text-slate-400 uppercase tracking-wider">Cliente</p>
-                  <p className="font-medium text-slate-800">{comprobante.cliente?.nombre}</p>
+                  <p className="font-medium text-slate-800">{comprobante.nombre_cliente}</p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-400 uppercase tracking-wider">N° Venta</p>
@@ -801,22 +894,22 @@ const verComprobante = async (id) => {
               </div>
 
               {/* Detalle de productos */}
-              <table style={{marginBottom:"24px"}} className="w-full border-collapse mb-6">
+              <table style={{ marginBottom: "24px" }} className="w-full border-collapse mb-6">
                 <thead>
                   <tr className="bg-slate-100">
-                    <th style={{padding:"8px 16px"}} className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase">Producto</th>
-                    <th style={{padding:"8px 16px"}}  className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase">Cantidad</th>
-                    <th style={{padding:"8px 16px"}}  className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase">Precio unit.</th>
-                    <th style={{padding:"8px 16px"}}  className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase">Subtotal</th>
+                    <th style={{ padding: "8px 16px" }} className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase">Producto</th>
+                    <th style={{ padding: "8px 16px" }} className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase">Cantidad</th>
+                    <th style={{ padding: "8px 16px" }} className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase">Precio unit.</th>
+                    <th style={{ padding: "8px 16px" }} className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase">Subtotal</th>
                   </tr>
                 </thead>
                 <tbody>
                   {comprobante.detalle?.map((item, idx) => (
                     <tr key={idx} className="border-b border-slate-100">
-                      <td style={{padding:"8px 16px"}}  className="px-4 py-2 text-sm text-slate-700">{item.nombre_producto}</td>
-                      <td style={{padding:"8px 16px"}}  className="px-4 py-2 text-sm text-slate-600">{item.cantidad}</td>
-                      <td style={{padding:"8px 16px"}}  className="px-4 py-2 text-sm text-slate-600">${item.precio_unitario?.toLocaleString('es-CO')}</td>
-                      <td style={{padding:"8px 16px"}}  className="px-4 py-2 text-sm text-slate-700 font-medium">${item.subtotal?.toLocaleString('es-CO')}</td>
+                      <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm text-slate-700">{item.nombre_producto}</td>
+                      <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm text-slate-600">{item.cantidad}</td>
+                      <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm text-slate-600">${item.precio_unitario?.toLocaleString('es-CO')}</td>
+                      <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm text-slate-700 font-medium">${item.subtotal?.toLocaleString('es-CO')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -825,15 +918,15 @@ const verComprobante = async (id) => {
               {/* Totales */}
               <div className="flex justify-end">
                 <div className="w-64">
-                  <div style={{paddingTop:"8px ", paddingBottom:"8px"}}  className="flex justify-between border-b border-slate-200 ">
+                  <div style={{ paddingTop: "8px ", paddingBottom: "8px" }} className="flex justify-between border-b border-slate-200 ">
                     <span className="text-sm text-slate-500">Subtotal</span>
                     <span className="text-sm text-slate-800">${comprobante.total?.toLocaleString('es-CO')}</span>
                   </div>
-                  <div style={{paddingTop:"8px ", paddingBottom:"8px"}} className="flex justify-between border-b border-slate-200 ">
+                  <div style={{ paddingTop: "8px ", paddingBottom: "8px" }} className="flex justify-between border-b border-slate-200 ">
                     <span className="text-sm text-slate-500">Descuento</span>
                     <span className="text-sm text-slate-800">$0</span>
                   </div>
-                  <div style={{paddingTop:"8px ", paddingBottom:"8px"}} className="flex justify-between py-2">
+                  <div style={{ paddingTop: "8px ", paddingBottom: "8px" }} className="flex justify-between py-2">
                     <span className="font-semibold text-slate-800">Total</span>
                     <span className="font-bold text-indigo-600">${comprobante.total?.toLocaleString('es-CO')}</span>
                   </div>
@@ -842,15 +935,15 @@ const verComprobante = async (id) => {
 
               {/* Abonos si existen */}
               {comprobante.abonos?.length > 0 && (
-                <div style={{marginTop:"24px"}} className="mt-6">
-                  <h4 style={{marginBottom:"8px"}} className="text-sm font-semibold text-slate-700 ">Abonos registrados</h4>
+                <div style={{ marginTop: "24px" }} className="mt-6">
+                  <h4 style={{ marginBottom: "8px" }} className="text-sm font-semibold text-slate-700 ">Abonos registrados</h4>
                   <div className="border border-slate-200 rounded-xl overflow-hidden">
                     <table className="w-full">
                       <thead className="bg-slate-50">
                         <tr>
-                          <th style={{padding:"8px 16px"}} className="px-4 py-2 text-xs text-slate-500">Fecha</th>
-                          <th style={{padding:"8px 16px"}} className="px-4 py-2 text-xs text-slate-500">Monto</th>
-                          <th style={{padding:"8px 16px"}} className="px-4 py-2 text-xs text-slate-500">Medio</th>
+                          <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-xs text-slate-500">Fecha</th>
+                          <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-xs text-slate-500">Monto</th>
+                          <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-xs text-slate-500">Medio</th>
                         </tr>
                       </thead>
                       <tbody>

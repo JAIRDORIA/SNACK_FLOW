@@ -51,7 +51,7 @@ export default function Sidebar() {
         <div style={{ marginTop: "6px",marginLeft:"20px", display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', borderRadius: '8px', width: '180px', height: '100px' }}>
           {/* Imagen que contiene logo + nombre + slogan */}
           <img
-            src="/logo real sin fondo.png"
+            src="/SNACKFLOW_LOGO_BLANCO.png"
             alt="SnacFlow"
             style={{
               width: '100%',

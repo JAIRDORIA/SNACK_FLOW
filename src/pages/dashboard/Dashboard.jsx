@@ -72,7 +72,7 @@ export default function Dashboard() {
           textTransform: 'uppercase',
           letterSpacing: '0.02em'
         }}>
-          Informacion General del Corte #{balance?.corte_numero ?? '...'}
+          Información General del Corte #{balance?.corte_numero ?? '...'}
         </h1>
       </div>
 

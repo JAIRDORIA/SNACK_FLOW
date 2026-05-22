@@ -7,7 +7,9 @@ import {
   PanelBottom, CheckCheck, Receipt, Printer
 } from 'lucide-react'
 import useVentasStore from '@/store/useVentasStore'
+import NuevaVentaModal from '@/components/nuevaVentaModal'
 import { getVentaDetalle, getVentaComprobante } from '@/api/ventas_api'
+import useAbonosStore from '@/store/useAbonoStore'
 
 // ══════════════════════════════════════════
 // CONFIGURACION DE ESTILOS
@@ -30,8 +32,9 @@ const ESTADOS_CONFIG = {
 const TIPO_CONFIG = {
   efectivo: { bg: '#f0fdf4', color: '#15803d', label: 'Efectivo' },
   transferencia: { bg: '#eff6ff', color: '#1d4ed8', label: 'Transferencia' },
-  abono: { bg: '#fefce8', color: '#854d0e', label: 'Abono' },
   otro: { bg: '#f9fafb', color: '#6b7280', label: 'Otro' },
+  sin_pago:      { bg: '#f3f4f6', color: '#9ca3af', label: 'Sin pago' },
+  error:         { bg: '#fee2e2', color: '#b91c1c', label: 'Error' },
 }
 
 // ══════════════════════════════════════════
@@ -54,6 +57,14 @@ export default function Ventas() {
   const [filtroEstados, setFiltroEstados] = useState([])
   const [filtroTipos, setFiltroTipos] = useState([])
   const filtroRef = useRef(null)
+  const [modalNuevaVenta, setModalNuevaVenta] = useState(false)
+  const { cargarAbonos, getMedioPago } = useAbonosStore()
+
+
+  // Cargar tipos de pago para las ventas visibles
+  
+
+
   const verComprobante = async (id) => {
     setCargandoComprobante(true)
     try {
@@ -69,8 +80,8 @@ export default function Ventas() {
   }
 
   const imprimirComprobante = (data) => {
-  // Construir HTML con los datos
-  const html = `
+    // Construir HTML con los datos
+    const html = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -155,13 +166,14 @@ export default function Ventas() {
     </html>
   `;
 
-  const ventana = window.open('', '_blank', 'width=800,height=600');
-  ventana.document.write(html);
-  ventana.document.close();
-};
+    const ventana = window.open('', '_blank', 'width=800,height=600');
+    ventana.document.write(html);
+    ventana.document.close();
+  };
   useEffect(() => {
     fetchVentas()
   }, [])
+
 
   useEffect(() => {
     const fn = (e) => {
@@ -201,10 +213,17 @@ export default function Ventas() {
       v.fecha_entrega?.includes(q) ||
       v.estado?.toLowerCase().includes(q)
     const matchE = filtroEstados.length === 0 || filtroEstados.includes(v.estado)
-    const matchT = filtroTipos.length === 0 || filtroTipos.includes(v.medio_pago)
+
+    const medioPagoActual = getMedioPago(v.id_venta)
+const matchT = filtroTipos.length === 0 || filtroTipos.includes(medioPagoActual)
     return matchQ && matchE && matchT
   })
-
+useEffect(() => {
+    if (lista.length > 0) {
+      const ids = lista.map(v => v.id_venta)
+      cargarAbonos(ids)
+    }
+  }, [lista])
   const totalMonto = lista.reduce((acc, v) => acc + (v.total || 0), 0)
   const pendientes = lista.filter(v => v.estado === 'pendiente').length
   const entregada = lista.filter(v => v.estado === 'entregada').length
@@ -249,7 +268,7 @@ export default function Ventas() {
 
           </div>
         </div>
-        <button onClick={() => setModalOpen(true)} style={{ padding: "8px 8px" }}
+        <button onClick={() => setModalNuevaVenta(true)} style={{ padding: "8px 8px" }}
           className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white  rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95">
           <Plus className="w-4 h-4" />
           <span className="text-x">Nueva Venta</span>
@@ -257,7 +276,7 @@ export default function Ventas() {
       </div>
 
       {/* ═══ KPI CARDS (Estilo Dashboard) ═══ */}
-      <div style={{ marginBottom: "30px" }} className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div style={{ marginBottom: "32px" }} className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {/* Monto Total */}
         <div
           className='bg-[#1B1D2E] rounded-2xl  flex items-center gap-4 hover:scale-[1.02] transition-all'
@@ -279,7 +298,7 @@ export default function Ventas() {
             <p className='text-3xl text-white'>
               ${totalMonto.toLocaleString('es-CO')}
             </p>
-            <p className='text-xs text-white/50 mt-0.5 '>
+            <p style={{ marginTop: "2px" }} className='text-xs text-white/50 mt-0.5 '>
               Ingresos totales
             </p>
           </div>
@@ -307,7 +326,7 @@ export default function Ventas() {
             <p className='text-3xl text-white'>
               {lista.length}
             </p>
-            <p className='text-xs text-white/50 mt-0.5 '>
+            <p style={{ marginTop: "2px" }} className='text-xs text-white/50 mt-0.5 '>
               Total Ventas
             </p>
 
@@ -339,7 +358,7 @@ export default function Ventas() {
             <p className='text-3xl text-white'>
               {entregada}
             </p>
-            <p style={{ marginTop: "1px" }} className='text-xs text-white/50 mt-0.5 '>
+            <p style={{ marginTop: "2px" }} className='text-xs text-white/50 mt-0.5 '>
               Entregadas
             </p>
           </div>
@@ -368,7 +387,7 @@ export default function Ventas() {
             <p className='text-3xl text-white'>
               {pendientes}
             </p>
-            <p style={{ marginTop: "1px" }} className='text-xs text-white/50  '>
+            <p style={{ marginTop: "2px" }} className='text-xs text-white/50  '>
               por entregar
             </p>
           </div>
@@ -440,7 +459,7 @@ export default function Ventas() {
                       <span
                         className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium border"
                         style={{
-                          padding: "8px 16px",
+                          padding: "8px 12px",
                           background: cfg.bg,
                           color: cfg.color,
                           borderColor: cfg.border,
@@ -513,7 +532,7 @@ export default function Ventas() {
             <tbody>
               {lista.length === 0 ? (
                 <tr>
-                  <td style={{ padding: "20px 0px" }} colSpan={7} className="text-center py-20 text-slate-400">
+                  <td style={{ paddingTop: "80px", paddingBottom: "80px" }} colSpan={7} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
                         <Search size={28} className="text-slate-300" />
@@ -524,42 +543,43 @@ export default function Ventas() {
                   </td>
                 </tr>
               ) : lista.map((v, i) => {
-                const tipoCfg = TIPO_CONFIG[v.medio_pago] ?? TIPO_CONFIG.otro
+                const medioPago = getMedioPago(v.id_venta)
+                const tipoCfg = TIPO_CONFIG[medioPago] ?? TIPO_CONFIG.otro
                 const estadoCfg = ESTADOS_CONFIG[v.estado] ?? ESTADOS_CONFIG.pendiente
                 return (
                   <tr key={v.id} className="border-b border-slate-50 hover:bg-slate-50/30 transition-colors">
-                    <td style={{ padding: "4px 6px" }} className="px-6 py-4 pl-8">
+                    <td style={{ padding: "16px 24px", paddingLeft: "32px" }} className="px-6 py-4 pl-8">
                       <span className="font-semibold text-sm text-indigo-600">
                         #{String(v.id_venta).padStart(3, '0')}
                       </span>
                     </td>
-                    <td style={{ padding: "4px 6px" }} className=" text-slate-500 text-sm whitespace-nowrap">{v.fecha_entrega}</td>
-                    <td style={{ padding: "4px 6px" }} className="text-slate-700 font-medium text-sm">{v.nombre_cliente}</td>
-                    <td style={{ padding: "4px 6px" }} className=" text-slate-700 font-semibold text-sm">
+                    <td style={{ padding: "16px 24px" }} className=" text-slate-500 text-sm whitespace-nowrap">{v.fecha_entrega}</td>
+                    <td style={{ padding: "16px 24px" }} className="text-slate-700 font-medium text-sm">{v.nombre_cliente}</td>
+                    <td style={{ padding: "16px 24px" }} className=" text-slate-700 font-semibold text-sm">
                       ${v.total?.toLocaleString('es-CO')}
                     </td>
                     <td style={{ padding: "4px 6px" }} >
                       <span
-
                         className="text-xs px-3.5 py-1.5 rounded-full font-medium"
-                        style={{ background: tipoCfg.bg, color: tipoCfg.color, padding: "1.5px 3.5px" }}
+                        style={{ background: tipoCfg.bg, color: tipoCfg.color, padding: "6px 14px" }}
                       >
                         {tipoCfg.label}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td style={{ padding: "16px 24px" }} className="px-6 py-4">
                       <span
                         className="inline-flex items-center gap-1.5 text-xs px-3.5 py-1.5 rounded-full font-medium border"
                         style={{
                           background: estadoCfg.bg,
                           color: estadoCfg.color,
                           borderColor: estadoCfg.border,
+                          padding: "6px 14px "
                         }}
                       >
                         {estadoCfg.icon}{estadoCfg.label}
                       </span>
                     </td>
-                    <td className="px-6 py-4 pr-8">
+                    <td style={{ padding: "22px 14px", paddingRight: "28px" }} >
                       <div className="flex gap-1">
                         <button
                           title="Ver detalle"
@@ -594,7 +614,7 @@ export default function Ventas() {
         </div>
 
         {/* pie tabla */}
-        <div style={{ padding: "5px 8px" }} className=" border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30">
+        <div style={{ padding: "20px 32px" }} className=" border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30">
           <span className="text-sm">
             Mostrando <strong className="text-slate-700 font-semibold">{lista.length}</strong> de{' '}
             <strong className="text-slate-700 font-semibold">{total}</strong> ventas
@@ -606,18 +626,18 @@ export default function Ventas() {
                 onClick={() => fetchVentas(pagina - 1)}
                 disabled={pagina === 1}
                 className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
-                style={{ cursor: pagina === 1 ? 'not-allowed' : 'pointer' }}
+                style={{ cursor: pagina === 1 ? 'not-allowed' : 'pointer', padding: "10px 16px" }}
               >
                 ← Anterior
               </button>
-              <span className="text-sm text-slate-500 px-3 font-medium">
+              <span style={{ paddingLeft: "12px", paddingRight: "12px" }} className="text-sm text-slate-500 px-3 font-medium">
                 {pagina} / {total_paginas}
               </span>
               <button
                 onClick={() => fetchVentas(pagina + 1)}
                 disabled={pagina === total_paginas}
                 className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
-                style={{ cursor: pagina === total_paginas ? 'not-allowed' : 'pointer', padding: "2.5px 4px " }}
+                style={{ cursor: pagina === total_paginas ? 'not-allowed' : 'pointer', padding: "10px 16px " }}
               >
                 Siguiente →
               </button>
@@ -675,7 +695,7 @@ export default function Ventas() {
                   Detalle de Venta{' '}
                   <span className="text-indigo-600">#{String(detalleVenta.id).padStart(3, '0')}</span>
                 </p>
-                <p className="text-sm text-slate-500 mt-1">
+                <p style={{ marginTop: "4px" }} className="text-sm text-slate-500 mt-1">
                   Cliente: <strong className="text-slate-700">{detalleVenta.nombre_cliente}</strong>
                 </p>
               </div>
@@ -713,7 +733,7 @@ export default function Ventas() {
 
               {/* productos */}
               <div>
-                <p className="text-base font-semibold text-slate-700 mb-4 flex items-center gap-3">
+                <p style={{ marginBottom: "16px" }} className="text-base font-semibold text-slate-700 mb-4 flex items-center gap-3">
                   <span className="w-1.5 h-5 rounded-full bg-indigo-500" />
                   Productos
                 </p>
@@ -748,7 +768,7 @@ export default function Ventas() {
 
               {/* abonos */}
               <div>
-                <p className="text-base font-semibold text-slate-700 mb-4 flex items-center gap-3">
+                <p style={{ marginBottom: "16px" }} className="text-base font-semibold text-slate-700 mb-4 flex items-center gap-3">
                   <span className="w-1.5 h-5 rounded-full bg-indigo-500" />
                   Historial de abonos
                 </p>
@@ -856,8 +876,8 @@ export default function Ventas() {
               <div className="flex gap-2 no-print">
                 <button
                   onClick={() => imprimirComprobante(comprobante)}
-                  className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm hover:bg-indigo-700 transition-colors"
-                  style={{padding:"8px 16px"}}
+                  className="flex items-center gap-2 bg-indigo-600 text-white  rounded-xl text-sm hover:bg-indigo-700 transition-colors"
+                  style={{ padding: "8px 16px" }}
                 >
                   <Printer size={16} />
                   Imprimir
@@ -949,9 +969,9 @@ export default function Ventas() {
                       <tbody>
                         {comprobante.abonos.map((abono, i) => (
                           <tr key={i} className="border-t border-slate-100">
-                            <td className="px-4 py-2 text-sm">{abono.fecha}</td>
-                            <td className="px-4 py-2 text-sm text-green-600">${abono.monto?.toLocaleString('es-CO')}</td>
-                            <td className="px-4 py-2 text-sm">{abono.medio_pago}</td>
+                            <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm">{abono.fecha}</td>
+                            <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm text-green-600">${abono.monto?.toLocaleString('es-CO')}</td>
+                            <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm">{abono.medio_pago}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -959,11 +979,19 @@ export default function Ventas() {
                   </div>
                 </div>
               )}
+
             </div>
           </div>
         </div>
       )}
-
+      <NuevaVentaModal
+        open={modalNuevaVenta}
+        onClose={() => setModalNuevaVenta(false)}
+        onVentaCreada={() => {
+          fetchVentas(pagina)
+          setModalNuevaVenta(false)
+        }}
+      />
     </div>
   )
 }

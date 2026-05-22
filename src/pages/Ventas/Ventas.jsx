@@ -523,7 +523,7 @@ useEffect(() => {
             <thead>
               <tr className="bg-slate-50/80">
                 {['ID Venta', 'Fecha', 'Cliente', 'Total', 'Tipo Pago', 'Estado', 'Acciones'].map((h, i) => (
-                  <th key={h} style={{ padding: "4px 8px" }} className={`text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider ${i === 0 ? 'pl-8' : ''}`}>
+                  <th key={h} style={{ padding: "16px 24px" }} className={`text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider ${i === 0 ? 'pl-8' : ''}`}>
                     {h}
                   </th>
                 ))}

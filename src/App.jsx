@@ -46,6 +46,18 @@ export default function App() {
           <Route path="balance"              element={<Placeholder name="Balance" />} />
           <Route path="cortes"               element={<Cortes />} />
           <Route path="proveedores"          element={<Placeholder name="Proveedores" />} />
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="ventas"      element={<Ventas />} />
+          <Route path="clientes"    element={<Placeholder name="Clientes" />} />
+          <Route path="inventario/productos"   element={<Placeholder name="Productos" />} />
+          <Route path="inventario/ver"      element={<Placeholder name="Inventario" />} />
+          <Route path="inventario/combos"      element={<Placeholder name="Inventario" />} />
+          <Route path="compras"      element={<Placeholder name="compras" />} />
+          <Route path="balance"      element={<Placeholder name="balance" />} />  
+          <Route path="cortes"      element={<Cortes />} />
+          <Route path="abonos"      element={<Placeholder name="abonos" />} />
+          <Route path="proveedores"      element={<Placeholder name="proveedores" />} /> 
         </Route>
 
 

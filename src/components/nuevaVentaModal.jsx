@@ -1,0 +1,357 @@
+import { useEffect, useRef } from 'react'
+import {
+  X, Plus, Trash2, AlertCircle, Loader2, CheckCircle2
+} from 'lucide-react'
+import useNuevaVentaStore from '@/store/useNuevaVentaStore'
+
+const MEDIOS_PAGO = ['efectivo', 'transferencia', 'otro']
+
+export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
+  const {
+    clientes, cortes, productos,
+    clienteId, corteId, fechaEntrega, horaEntrega,
+    detalle, conAbono, montoAbono, medioPago, observacionAbono,
+    enviando, exito, errorMsg, cargandoDatos, errorDatos,
+    cargarDatos,
+    setClienteId, setCorteId, setFechaEntrega, setHoraEntrega,
+    setConAbono, setMontoAbono, setMedioPago, setObservacionAbono,
+    agregarProducto, eliminarProducto, pagarTotal, resetFormulario,
+    registrarVenta,
+    totalVenta, caso, saldoPendiente,
+  } = useNuevaVentaStore()
+
+  const selectProductoRef = useRef(null)
+
+  // Cargar datos al abrir
+  useEffect(() => {
+    if (open) {
+      resetFormulario()
+      cargarDatos()
+
+    }
+  }, [open])
+
+  const handleAgregarProducto = () => {
+    const select = selectProductoRef.current
+    if (!select || !select.value) return
+
+    const prodId = Number(select.value)
+    const prod = productos.find(p => p.id === prodId)
+    if (!prod) {
+      console.error('Producto no encontrado con id:', prodId)
+      return
+    }
+
+    const cantidad = Number(document.getElementById('cantidad-producto').value) || 1
+
+    // Convertir precio_venta de string a número
+    const precioUnitario = parseFloat(prod.precio_venta)
+
+    agregarProducto(prod.id, prod.nombre, cantidad, precioUnitario)
+
+    // Limpiar selección
+    select.value = ''
+    document.getElementById('cantidad-producto').value = '1'
+  }
+
+  const handleRegistrar = async () => {
+    const ok = await registrarVenta()
+    if (ok) {
+      onVentaCreada?.()
+      setTimeout(() => {
+        resetFormulario()
+        onClose()
+      }, 1000)
+    }
+  }
+
+  if (!open) return null
+
+  return (
+    <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
+
+        {/* Header */}
+        <div style={{padding:"16px 36px"}} className="flex items-center justify-between  border-b border-slate-100 bg-indigo-50">
+          <h2 className="text-lg font-bold text-slate-800">Nueva Venta</h2>
+          <button
+            onClick={() => { resetFormulario(); onClose() }}
+            className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
+          >
+            <X size={20} color="#64748b" />
+          </button>
+        </div>
+
+        <div style={{padding:"24px"}} className="p-6 flex flex-col gap-6 max-h-[70vh] overflow-y-auto">
+
+          {/* Error de carga */}
+          {errorDatos && (
+            <div style={{padding:"12px"}} className="flex items-center gap-2 text-sm text-rose-600 bg-rose-50 p-3 rounded-lg">
+              <AlertCircle size={16} /> {errorDatos}
+            </div>
+          )}
+
+          {/* Sección 1: Datos generales */}
+          <div>
+            <h3 style={{marginBottom:"12px"}} className="text-sm font-semibold text-slate-600 mb-3">Datos generales</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Cliente *</label>
+                <select
+                  value={clienteId}
+                  onChange={e => setClienteId(e.target.value)}
+                  style={{padding:"8px"}}
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                  disabled={cargandoDatos}
+                >
+                  <option value="">Seleccionar cliente...</option>
+                  {clientes.map(c => (
+                    <option key={c.ID_Cliente} value={c.ID_Cliente}>{c.Cli_Nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Corte *</label>
+                <select
+                  value={corteId}
+                  onChange={e => setCorteId(e.target.value)}
+                  style={{padding:"8px"}}
+                  className="w-full border border-slate-200 rounded-lg  text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                  disabled={cargandoDatos}
+                >
+                  <option value="">Seleccionar corte...</option>
+                  {cortes.map(c => (
+                    <option key={c.id} value={c.id}>{c.numero} - {c.estado}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 ">Fecha de entrega *</label>
+                <input
+                  type="date"
+                  value={fechaEntrega}
+                  onChange={e => setFechaEntrega(e.target.value)}
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                  style={{padding:"8px"}}
+                />
+              </div>
+              <div>
+                <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 ">Hora de entrega</label>
+                <input
+                  type="time"
+                  value={horaEntrega}
+                  onChange={e => setHoraEntrega(e.target.value)}
+                  style={{padding:"8px"}}
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sección 2: Productos */}
+          <div>
+            <h3 style={{marginBottom:"12px"}} className="text-sm font-semibold text-slate-600 ">Productos</h3>
+            <div style={{marginBottom:"12px"}} className="flex flex-wrap items-end gap-2 ">
+              <div className="flex-1 min-w-[160px]">
+                <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Producto</label>
+                <select
+                  ref={selectProductoRef}
+                  style={{padding:"8px"}}
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                >
+                  <option value="">Seleccionar producto...</option>
+                  {productos.map(p => (
+                    <option key={p.id} value={p.id}>
+                      {p.nombre} - ${parseFloat(p.precio_venta).toLocaleString('es-CO')}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="w-20">
+                <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Cantidad</label>
+                <input
+                  id="cantidad-producto"
+                  type="number"
+                  min="1"
+                  defaultValue="1"
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                  style={{padding:"8px"}}
+                />
+              </div>
+              <button
+                onClick={handleAgregarProducto}
+                className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                style={{padding:"8px 16px"}}
+              >
+                <Plus size={16} /> Agregar
+              </button>
+            </div>
+
+            {detalle.length > 0 ? (
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-slate-50">
+                    <tr>
+                      <th style={{padding:"8px 12px"}} className="px-3 py-2 text-left text-slate-500">Producto</th>
+                      <th style={{padding:"8px 12px"}} className="px-3 py-2 text-center text-slate-500">Cant</th>
+                      <th style={{padding:"8px 12px"}} className="px-3 py-2 text-right text-slate-500">Precio</th>
+                      <th style={{padding:"8px 12px"}} className="px-3 py-2 text-right text-slate-500">Subtotal</th>
+                      <th style={{padding:"8px 12px"}} className="px-3 py-2"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {detalle.map((item, i) => (
+                      <tr key={i} className="border-t border-slate-100 hover:bg-indigo-50/30">
+                        <td style={{padding:"8px 12px"}} className="px-3 py-2 text-slate-700">{item.nombre_producto}</td>
+                        <td style={{padding:"8px 12px"}} className="px-3 py-2 text-center text-slate-600">{item.cantidad}</td>
+                        <td style={{padding:"8px 12px"}} className="px-3 py-2 text-right text-slate-600">${item.precio_unitario.toLocaleString('es-CO')}</td>
+                        <td style={{padding:"8px 12px"}} className="px-3 py-2 text-right text-slate-700 font-medium">${(item.cantidad * item.precio_unitario).toLocaleString('es-CO')}</td>
+                        <td style={{padding:"8px 12px"}} className="px-3 py-2 text-center">
+                          <button style={{padding:"4px"}} onClick={() => eliminarProducto(i)} className="text-rose-500 hover:bg-rose-100 p-1 rounded">
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p style={{marginTop:"8px"}} className="text-xs text-slate-400 mt-2">No hay productos agregados.</p>
+            )}
+          </div>
+
+          {/* Sección 3: Abono inicial */}
+          <div>
+            <div style={{marginBottom:"12px"}} className="flex items-center gap-3 mb-3">
+              <h3 className="text-sm font-semibold text-slate-600">Abono inicial</h3>
+              <button
+                onClick={() => setConAbono(!conAbono)}
+                className={`relative w-10 h-5 rounded-full transition-colors ${conAbono ? 'bg-indigo-500' : 'bg-slate-300'}`}
+              >
+                <span className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform ${conAbono ? 'translate-x-5' : ''}`} />
+              </button>
+              <span className="text-xs text-slate-500">
+                {!conAbono && 'Sin abono inicial'}
+                {conAbono && caso() === 'abono_parcial' && 'Abono parcial'}
+                {conAbono && caso() === 'pago_completo' && 'Pago completo'}
+              </span>
+            </div>
+
+            {conAbono && (
+              <div style={{padding:"16px"}} className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                <div>
+                  <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Monto abonado</label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="number"
+                      min="0"
+                      max={totalVenta()}
+                      value={montoAbono}
+                      onChange={e => setMontoAbono(Number(e.target.value))}
+                      style={{padding:"8px"}}
+                      className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                    />
+                    <button onClick={pagarTotal} className="text-indigo-600 text-xs hover:underline whitespace-nowrap">
+                      Pagar total
+                    </button>
+                  </div>
+                  {montoAbono > totalVenta() && (
+                    <p className="text-xs text-rose-500 mt-1">El monto supera el total de la venta.</p>
+                  )}
+                </div>
+                <div>
+                  <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Medio de pago</label>
+                  <select
+                    value={medioPago}
+                    onChange={e => setMedioPago(e.target.value)}
+                    style={{padding:"8px"}}
+                    className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                  >
+                    {MEDIOS_PAGO.map(m => (
+                      <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="md:col-span-2">
+                  <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Observación</label>
+                  <input
+                    type="text"
+                    value={observacionAbono}
+                    onChange={e => setObservacionAbono(e.target.value)}
+                    placeholder="Ej. pago en caja"
+                    style={{padding:"8px"}}
+                    className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Resumen */}
+          <div style={{padding:"16px"}} className="bg-indigo-50 p-4 rounded-xl">
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Total venta</span>
+              <span className="font-bold text-slate-800">${totalVenta().toLocaleString('es-CO')}</span>
+            </div>
+            {conAbono && (
+              <>
+                <div style={{marginTop:"4px"}} className="flex justify-between text-sm mt-1">
+                  <span className="text-slate-600">Abonado</span>
+                  <span className="font-medium text-emerald-600">${montoAbono.toLocaleString('es-CO')}</span>
+                </div>
+                {saldoPendiente() > 0 && (
+                  <div style={{marginTop:"4px"}} className="flex justify-between text-sm mt-1">
+                    <span className="text-slate-600">Saldo pendiente</span>
+                    <span className="font-medium text-amber-600">${saldoPendiente().toLocaleString('es-CO')}</span>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Error */}
+          {errorMsg && (
+            <div style={{padding:"12px"}} className="flex items-center gap-2 text-sm text-rose-600 bg-rose-50 p-3 rounded-lg">
+              <AlertCircle size={16} /> {errorMsg}
+            </div>
+          )}
+
+          {/* Éxito */}
+          {exito && (
+            <div style={{padding:"12px"}} className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 p-3 rounded-lg">
+              <CheckCircle2 size={16} /> Venta registrada correctamente
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div style={{padding:"16px 24px"}} className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center">
+          <span className="text-sm text-slate-500">
+            {detalle.length > 0 ? `${detalle.length} producto(s)` : 'Sin productos'}
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => { resetFormulario(); onClose() }}
+              disabled={enviando}
+              style={{padding:"6px 20px"}}
+              className=" border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleRegistrar}
+              disabled={enviando || totalVenta() <= 0 || exito}
+              style={{padding:"6px 24px"}}
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white  rounded-xl text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50 transition-all"
+            >
+              {enviando && <Loader2 size={16} className="animate-spin" />}
+              {exito ? 'Registrada' : enviando ? 'Registrando...' : 'Registrar Venta'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+

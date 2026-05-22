@@ -26,6 +26,7 @@ const useVentasStore = create((set) => ({
             set({ error: err.response?.data?.mensaje || "Error al cargar ventas", cargando: false });
         }
     }
+    
 }));
 
 export default useVentasStore;

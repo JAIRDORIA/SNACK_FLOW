@@ -81,7 +81,7 @@ function SubmitBtn({ loading, label }) {
   )
 }
 
-// ── Bienvenida + Setup ────────────────────────────────────────────────────────
+// ─ Bienvenida + Setup ─
 function Bienvenida({ onSetupComplete }) {
   const navigate = useNavigate()
   const [paso, setPaso]       = useState('welcome')
@@ -206,7 +206,7 @@ function Bienvenida({ onSetupComplete }) {
   )
 }
 
-// ── Login normal ──────────────────────────────────────────────────────────────
+// ─ Login normal ─
 function LoginScreen() {
   const navigate = useNavigate()
   const [form, setForm]       = useState({ username: '', password: '' })
@@ -232,7 +232,7 @@ function LoginScreen() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: DARK,
+      minHeight: '100vh', background: DARK, 
       display: 'flex', fontFamily: "'Segoe UI', system-ui, sans-serif",
       position: 'relative', overflow: 'hidden'
     }}>
@@ -244,7 +244,7 @@ function LoginScreen() {
       {/* panel izquierdo */}
       <div style={{
         width: '45%', flexShrink: 0,
-        background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 50%, #1e1b6e 100%)',
+        background: DARK,
         display: 'flex', flexDirection: 'column',
         alignItems: 'center', justifyContent: 'center',
         padding: '48px 40px', position: 'relative', overflow: 'hidden'
@@ -270,19 +270,19 @@ function LoginScreen() {
       </div>
 
       {/* panel derecho */}
-      <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', padding:'48px 60px', background:DARK }}>
+      <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', padding:'48px 60px', background:'linear-gradient(160deg, #4f46e5 0%, #3730a3 50%, #1e1b6e 100%)' }}>
         <div style={{ width:'100%', maxWidth:'360px', animation:'fadeUp 0.5s ease forwards' }}>
 
           <div style={{ marginBottom:'36px' }}>
             <div style={{
               display:'inline-flex', alignItems:'center', gap:'6px',
-              background:'rgba(79,70,229,0.15)', border:'1px solid rgba(79,70,229,0.25)',
+              background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 50%, #1e1b6e 100%)',
               color:'#a5b4fc', fontSize:'11px', fontWeight:600,
               letterSpacing:'1.5px', textTransform:'uppercase',
               padding:'5px 14px', borderRadius:'20px', marginBottom:'16px'
             }}>Bienvenido de nuevo</div>
             <h2 style={{ color:'white', fontSize:'26px', fontWeight:700, margin:'0 0 8px', lineHeight:1.2 }}>Inicia sesión</h2>
-            <p style={{ color:'rgba(255,255,255,0.35)', fontSize:'14px', margin:0 }}>Ingresa tus credenciales para continuar</p>
+            <p style={{ color:'rgba(32, 30, 30, 0.35)', fontSize:'14px', margin:0 }}>Ingresa tus credenciales para continuar</p>
           </div>
 
           <form onSubmit={submit}>
@@ -308,7 +308,7 @@ function LoginScreen() {
   )
 }
 
-// ── Raíz ──────────────────────────────────────────────────────────────────────
+// ─ Raíz ─
 export default function Login() {
   const [modo, setModo] = useState(null)
   const navigate        = useNavigate()

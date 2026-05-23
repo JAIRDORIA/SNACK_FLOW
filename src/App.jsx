@@ -10,7 +10,7 @@ import Inventario from '@/pages/inventario/Inventario'
 // ── Protege rutas — si no hay token redirige al login ─────────────────────────
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('access_token')
-  return token ? children : <Navigate to="/login" replace />
+  return token ? children : <Navigate to="/Login" replace />
 }
 
 // páginas que aun no tienen componente real
@@ -35,23 +35,13 @@ export default function App() {
           <RutaProtegida>
             <Layout />
           </RutaProtegida>
-        }>
-          <Route index                       element={<Dashboard />} />
-          <Route path="ventas"               element={<Ventas />} />
-          <Route path="clientes"             element={<Placeholder name="Clientes" />} />
-          <Route path="inventario/productos" element={<Placeholder name="Productos" />} />
-         <Route path="inventario/ver" element={<Inventario />} />
-          <Route path="inventario/combos"    element={<Placeholder name="Combos" />} />
-          <Route path="compras"              element={<Placeholder name="Compras" />} />
-          <Route path="balance"              element={<Placeholder name="Balance" />} />
-          <Route path="cortes"               element={<Cortes />} />
-          <Route path="proveedores"          element={<Placeholder name="Proveedores" />} />
-        <Route path="/" element={<Layout />}>
+        }/>
+          <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="ventas"      element={<Ventas />} />
           <Route path="clientes"    element={<Placeholder name="Clientes" />} />
           <Route path="inventario/productos"   element={<Placeholder name="Productos" />} />
-          <Route path="inventario/ver"      element={<Placeholder name="Inventario" />} />
+          <Route path="inventario/ver"      element={<Inventario />} />
           <Route path="inventario/combos"      element={<Placeholder name="Inventario" />} />
           <Route path="compras"      element={<Placeholder name="compras" />} />
           <Route path="balance"      element={<Placeholder name="balance" />} />  
@@ -59,8 +49,6 @@ export default function App() {
           <Route path="abonos"      element={<Placeholder name="abonos" />} />
           <Route path="proveedores"      element={<Placeholder name="proveedores" />} /> 
         </Route>
-
-
 
         {/* ── Cualquier ruta desconocida → login ── */}
         <Route path="*" element={<Navigate to="/login" replace />} />

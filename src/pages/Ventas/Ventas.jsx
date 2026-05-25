@@ -1020,7 +1020,7 @@ export default function Ventas() {
   open={editarModalOpen}
   onClose={() => setEditarModalOpen(false)}
   onVentaEditada={() => {
-    fetchVentas(pagina)
+    fetchVentas(1, 20, balance?.corte_id)
     setEditarModalOpen(false)
   }}
 />

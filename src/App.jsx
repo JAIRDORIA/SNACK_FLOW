@@ -52,8 +52,6 @@ export default function App() {
           
         </Route>
 
-
-
         {/* ── Cualquier ruta desconocida → login ── */}
         <Route path="*" element={<Navigate to="/login" replace />} />
 

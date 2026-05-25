@@ -5,6 +5,7 @@ import Dashboard from '@/pages/dashboard/Dashboard'
 // páginas reales
 import Ventas from '@/pages/Ventas/Ventas'
 import Cortes from '@/pages/cortes/Cortes'
+import Inventario from '@/pages/inventario/Inventario'
 
 // ── Protege rutas — si no hay token redirige al login ─────────────────────────
 function RutaProtegida({ children }) {
@@ -40,7 +41,7 @@ export default function App() {
           <Route path="ventas"      element={<Ventas />} />
           <Route path="clientes"    element={<Placeholder name="Clientes" />} />
           <Route path="inventario/productos"   element={<Placeholder name="Productos" />} />
-          <Route path="inventario/ver"      element={<Placeholder name="Inventario" />} />
+          <Route path="inventario/ver"      element={<Inventario />} />
           <Route path="inventario/combos"      element={<Placeholder name="Inventario" />} />
           <Route path="compras"      element={<Placeholder name="compras" />} />
           <Route path="balance"      element={<Placeholder name="balance" />} />  
@@ -50,6 +51,8 @@ export default function App() {
         
           
         </Route>
+
+
 
         {/* ── Cualquier ruta desconocida → login ── */}
         <Route path="*" element={<Navigate to="/login" replace />} />

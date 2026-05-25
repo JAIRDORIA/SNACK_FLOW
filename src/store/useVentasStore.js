@@ -10,23 +10,25 @@ const useVentasStore = create((set) => ({
     cargando: false,
     error: null,
 
-    fetchVentas: async (pagina = 1, limite = 20) => {
-        set({ cargando: true, error: null });
+     fetchVentas: async (pagina = 1, limite = 20, corte_id = null) => {
+        set({ cargando: true, error: null })
         try {
-            const res = await getVentas(pagina, limite);
+            const res = await getVentas(pagina, limite, corte_id)
             set({
-                ventas       : res.data.datos,
-                total        : res.data.total,
-                pagina       : res.data.pagina,
-                limite       : res.data.limite,
-                total_paginas: res.data.total_paginas,
-                cargando     : false
-            });
+                ventas        : res.data.datos,
+                total         : res.data.total,
+                pagina        : res.data.pagina,
+                limite        : res.data.limite,
+                total_paginas : res.data.total_paginas,
+                cargando      : false
+            })
         } catch (err) {
-            set({ error: err.response?.data?.mensaje || "Error al cargar ventas", cargando: false });
+            set({
+                error    : err.response?.data?.mensaje || "Error al cargar ventas",
+                cargando : false
+            })
         }
     }
-    
-}));
+}))
 
-export default useVentasStore;
+export default useVentasStore

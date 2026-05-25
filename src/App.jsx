@@ -48,6 +48,8 @@ export default function App() {
           <Route path="cortes"      element={<Cortes />} />
           <Route path="abonos"      element={<Placeholder name="abonos" />} />
           <Route path="proveedores"      element={<Placeholder name="proveedores" />} /> 
+        
+          
         </Route>
 
         {/* ── Cualquier ruta desconocida → login ── */}

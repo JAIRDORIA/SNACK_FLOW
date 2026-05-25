@@ -147,12 +147,9 @@ const corteAbierto = cortesFiltrados.find(c => c.estado === 'abierto')
   set({ enviando: true, errorMsg: '' })
 
   // Formatear fecha de entrega de YYYY-MM-DD a DD/MM/YYYY
-  const [year, month, day] = fechaEntrega.split('-')
-  let fechaFormateada = `${day}/${month}/${year}`
-  // Si hay hora, agregarla
-  if (horaEntrega) {
-    fechaFormateada += ` ${horaEntrega}`
-  }
+  // Formatear fecha de entrega: YYYY-MM-DD HH:MM:SS
+const horaConSegundos = horaEntrega ? `${horaEntrega}:00` : '00:00:00'
+const fechaFormateada = `${fechaEntrega} ${horaConSegundos}`
 
   const payload = {
     cliente_id: Number(clienteId),

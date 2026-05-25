@@ -10,6 +10,12 @@ import useVentasStore from '@/store/useVentasStore'
 import NuevaVentaModal from '@/components/nuevaVentaModal'
 import { getVentaDetalle, getVentaComprobante } from '@/api/ventas_api'
 import useAbonosStore from '@/store/useAbonoStore'
+import useDashboardStore from '@/store/useDashboardStore'
+import useEditarVentaStore from '@/store/useEditarVentaStore'
+import EditarVentaModal from '@/components/EditarVentaModal'
+
+
+
 
 // ══════════════════════════════════════════
 // CONFIGURACION DE ESTILOS
@@ -33,8 +39,8 @@ const TIPO_CONFIG = {
   efectivo: { bg: '#f0fdf4', color: '#15803d', label: 'Efectivo' },
   transferencia: { bg: '#eff6ff', color: '#1d4ed8', label: 'Transferencia' },
   otro: { bg: '#f9fafb', color: '#6b7280', label: 'Otro' },
-  sin_pago:      { bg: '#f3f4f6', color: '#9ca3af', label: 'Sin pago' },
-  error:         { bg: '#fee2e2', color: '#b91c1c', label: 'Error' },
+  sin_pago: { bg: '#f3f4f6', color: '#9ca3af', label: 'Sin pago' },
+  error: { bg: '#fee2e2', color: '#b91c1c', label: 'Error' },
 }
 
 // ══════════════════════════════════════════
@@ -59,10 +65,14 @@ export default function Ventas() {
   const filtroRef = useRef(null)
   const [modalNuevaVenta, setModalNuevaVenta] = useState(false)
   const { cargarAbonos, getMedioPago } = useAbonosStore()
+  const { balance } = useDashboardStore()
+  const [editarModalOpen, setEditarModalOpen] = useState(false)
+  const [ventaAEditar, setVentaAEditar] = useState(null)
+  const { cargarVenta } = useEditarVentaStore()
 
 
   // Cargar tipos de pago para las ventas visibles
-  
+
 
 
   const verComprobante = async (id) => {
@@ -170,9 +180,17 @@ export default function Ventas() {
     ventana.document.write(html);
     ventana.document.close();
   };
+
+
   useEffect(() => {
-    fetchVentas()
-  }, [])
+    // si hay corte abierto filtra por ese corte
+    // si no hay corte trae todas las ventas
+    if (balance?.corte_numero) {
+      fetchVentas(1, 20, balance.corte_id)
+    } else {
+      fetchVentas()
+    }
+  }, [balance])
 
 
   useEffect(() => {
@@ -215,10 +233,10 @@ export default function Ventas() {
     const matchE = filtroEstados.length === 0 || filtroEstados.includes(v.estado)
 
     const medioPagoActual = getMedioPago(v.id_venta)
-const matchT = filtroTipos.length === 0 || filtroTipos.includes(medioPagoActual)
+    const matchT = filtroTipos.length === 0 || filtroTipos.includes(medioPagoActual)
     return matchQ && matchE && matchT
   })
-useEffect(() => {
+  useEffect(() => {
     if (lista.length > 0) {
       const ids = lista.map(v => v.id_venta)
       cargarAbonos(ids)
@@ -523,7 +541,7 @@ useEffect(() => {
             <thead>
               <tr className="bg-slate-50/80">
                 {['ID Venta', 'Fecha', 'Cliente', 'Total', 'Tipo Pago', 'Estado', 'Acciones'].map((h, i) => (
-                  <th key={h} style={{ padding: "4px 8px" }} className={`text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider ${i === 0 ? 'pl-8' : ''}`}>
+                  <th key={h} style={{ padding: "16px 24px" }} className={`text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider ${i === 0 ? 'pl-8' : ''}`}>
                     {h}
                   </th>
                 ))}
@@ -589,13 +607,19 @@ useEffect(() => {
                         >
                           <Info size={16} color="#4f46e5" />
                         </button>
-                        <button
-                          title="Editar"
-                          className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-blue-50"
-                          style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
-                        >
-                          <Pencil size={16} color="#64748b" />
-                        </button>
+                        {v.estado === 'pendiente' && (
+                          <button
+                            title="Editar"
+                            onClick={() => {
+                              cargarVenta(v.id_venta)   // ← carga los datos en el store
+                              setEditarModalOpen(true)  // ← abre el modal
+                            }}
+                            className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-amber-50"
+                            style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                          >
+                            <Pencil size={16} color="#f59e0b" />
+                          </button>
+                        )}
                         <button
                           title="Anular"
                           onClick={() => setEliminarId(v.id_venta)}
@@ -988,10 +1012,18 @@ useEffect(() => {
         open={modalNuevaVenta}
         onClose={() => setModalNuevaVenta(false)}
         onVentaCreada={() => {
-          fetchVentas(pagina)
+          fetchVentas(1, 20, balance?.corte_id)
           setModalNuevaVenta(false)
         }}
       />
+      <EditarVentaModal
+  open={editarModalOpen}
+  onClose={() => setEditarModalOpen(false)}
+  onVentaEditada={() => {
+    fetchVentas(1, 20, balance?.corte_id)
+    setEditarModalOpen(false)
+  }}
+/>
     </div>
   )
 }

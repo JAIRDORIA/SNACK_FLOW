@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+
+/* etc. para las clases que no te funcionen */
 * {
   font-family: 'Outfit', sans-serif;
   box-sizing: border-box;
@@ -8,5 +10,6 @@
 }
 
 body {
-  background-color: #1a1814;
+  background-color: #ffffff;
 }
+

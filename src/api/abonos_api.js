@@ -15,3 +15,23 @@ export const putAbono = (id, data) =>
 // eliminar abono
 export const deleteAbono = (id) =>
     api.delete(`/abonos/${id}`);
+
+
+
+import axios from './axios'
+
+export const getAbonosPorVentas = async (ventaIds) => {
+  if (!ventaIds.length) return []
+
+  const promesas = ventaIds.map(id =>
+    axios.get(`/ventas/${id}/detalle`, {
+      params: { _t: Date.now() }  // ← Evita la caché del navegador
+    }).then(res => ({
+      venta_id: id,
+      abonos: res.data?.abonos || []
+    }))
+  )
+
+  const resultados = await Promise.all(promesas)
+  return resultados
+}

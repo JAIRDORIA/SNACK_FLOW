@@ -1,8 +1,11 @@
 import api from "./axios";
 
 // listar ventas con paginacion
-export const getVentas = (pagina = 1, limite = 20) =>
-    api.get(`/ventas/?pagina=${pagina}&limite=${limite}`);
+export const getVentas = (pagina = 1, limite = 20, corte_id = null) => {
+    let url = `/ventas/?pagina=${pagina}&limite=${limite}`
+    if (corte_id) url += `&corte_id=${corte_id}`
+    return api.get(url)
+}
 
 // registrar venta
 export const postVenta = (data) =>
@@ -18,3 +21,6 @@ export const anularVenta = (id) =>
 
 export const getVentaDetalle = (id) =>
     api.get(`/ventas/${id}/detalle`)
+
+export const getVentaComprobante = (id) => 
+    api.get(`/ventas/${id}/comprobante`)

@@ -14,3 +14,5 @@ export const putCompra = (id, data) =>
 
 export const deleteCompra = (id) =>
     api.delete(`/compras/${id}`);
+
+

@@ -6,6 +6,7 @@ import Dashboard from '@/pages/dashboard/Dashboard'
 import Ventas from '@/pages/Ventas/Ventas'
 import Cortes from '@/pages/cortes/Cortes'
 import Inventario from '@/pages/inventario/Inventario'
+import Balance from './pages/balance/Balance'
 
 // ── Protege rutas — si no hay token redirige al login ─────────────────────────
 function RutaProtegida({ children }) {
@@ -44,7 +45,7 @@ export default function App() {
           <Route path="inventario/ver"      element={<Inventario />} />
           <Route path="inventario/combos"      element={<Placeholder name="Inventario" />} />
           <Route path="compras"      element={<Placeholder name="compras" />} />
-          <Route path="balance"      element={<Placeholder name="balance" />} />  
+          <Route path="balance"      element={<Balance />} />  
           <Route path="cortes"      element={<Cortes />} />
           <Route path="abonos"      element={<Placeholder name="abonos" />} />
           <Route path="proveedores"      element={<Placeholder name="proveedores" />} /> 

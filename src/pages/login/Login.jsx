@@ -125,7 +125,7 @@ function PanelIzquierdo({ modo }) {
       {/* logo */}
       <div style={{ zIndex: 1, textAlign: 'center' }}>
         <img
-          src="/SNACKFLOW_LOGO_BLANCO.png" alt="SnackFlow"
+          src="/logo2.png" alt="SnackFlow"
           style={{ width: '220px', objectFit: 'contain', marginBottom: '28px', filter: 'drop-shadow(0 8px 24px rgba(79,70,229,0.4))' }}
         />
         <div style={{ width: '40px', height: '2px', background: 'rgba(79,70,229,0.6)', borderRadius: '2px', margin: '0 auto 16px' }} />
@@ -191,7 +191,7 @@ function Bienvenida({ onSetupComplete }) {
         <div style={{ position:'absolute', width:'300px', height:'300px', borderRadius:'50%', border:'2px solid rgba(79,70,229,0.15)', bottom:'-80px', left:'-80px' }} />
 
         <div style={{ textAlign:'center', zIndex:1, animation:'fadeUp 0.7s ease forwards', maxWidth:'420px', width:'100%' }}>
-          <img src="/SNACKFLOW_LOGO_BLANCO.png" alt="SnackFlow" style={{ width:'200px', objectFit:'contain', display:'block', margin:'0 auto 32px', filter:'drop-shadow(0 4px 20px rgba(79,70,229,0.5))' }} />
+          <img src="/logo2.png" alt="SnackFlow" style={{ width:'200px', objectFit:'contain', display:'block', margin:'0 auto 32px', filter:'drop-shadow(0 4px 20px rgba(79,70,229,0.5))' }} />
 
           <div style={{
             display:'inline-flex', alignItems:'center', gap:'6px',

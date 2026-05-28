@@ -2,69 +2,45 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout'
 import Login from '@/pages/Login/Login'
 import Dashboard from '@/pages/dashboard/Dashboard'
-// páginas reales
 import Ventas from '@/pages/Ventas/Ventas'
 import Cortes from '@/pages/cortes/Cortes'
 import Inventario from '@/pages/inventario/Inventario'
+import Compras from '@/pages/compras/Compras'
+import Proveedores from '@/pages/proveedores/Proveedores'
 
-// ── Protege rutas — si no hay token redirige al login ─────────────────────────
+function Placeholder({ name }) {
+  return <div style={{ padding: '2rem' }}><h2>{name} — Próximamente</h2></div>
+}
+
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('access_token')
-  return token ? children : <Navigate to="/Login" replace />
+  return token ? children : <Navigate to="/login" replace />
 }
 
-// páginas que aun no tienen componente real
-function Placeholder({ name }) {
-  return (
-    <div style={{ color: '#8c7d6e', fontSize: '25px' }}>
-      Página <span style={{ color: '#c9a96e' }}>{name}</span> — en construcción
-    </div>
-  )
-}
-
-export default function App() {
+function App() {
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* ── Ruta pública — login (sin sidebar ni header) ── */}
         <Route path="/login" element={<Login />} />
 
-        {/* ── Rutas protegidas — dentro del Layout ── */}
-        <Route path="/" element={
-          <RutaProtegida>
-            <Layout />
-          </RutaProtegida>
-        }/>
-          <Route path="/" element={<Layout />}>
+        <Route path="/" element={<RutaProtegida><Layout /></RutaProtegida>}>
           <Route index element={<Dashboard />} />
-          <Route path="ventas"      element={<Ventas />} />
-          <Route path="clientes"    element={<Placeholder name="Clientes" />} />
-          <Route path="inventario/productos"   element={<Placeholder name="Productos" />} />
-          <Route path="inventario/ver"      element={<Inventario />} />
-          <Route path="inventario/combos"      element={<Placeholder name="Inventario" />} />
-          <Route path="compras"      element={<Placeholder name="compras" />} />
-          <Route path="balance"      element={<Placeholder name="balance" />} />  
-          <Route path="cortes"      element={<Cortes />} />
-          <Route path="abonos"      element={<Placeholder name="abonos" />} />
-          <Route path="proveedores"      element={<Placeholder name="proveedores" />} /> 
-        
-          
+          <Route path="ventas"               element={<Ventas />} />
+          <Route path="clientes"             element={<Placeholder name="Clientes" />} />
+          <Route path="inventario/productos" element={<Placeholder name="Productos" />} />
+          <Route path="inventario/ver"       element={<Inventario />} />
+          <Route path="inventario/combos"    element={<Placeholder name="Combos" />} />
+          <Route path="compras"              element={<Compras />} />
+          <Route path="balance"              element={<Placeholder name="Balance" />} />
+          <Route path="cortes"               element={<Cortes />} />
+          <Route path="abonos"               element={<Placeholder name="Abonos" />} />
+          <Route path="proveedores"          element={<Proveedores />} />
         </Route>
 
-        {/* ── Cualquier ruta desconocida → login ── */}
         <Route path="*" element={<Navigate to="/login" replace />} />
-
       </Routes>
     </BrowserRouter>
   )
 }
 
-
-
-
-
-// Fuera del Layout (sin sidebar ni header):
-
-
-// Y la ruta raíz queda dentro del Layout como siempre
+export default App

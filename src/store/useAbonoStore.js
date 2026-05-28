@@ -15,17 +15,17 @@ const useAbonosStore = create((set, get) => ({
 
     try {
       const data = await getAbonosPorVentas(faltantes)
-      console.log('Datos crudos de abonos:', data) 
+       
 
       const nuevosMedios = {}
       data.forEach(({ venta_id, abonos }) => {
-        console.log(`Venta ${venta_id}:`, abonos)
+        
         const primerAbono = abonos[0]
         nuevosMedios[venta_id] = primerAbono?.medio_pago || 'sin_pago'
       })
 
 
-       console.log('Nuevos medios:', nuevosMedios) 
+        
       set({ medioPagoPorVenta: { ...existentes, ...nuevosMedios } })
     } catch (error) {
       console.error('Error al cargar tipos de pago:', error)

@@ -168,8 +168,8 @@ function ModalUsuarios({ onCerrar }) {
   }
 
   const iniciarEdicion = (u) => {
-    setEditandoId(u.id)
-    setEditForm({ nombre: u.nombre, username: u.username, password: '__sin_cambios__'})
+  setEditandoId(u.id)
+  setEditForm({ nombre: u.nombre, username: u.username, password: '__sin_cambios__' })
   }
 
   const guardarEdicion = async (id) => {
@@ -317,10 +317,18 @@ function ModalUsuarios({ onCerrar }) {
       style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
     />
   </div>
-  <input type="password" value={editForm.password} onChange={e => setEditForm({ ...editForm, password: e.target.value })}
-    placeholder="Nueva contraseña"
-    style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff', width: '100%', boxSizing: 'border-box' }}
-  />
+ <input
+  type="password"
+  value="__sin_cambios__"
+  disabled
+  placeholder="••••••••"
+  style={{
+    border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px',
+    fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af',
+    background: '#f3f4f6', width: '100%', boxSizing: 'border-box',
+    cursor: 'not-allowed', outline: 'none'
+  }}
+/>
 </div>
                         <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                           <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit} style={{ background: '#4f46e5', border: 'none', borderRadius: '7px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>

@@ -104,6 +104,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
   const [form, setForm]             = useState({
     producto_id: '',
     cantidad: '',
+    unidades_sueltas : '',
     fecha: hoy,
     observacion: ''
   })
@@ -124,6 +125,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
     e.preventDefault()
     if (!form.producto_id) { setError('Selecciona un producto.'); return }
     if (!form.cantidad || parseInt(form.cantidad) <= 0) { setError('La cantidad debe ser mayor a 0.'); return }
+    if (!form.unidades_sueltas || parseInt(form.unidades_sueltas) < 0) { setError('Las unidades sueltas deben ser un número no negativo.');    return }
     if (!form.fecha) { setError('La fecha es requerida.'); return }
 
     // convertir fecha de YYYY-MM-DD a DD/MM/YYYY para el backend
@@ -139,6 +141,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
       await postProduccion({
         producto_id:  parseInt(form.producto_id),
         cantidad:     parseInt(form.cantidad),
+        unidades_sueltas: parseInt(form.unidades_sueltas),
         usuario_id:   usuario.id,
         fecha:        fechaBackend,
         observacion:  form.observacion || null
@@ -208,7 +211,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'12px', marginBottom:'16px' }}>
             <div>
               <label style={{ display:'block', fontSize:'11px', fontWeight:600, color:'#64748b', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'8px' }}>
-                Cantidad
+                Cantidad (bandejas)
               </label>
               <input type="number" name="cantidad" value={form.cantidad} onChange={change}
                 min="1" placeholder="Ej: 10"
@@ -217,7 +220,18 @@ function ModalProduccion({ onCerrar, onGuardado }) {
                 onBlur={e  => e.target.style.borderColor = '#e2e8f0'}
               />
             </div>
-            <div>
+            <div> 
+              <label style={{ display:'block', fontSize:'11px', fontWeight:600, color:'#64748b', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'8px' }}>
+                Unidades sueltas
+              </label>
+              <input type="number" name="unidades_sueltas" value={form.unidades_sueltas} onChange={change}
+                min="0" placeholder="Ej: 5"
+                style={inputCss}
+                onFocus={e => e.target.style.borderColor = '#4f46e5'}
+                onBlur={e  => e.target.style.borderColor = '#e2e8f0'}
+              />
+            </div>
+            <div  style={{ gridColumn: '1 / -1' }}>  
               <label style={{ display:'block', fontSize:'11px', fontWeight:600, color:'#64748b', textTransform:'uppercase', letterSpacing:'0.5px', marginBottom:'8px' }}>
                 Fecha
               </label>

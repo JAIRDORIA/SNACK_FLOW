@@ -16,7 +16,7 @@ const inputStyle = {
   boxShadow: '0 4px 12px rgba(0,0,0,0.12)'
 }
 
-function Campo({ label, name, type = 'text', placeholder, value, onChange, extra }) {
+function Campo({ label, name, type = 'text', placeholder, value, onChange, extra, disabled }) {
   return (
     <div style={{ marginBottom: '16px' }}>
       <label style={{
@@ -28,10 +28,14 @@ function Campo({ label, name, type = 'text', placeholder, value, onChange, extra
         <input
           type={type} name={name} value={value}
           onChange={onChange} placeholder={placeholder}
+          disabled={disabled}
           autoComplete={type === 'password' ? 'current-password' : name}
-          style={inputStyle}
-          onFocus={e => { e.target.style.borderColor = 'rgba(255,255,255,0.6)'; e.target.style.background = 'rgba(255,255,255,0.15)' }}
-          onBlur={e  => { e.target.style.borderColor = 'rgba(255,255,255,0.16)'; e.target.style.background = 'rgba(255,255,255,0.10)' }}
+          style={{
+            ...inputStyle,
+            ...(disabled ? { opacity: 0.5, cursor: 'not-allowed' } : {})
+          }}
+          onFocus={e => { if (!disabled) { e.target.style.borderColor = 'rgba(255,255,255,0.6)'; e.target.style.background = 'rgba(255,255,255,0.15)' }}}
+          onBlur={e  => { if (!disabled) { e.target.style.borderColor = 'rgba(255,255,255,0.16)'; e.target.style.background = 'rgba(255,255,255,0.10)' }}}
         />
         {extra}
       </div>
@@ -82,67 +86,35 @@ function SubmitBtn({ loading, label }) {
   )
 }
 
-// ── Panel izquierdo — negro con círculos visibles ──────────────────────────────
+// ── Panel izquierdo ───────────────────────────────────────────────────────────
 function PanelIzquierdo({ modo }) {
   return (
     <div style={{
-      width: '45%', flexShrink: 0,
-      background: DARK,
+      width: '45%', flexShrink: 0, background: DARK,
       display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
       padding: '48px 40px', position: 'relative', overflow: 'hidden'
     }}>
-      {/* círculos decorativos gruesos y visibles */}
-      <div style={{
-        position: 'absolute', width: '380px', height: '380px', borderRadius: '50%',
-        border: '3px solid rgba(79,70,229,0.35)',
-        top: '-100px', right: '-100px'
-      }} />
-      <div style={{
-        position: 'absolute', width: '260px', height: '260px', borderRadius: '50%',
-        border: '3px solid rgba(79,70,229,0.25)',
-        top: '-40px', right: '-40px'
-      }} />
-      <div style={{
-        position: 'absolute', width: '300px', height: '300px', borderRadius: '50%',
-        border: '3px solid rgba(79,70,229,0.3)',
-        bottom: '-80px', left: '-80px'
-      }} />
-      <div style={{
-        position: 'absolute', width: '180px', height: '180px', borderRadius: '50%',
-        border: '2px solid rgba(79,70,229,0.2)',
-        bottom: '-20px', left: '-20px'
-      }} />
-      {/* círculo con relleno sutil al centro */}
-      <div style={{
-        position: 'absolute', width: '200px', height: '200px', borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)',
-        top: '50%', left: '50%', transform: 'translate(-50%,-50%)'
-      }} />
-      {/* puntos de fondo */}
+      <div style={{ position:'absolute', width:'380px', height:'380px', borderRadius:'50%', border:'3px solid rgba(79,70,229,0.35)', top:'-100px', right:'-100px' }} />
+      <div style={{ position:'absolute', width:'260px', height:'260px', borderRadius:'50%', border:'3px solid rgba(79,70,229,0.25)', top:'-40px', right:'-40px' }} />
+      <div style={{ position:'absolute', width:'300px', height:'300px', borderRadius:'50%', border:'3px solid rgba(79,70,229,0.3)', bottom:'-80px', left:'-80px' }} />
+      <div style={{ position:'absolute', width:'180px', height:'180px', borderRadius:'50%', border:'2px solid rgba(79,70,229,0.2)', bottom:'-20px', left:'-20px' }} />
+      <div style={{ position:'absolute', width:'200px', height:'200px', borderRadius:'50%', background:'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)', top:'50%', left:'50%', transform:'translate(-50%,-50%)' }} />
       <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(79,70,229,0.2) 1px, transparent 1px)', backgroundSize:'28px 28px', pointerEvents:'none' }} />
 
-      {/* logo */}
       <div style={{ zIndex: 1, textAlign: 'center' }}>
-        <img
-          src="/logo2.png" alt="SnackFlow"
-          style={{ width: '220px', objectFit: 'contain', marginBottom: '28px', filter: 'drop-shadow(0 8px 24px rgba(79,70,229,0.4))' }}
-        />
-        <div style={{ width: '40px', height: '2px', background: 'rgba(79,70,229,0.6)', borderRadius: '2px', margin: '0 auto 16px' }} />
-        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase', margin: 0 }}>
-          {modo === 'setup' ? 'Primera configuración' : 'Sistema de gestión'}
+        <img src="/logo2.png" alt="SnackFlow" style={{ width:'220px', objectFit:'contain', marginBottom:'28px', filter:'drop-shadow(0 8px 24px rgba(79,70,229,0.4))' }} />
+        <div style={{ width:'40px', height:'2px', background:'rgba(79,70,229,0.6)', borderRadius:'2px', margin:'0 auto 16px' }} />
+        <p style={{ color:'rgba(255,255,255,0.45)', fontSize:'11px', letterSpacing:'3px', textTransform:'uppercase', margin:0 }}>
+          {modo === 'setup' ? 'Primera configuración' : modo === 'recuperar' ? 'Recuperar acceso' : 'Sistema de gestión'}
         </p>
       </div>
 
-      {/* cards decorativas abajo */}
-      <div style={{ position: 'absolute', bottom: '32px', left: '32px', right: '32px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', zIndex: 1 }}>
-        {[{ label: 'Ventas', val: '∞' }, { label: 'Productos', val: '∞' }, { label: 'Clientes', val: '∞' }].map((s, i) => (
-          <div key={i} style={{
-            background: 'rgba(79,70,229,0.12)', border: '1px solid rgba(79,70,229,0.3)',
-            borderRadius: '10px', padding: '10px', textAlign: 'center'
-          }}>
-            <p style={{ color: 'white', fontSize: '16px', fontWeight: 700, margin: '0 0 2px' }}>{s.val}</p>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>{s.label}</p>
+      <div style={{ position:'absolute', bottom:'32px', left:'32px', right:'32px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px', zIndex:1 }}>
+        {[{ label:'Ventas', val:'∞' }, { label:'Productos', val:'∞' }, { label:'Clientes', val:'∞' }].map((s, i) => (
+          <div key={i} style={{ background:'rgba(79,70,229,0.12)', border:'1px solid rgba(79,70,229,0.3)', borderRadius:'10px', padding:'10px', textAlign:'center' }}>
+            <p style={{ color:'white', fontSize:'16px', fontWeight:700, margin:'0 0 2px' }}>{s.val}</p>
+            <p style={{ color:'rgba(255,255,255,0.4)', fontSize:'10px', textTransform:'uppercase', letterSpacing:'1px', margin:0 }}>{s.label}</p>
           </div>
         ))}
       </div>
@@ -152,11 +124,11 @@ function PanelIzquierdo({ modo }) {
 
 // ── Bienvenida + Setup ────────────────────────────────────────────────────────
 function Bienvenida({ onSetupComplete }) {
-  const [paso, setPaso]         = useState('welcome')
-  const [verPass, setVerPass]   = useState(false)
-  const [form, setForm]         = useState({ nombre: '', username: '', password: '', rol: 'admin' })
-  const [error, setError]       = useState('')
-  const [exito, setExito]       = useState('')
+  const [paso, setPaso]           = useState('welcome')
+  const [verPass, setVerPass]     = useState(false)
+  const [form, setForm]           = useState({ nombre: '', username: '', password: '', rol: 'admin' })
+  const [error, setError]         = useState('')
+  const [exito, setExito]         = useState('')
   const [guardando, setGuardando] = useState(false)
 
   const change = e => { setForm({ ...form, [e.target.name]: e.target.value }); setError('') }
@@ -184,7 +156,6 @@ function Bienvenida({ onSetupComplete }) {
       }}>
         <style>{`input::placeholder { color: rgba(255,255,255,0.18); } @keyframes fadeUp { from { opacity:0; transform:translateY(32px); } to { opacity:1; transform:translateY(0); } }`}</style>
 
-        {/* fondo */}
         <div style={{ position:'absolute', width:'600px', height:'600px', borderRadius:'50%', background:'radial-gradient(circle, rgba(79,70,229,0.1) 0%, transparent 70%)', top:'50%', left:'50%', transform:'translate(-50%,-50%)', pointerEvents:'none' }} />
         <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(79,70,229,0.15) 1px, transparent 1px)', backgroundSize:'36px 36px', pointerEvents:'none' }} />
         <div style={{ position:'absolute', width:'400px', height:'400px', borderRadius:'50%', border:'3px solid rgba(79,70,229,0.2)', top:'-100px', right:'-100px' }} />
@@ -214,7 +185,7 @@ function Bienvenida({ onSetupComplete }) {
               { icon:'📦', text:'Gestión de inventario y ventas' },
               { icon:'👥', text:'Puedes crear más admins después' },
             ].map((item, i) => (
-              <div key={i} style={{ display:'flex', alignItems:'center', gap:'12px', padding:'9px 0', borderBottom: i < 2 ? ' 1px solid rgba(79,70,229,0.15)' : 'none' }}>
+              <div key={i} style={{ display:'flex', alignItems:'center', gap:'12px', padding:'9px 0', borderBottom: i < 2 ? '1px solid rgba(79,70,229,0.15)' : 'none' }}>
                 <span style={{ fontSize:'18px' }}>{item.icon}</span>
                 <span style={{ color:'rgba(255,255,255,0.6)', fontSize:'13px' }}>{item.text}</span>
               </div>
@@ -238,7 +209,6 @@ function Bienvenida({ onSetupComplete }) {
     )
   }
 
-  // paso === 'form'
   return (
     <div style={{
       minHeight: '100vh', background: DARK,
@@ -249,14 +219,12 @@ function Bienvenida({ onSetupComplete }) {
 
       <PanelIzquierdo modo="setup" />
 
-      {/* panel derecho — morado */}
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
         padding: '48px 60px',
         background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
       }}>
         <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
-
           <div style={{ marginBottom: '28px' }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
@@ -300,8 +268,167 @@ function Bienvenida({ onSetupComplete }) {
   )
 }
 
+// ── Recuperar contraseña ──────────────────────────────────────────────────────
+function RecuperarPassword({ onVolver }) {
+  const [paso, setPaso]         = useState(1)
+  const [verClave, setVerClave] = useState(false)
+  const [verPass, setVerPass]   = useState(false)
+  const [verPass2, setVerPass2] = useState(false)
+  const [form, setForm]         = useState({ username: '', clave: '', nueva_password: '', confirmar: '' })
+  const [error, setError]       = useState('')
+  const [exito, setExito]       = useState('')
+  const [cargando, setCargando] = useState(false)
+
+  const change = e => { setForm({ ...form, [e.target.name]: e.target.value }); setError('') }
+
+  const submitPaso1 = async e => {
+    e.preventDefault()
+    if (!form.username.trim()) { setError('El usuario es requerido.'); return }
+    if (!form.clave.trim())    { setError('La clave maestra es requerida.'); return }
+    setCargando(true)
+    try {
+      await api.post('/auth/verificar-clave-maestra', {
+        username: form.username.trim(),
+        clave:    form.clave.trim()
+      })
+      setPaso(2)
+      setError('')
+    } catch (err) {
+      setError(err.response?.data?.mensaje || 'Clave maestra incorrecta.')
+    } finally { setCargando(false) }
+  }
+
+  const submitPaso2 = async e => {
+    e.preventDefault()
+    if (!form.nueva_password)                    { setError('Ingresa la nueva contraseña.'); return }
+    if (form.nueva_password !== form.confirmar)  { setError('Las contraseñas no coinciden.'); return }
+    setCargando(true)
+    try {
+      await api.post('/auth/recuperar-password', {
+        username:       form.username.trim(),
+        nueva_password: form.nueva_password
+      })
+      setExito('Contraseña actualizada. Redirigiendo al login...')
+      setTimeout(() => onVolver(), 2000)
+    } catch (err) {
+      setError(err.response?.data?.mensaje || 'Error al actualizar la contraseña.')
+    } finally { setCargando(false) }
+  }
+
+  return (
+    <div style={{
+      minHeight:'100vh', background: DARK,
+      display:'flex', fontFamily:"'Segoe UI', system-ui, sans-serif",
+      position:'relative', overflow:'hidden'
+    }}>
+      <style>{`input::placeholder { color: rgba(255,255,255,0.18); } @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }`}</style>
+
+      <PanelIzquierdo modo="recuperar" />
+
+      <div style={{
+        flex:1, display:'flex', alignItems:'center', justifyContent:'center',
+        padding:'48px 60px',
+        background:'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
+      }}>
+        <div style={{ width:'100%', maxWidth:'360px', animation:'fadeUp 0.5s ease forwards' }}>
+
+          <div style={{ marginBottom:'28px' }}>
+            <div style={{
+              display:'inline-flex', alignItems:'center', gap:'6px',
+              background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)',
+              color:'white', fontSize:'11px', fontWeight:600,
+              letterSpacing:'1.5px', textTransform:'uppercase',
+              padding:'5px 14px', borderRadius:'20px', marginBottom:'16px'
+            }}>
+              {paso === 1 ? '🔐 Verificación' : '🔑 Nueva contraseña'}
+            </div>
+            <h2 style={{ color:'white', fontSize:'24px', fontWeight:700, margin:'0 0 6px' }}>
+              {paso === 1 ? 'Recuperar acceso' : 'Crea tu nueva contraseña'}
+            </h2>
+            <p style={{ color:'rgba(255,255,255,0.6)', fontSize:'13px', margin:0 }}>
+              {paso === 1
+                ? 'Ingresa tu usuario y la clave maestra para continuar.'
+                : `Cuenta: ${form.username} — elige una contraseña segura.`}
+            </p>
+          </div>
+
+          <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'24px' }}>
+            {[1, 2].map(n => (
+              <div key={n} style={{
+                height:'4px', flex:1, borderRadius:'4px',
+                background: n <= paso ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)',
+                transition:'background 0.3s'
+              }} />
+            ))}
+          </div>
+
+          {paso === 1 && (
+            <form onSubmit={submitPaso1}>
+              <Campo label="Usuario" name="username" placeholder="Ej: admin_01"
+                value={form.username} onChange={change} />
+              <Campo label="Clave maestra" name="clave"
+                type={verClave ? 'text' : 'password'} placeholder="••••••••"
+                value={form.clave} onChange={change}
+                extra={
+                  <button type="button" onClick={() => setVerClave(!verClave)}
+                    style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
+                    {verClave ? 'Ocultar' : 'Ver'}
+                  </button>
+                }
+              />
+              <div style={{ marginBottom:'8px' }} />
+              <ErrorMsg msg={error} />
+              <SubmitBtn loading={cargando} label="Verificar identidad →" />
+            </form>
+          )}
+
+          {paso === 2 && (
+            <form onSubmit={submitPaso2}>
+              <Campo label="Usuario" name="username" value={form.username}
+                onChange={() => {}} disabled={true} />
+              <Campo label="Nueva contraseña" name="nueva_password"
+                type={verPass ? 'text' : 'password'} placeholder="Mínimo 8 caracteres"
+                value={form.nueva_password} onChange={change}
+                extra={
+                  <button type="button" onClick={() => setVerPass(!verPass)}
+                    style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
+                    {verPass ? 'Ocultar' : 'Ver'}
+                  </button>
+                }
+              />
+              <Campo label="Confirmar contraseña" name="confirmar"
+                type={verPass2 ? 'text' : 'password'} placeholder="Repite la contraseña"
+                value={form.confirmar} onChange={change}
+                extra={
+                  <button type="button" onClick={() => setVerPass2(!verPass2)}
+                    style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
+                    {verPass2 ? 'Ocultar' : 'Ver'}
+                  </button>
+                }
+              />
+              <ErrorMsg msg={error} />
+              <SuccessMsg msg={exito} />
+              <SubmitBtn loading={cargando} label="Guardar contraseña" />
+            </form>
+          )}
+
+          <button onClick={onVolver}
+            style={{ display:'block', margin:'16px auto 0', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.4)', fontSize:'12px', fontFamily:'inherit', transition:'color 0.15s' }}
+            onMouseEnter={e => e.currentTarget.style.color='rgba(255,255,255,0.7)'}
+            onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.4)'}
+          >← Volver al login</button>
+
+          <p style={{ color:'rgba(255,255,255,0.3)', fontSize:'12px', textAlign:'center', marginTop:'24px' }}>
+            © 2026 SnackFlow v1.0
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Login normal ──────────────────────────────────────────────────────────────
-function LoginScreen() {
+function LoginScreen({ onRecuperar }) {
   const navigate = useNavigate()
   const [form, setForm]         = useState({ username: '', password: '' })
   const [verPass, setVerPass]   = useState(false)
@@ -326,54 +453,59 @@ function LoginScreen() {
 
   return (
     <div style={{
-      minHeight: '100vh', background: DARK,
-      display: 'flex', fontFamily: "'Segoe UI', system-ui, sans-serif",
-      position: 'relative', overflow: 'hidden'
+      minHeight:'100vh', background: DARK,
+      display:'flex', fontFamily:"'Segoe UI', system-ui, sans-serif",
+      position:'relative', overflow:'hidden'
     }}>
       <style>{`
         input::placeholder { color: rgba(255,255,255,0.18); }
         @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
 
-      {/* panel izquierdo — negro con círculos */}
       <PanelIzquierdo modo="login" />
 
-      {/* panel derecho — morado */}
       <div style={{
-        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '48px 60px',
-        background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
+        flex:1, display:'flex', alignItems:'center', justifyContent:'center',
+        padding:'48px 60px',
+        background:'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
       }}>
-        <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
+        <div style={{ width:'100%', maxWidth:'360px', animation:'fadeUp 0.5s ease forwards' }}>
 
-          <div style={{ marginBottom: '36px' }}>
+          <div style={{ marginBottom:'36px' }}>
             <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
-              backdropFilter: 'blur(8px)',
-              color: 'white', fontSize: '11px', fontWeight: 600,
-              letterSpacing: '1.5px', textTransform: 'uppercase',
-              padding: '5px 14px', borderRadius: '20px', marginBottom: '16px'
+              display:'inline-flex', alignItems:'center', gap:'6px',
+              background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)',
+              backdropFilter:'blur(8px)', color:'white', fontSize:'11px', fontWeight:600,
+              letterSpacing:'1.5px', textTransform:'uppercase',
+              padding:'5px 14px', borderRadius:'20px', marginBottom:'16px'
             }}>Bienvenido de nuevo</div>
-            <h2 style={{ color: 'white', fontSize: '26px', fontWeight: 700, margin: '0 0 8px', lineHeight: 1.2 }}>Inicia sesión</h2>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>Ingresa tus credenciales para continuar</p>
+            <h2 style={{ color:'white', fontSize:'26px', fontWeight:700, margin:'0 0 8px', lineHeight:1.2 }}>Inicia sesión</h2>
+            <p style={{ color:'rgba(255,255,255,0.7)', fontSize:'14px', margin:0 }}>Ingresa tus credenciales para continuar</p>
           </div>
 
           <form onSubmit={submit}>
-            <Campo label="Usuario"     name="username" placeholder="Ej: admin_01" value={form.username} onChange={change} />
-            <Campo label="Contraseña" name="password" type={verPass ? 'text' : 'password'} placeholder="••••••••" value={form.password} onChange={change}
+            <Campo label="Usuario" name="username" placeholder="Ej: admin_01" value={form.username} onChange={change} />
+            <Campo label="Contraseña" name="password" type={verPass ? 'text' : 'password'} placeholder="••••••••"
+              value={form.password} onChange={change}
               extra={
-                <button type="button" onClick={() => setVerPass(!verPass)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
+                <button type="button" onClick={() => setVerPass(!verPass)}
+                  style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
                   {verPass ? 'Ocultar' : 'Ver'}
                 </button>
               }
             />
-            <div style={{ marginBottom: '24px' }} />
+            <div style={{ marginBottom:'24px' }} />
             <ErrorMsg msg={error} />
             <SubmitBtn loading={cargando} label="Entrar al sistema" />
           </form>
 
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', textAlign: 'center', marginTop: '32px' }}>
+          <button onClick={onRecuperar}
+            style={{ display:'block', margin:'16px auto 0', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.4)', fontSize:'12px', fontFamily:'inherit', transition:'color 0.15s' }}
+            onMouseEnter={e => e.currentTarget.style.color='rgba(255,255,255,0.8)'}
+            onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.4)'}
+          >¿Olvidaste tu contraseña?</button>
+
+          <p style={{ color:'rgba(255,255,255,0.35)', fontSize:'12px', textAlign:'center', marginTop:'32px' }}>
             © 2026 SnackFlow v1.0
           </p>
         </div>
@@ -388,9 +520,20 @@ export default function Login() {
   const navigate        = useNavigate()
 
   useEffect(() => {
-    if (localStorage.getItem('access_token')) { navigate('/'); return }
     api.get('/usuarios/check-setup')
-      .then(res => setModo(res.data.setup_completado ? 'login' : 'setup'))
+      .then(res => {
+        if (!res.data.setup_completado) {
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('usuario')
+          setModo('setup')
+        } else {
+          if (localStorage.getItem('access_token')) {
+            navigate('/')
+          } else {
+            setModo('login')
+          }
+        }
+      })
       .catch(() => setModo('login'))
   }, [])
 
@@ -401,7 +544,7 @@ export default function Login() {
     </div>
   )
 
-  return modo === 'login'
-    ? <LoginScreen />
-    : <Bienvenida onSetupComplete={() => setModo('login')} />
+  if (modo === 'recuperar') return <RecuperarPassword onVolver={() => setModo('login')} />
+  if (modo === 'setup')     return <Bienvenida onSetupComplete={() => setModo('login')} />
+  return <LoginScreen onRecuperar={() => setModo('recuperar')} />
 }

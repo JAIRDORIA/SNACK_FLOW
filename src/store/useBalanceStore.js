@@ -19,6 +19,8 @@ const useBalanceStore = create((set, get) => ({
   cargandoFuturo: false,
   errorFuturo: null,
   ventasPendientesAnteriores: [],
+  ventasFuturo: [],           // Lista de ventas del corte futuro
+cargandoVentasFuturo: false,
 cargandoVentasPendientes: false,
 errorVentasPendientes: null,
 
@@ -56,7 +58,7 @@ errorVentasPendientes: null,
     try {
       // Obtener todos los cortes y filtrar el futuro
       const cortesRes = await getCortes()
-      const cortesData = cortesRes.data?.datos || cortesRes.data || []
+      const cortesData = cortesRes.data?.datos || []
       const corteFuturo = cortesData.find(c => c.estado === 'futuro')
 
       if (!corteFuturo) {
@@ -65,8 +67,8 @@ errorVentasPendientes: null,
       }
 
       // Obtener ventas de ese corte futuro
-      const ventasRes = await getVentas(corteFuturo.id)
-      const ventas = ventasRes.data?.items || ventasRes.data?.datos || ventasRes.data || []
+      const ventasRes = await getVentas(1,100,corteFuturo.id)
+      const ventas = ventasRes.data?.datos  || []
       const totalVentasFuturo = ventas.reduce((sum, v) => sum + (v.total || 0), 0)
 
       set({
@@ -77,6 +79,7 @@ errorVentasPendientes: null,
           total_ventas: totalVentasFuturo,
           // Puedes agregar más campos si el backend los devuelve
         },
+        ventasFuturo: ventas,
         cargandoFuturo: false,
       })
     } catch (err) {

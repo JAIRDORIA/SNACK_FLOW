@@ -32,7 +32,7 @@ function App() {
           <Route path="inventario/ver"       element={<Inventario />} />
           <Route path="inventario/combos"    element={<Placeholder name="Combos" />} />
           <Route path="compras"              element={<Compras />} />
-          <Route path="balance"              element={<Placeholder name="Balance" />} />
+          <Route path="balance"              element={<Balance />} />
           <Route path="cortes"               element={<Cortes />} />
           <Route path="abonos"               element={<Placeholder name="Abonos" />} />
           <Route path="proveedores"          element={<Proveedores />} />

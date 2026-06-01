@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar,
+  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar,Info,
   AlertCircle, CheckCircle2, Loader2, X
 } from 'lucide-react'
 import useBalanceStore from '@/store/useBalanceStore'
@@ -9,10 +9,11 @@ export default function Balance() {
   const {
     balance, historial,
     cargandoBalance, cargandoHistorial, cerrandoCorte, error, exitoCierre,
-    fetchBalance, fetchHistorial, cerrarCorteActual, resetExitoCierre, resumenFuturo, cargandoFuturo, fetchResumenFuturo, errorFuturo, fetchVentasPendientesAnteriores, ventasPendientesAnteriores, cargandoVentasPendientes, errorVentasPendientes
+    fetchBalance, fetchHistorial, cerrarCorteActual, resetExitoCierre, resumenFuturo, cargandoFuturo, fetchResumenFuturo, errorFuturo, fetchVentasPendientesAnteriores,ventasFuturo, ventasPendientesAnteriores, cargandoVentasPendientes, errorVentasPendientes
   } = useBalanceStore()
 
   const [modalCerrar, setModalCerrar] = useState(false)
+  const [mostrarVentasFuturo, setMostrarVentasFuturo] = useState(false)
 
   useEffect(() => {
     fetchBalance()
@@ -24,9 +25,9 @@ export default function Balance() {
   // Calcular KPIs
   const efectivo = balance?.total_efectivo ?? 0
   const transferencias = balance?.total_transferencia ?? 0
-  const totalCaja = efectivo + transferencias
+  const totalCaja = balance?.dinero_caja_real ?? 0
   const totalVentas = balance?.total_ventas ?? 0
-  const saldoPendiente = totalVentas - totalCaja
+  const saldoPendiente = balance?.saldo_pendiente_ventas ?? 0
   const saldoInicial = balance?.saldo_inicial ?? 0
 
   // Tarjetas KPI
@@ -37,6 +38,7 @@ export default function Balance() {
     { label: 'Total en caja', value: totalCaja, icon: DollarSign, ring: 'ring-emerald-500/40', iconCol: 'text-emerald-300' },
     { label: 'Ventas del corte', value: totalVentas, icon: TrendingUp, ring: 'ring-indigo-500/40', iconCol: 'text-indigo-300' },
     { label: 'Saldo pendiente', value: saldoPendiente, icon: Clock, ring: 'ring-rose-500/40', iconCol: 'text-rose-300' },
+    {label: 'Deuda cortes anteriores',value: balance?.saldo_pendiente_anteriores ?? 0,icon: Clock,ring: 'ring-rose-500/40',conCol: 'text-rose-300',},
   ]
 
   const handleCerrarCorte = async () => {
@@ -97,7 +99,7 @@ export default function Balance() {
       </div>
 
       {/* KPIs */}
-      <div style={{ marginBottom: "32px" }} className="grid grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+      <div style={{ marginBottom: "32px" }} className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {kpiCards.map((card) => {
           const Icon = card.icon
           return (
@@ -147,16 +149,23 @@ export default function Balance() {
                   #{resumenFuturo.numero}
                 </td>
               </tr>
-              <tr className="border-t border-gray-100">
-                <td style={{ padding: "16px 24px" }} className="px-6 py-4 font-medium text-slate-700">Fecha prevista de inicio</td>
-                <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-right text-slate-500">
-                  {resumenFuturo.fecha_inicio || '—'}
-                </td>
-              </tr>
+
               <tr className="border-t border-gray-100">
                 <td style={{ padding: "16px 24px" }} className="px-6 py-4 font-medium text-slate-700">Total de ventas registradas</td>
                 <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-right font-semibold text-slate-800">
                   ${resumenFuturo.total_ventas.toLocaleString('es-CO')}
+                </td>
+              </tr>
+              <tr className="border-t border-gray-100">
+                <td style={{padding:"12px 24px"}} colSpan={2} className="px-6 py-3 text-right">
+                  <button
+                    onClick={() => setMostrarVentasFuturo(true)}
+                    disabled={ventasFuturo.length === 0}
+                    className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
+                  >
+                    <Info size={16} />
+                    Ver ventas ({ventasFuturo.length})
+                  </button>
                 </td>
               </tr>
               <tr className="border-t border-gray-100">
@@ -177,44 +186,44 @@ export default function Balance() {
       </div>
 
       {/* Ventas pendientes de cortes anteriores */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8 overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100">
+      <div style={{ marginBottom: "32px" }} className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-8 overflow-hidden">
+        <div style={{ padding: "16px 24px" }} className="px-6 py-4 border-b border-gray-100">
           <h2 className="text-base font-semibold text-slate-700">
             Ventas pendientes de cortes anteriores
           </h2>
         </div>
 
         {cargandoVentasPendientes ? (
-          <div className="flex justify-center py-10">
+          <div style={{ paddingTop: "4px", paddingBottom: "40px" }} className="flex justify-center py-10">
             <Loader2 size={24} className="animate-spin text-indigo-500" />
           </div>
         ) : errorVentasPendientes ? (
-          <div className="px-6 py-10 text-center text-rose-500 text-sm">
+          <div style={{ padding: "40px 24px" }} className="px-6 py-10 text-center text-rose-500 text-sm">
             {errorVentasPendientes}
           </div>
         ) : ventasPendientesAnteriores.length === 0 ? (
-          <div className="px-6 py-10 text-center text-slate-400 text-sm">
+          <div style={{ padding: "40px 24px" }} className="px-6 py-10 text-center text-slate-400 text-sm">
             No hay ventas pendientes de cortes anteriores.
           </div>
         ) : (
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-slate-50">
-                <th className="px-6 py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Venta</th>
-                <th className="px-6 py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Cliente</th>
-                <th className="px-6 py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Corte</th>
-                <th className="px-6 py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Total</th>
-                <th className="px-6 py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Pendiente</th>
+                <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Venta</th>
+                <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Cliente</th>
+                <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Corte</th>
+                <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Total</th>
+                <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Pendiente</th>
               </tr>
             </thead>
             <tbody>
               {ventasPendientesAnteriores.map((v) => (
                 <tr key={v.id_venta} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
-                  <td className="px-6 py-4 text-slate-700">{v.nombre_cliente}</td>
-                  <td className="px-6 py-4 text-slate-500">#{v.corte_id}</td>
-                  <td className="px-6 py-4 text-right font-semibold text-slate-800">${v.total.toLocaleString('es-CO')}</td>
-                  <td className="px-6 py-4 text-right font-semibold text-amber-600">${v.saldo_pendiente.toLocaleString('es-CO')}</td>
+                  <td style={{ padding: "16px 24px" }} className="px-6 py-4 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
+                  <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-slate-700">{v.nombre_cliente}</td>
+                  <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-slate-500">#{v.corte_id}</td>
+                  <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-right font-semibold text-slate-800">${v.total.toLocaleString('es-CO')}</td>
+                  <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-right font-semibold text-amber-600">${v.saldo_pendiente.toLocaleString('es-CO')}</td>
                 </tr>
               ))}
             </tbody>
@@ -314,6 +323,64 @@ export default function Balance() {
           </button>
         </div>
       )}
+      {/* Modal ventas del corte futuro */}
+{mostrarVentasFuturo && (
+  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-50">
+        <h3 className="text-lg font-bold text-slate-800">
+          Ventas del corte futuro #{resumenFuturo?.numero}
+        </h3>
+        <button
+          onClick={() => setMostrarVentasFuturo(false)}
+          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
+        >
+          <X size={20} color="#64748b" />
+        </button>
+      </div>
+      <div className="p-6 max-h-[70vh] overflow-y-auto">
+        {ventasFuturo.length === 0 ? (
+          <p className="text-center text-slate-400">No hay ventas registradas aún.</p>
+        ) : (
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-slate-50">
+                <th className="px-4 py-2 text-left text-xs text-slate-500 uppercase">ID</th>
+                <th className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Cliente</th>
+                <th className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Total</th>
+                <th className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ventasFuturo.map((v) => (
+                <tr key={v.id_venta} className="border-t border-gray-100 hover:bg-gray-50">
+                  <td className="px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
+                  <td className="px-4 py-2 text-slate-700">{v.nombre_cliente}</td>
+                  <td className="px-4 py-2 text-right font-semibold">${v.total.toLocaleString('es-CO')}</td>
+                  <td className="px-4 py-2">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                      v.estado === 'pendiente' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
+                    }`}>
+                      {v.estado}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
+        <button
+          onClick={() => setMostrarVentasFuturo(false)}
+          className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
+        >
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   )
 }

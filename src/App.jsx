@@ -8,6 +8,7 @@ import Inventario from '@/pages/inventario/Inventario'
 import Balance from './pages/balance/Balance'
 import Compras from '@/pages/compras/Compras'
 import Proveedores from '@/pages/proveedores/Proveedores'
+import Abonos from './pages/abonos/Abonos'
 
 function Placeholder({ name }) {
   return <div style={{ padding: '2rem' }}><h2>{name} — Próximamente</h2></div>
@@ -34,7 +35,7 @@ function App() {
           <Route path="compras"              element={<Compras />} />
           <Route path="balance"              element={<Balance />} />
           <Route path="cortes"               element={<Cortes />} />
-          <Route path="abonos"               element={<Placeholder name="Abonos" />} />
+          <Route path="abonos"               element={<Abonos />} />
           <Route path="proveedores"          element={<Proveedores />} />
         </Route>
 

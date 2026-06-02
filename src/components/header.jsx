@@ -92,7 +92,7 @@ function ModalUsuarios({ onCerrar }) {
 
   // edición
   const [editandoId, setEditandoId]   = useState(null)
-  const [editForm, setEditForm]       = useState({ nombre: '', username: '' })
+  const [editForm, setEditForm] = useState({ nombre: '', username: '', password: '' })
   const [guardandoEdit, setGuardandoEdit] = useState(false)
 
   const cargarUsuarios = async () => {
@@ -168,8 +168,8 @@ function ModalUsuarios({ onCerrar }) {
   }
 
   const iniciarEdicion = (u) => {
-    setEditandoId(u.id)
-    setEditForm({ nombre: u.nombre, username: u.username })
+  setEditandoId(u.id)
+  setEditForm({ nombre: u.nombre, username: u.username, password: '__sin_cambios__' })
   }
 
   const guardarEdicion = async (id) => {
@@ -306,14 +306,30 @@ function ModalUsuarios({ onCerrar }) {
                         <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <Pencil size={14} color="#4f46e5" />
                         </div>
-                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                          <input value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })} placeholder="Nombre"
-                            style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
-                          />
-                          <input value={editForm.username} onChange={e => setEditForm({ ...editForm, username: e.target.value })} placeholder="Username"
-                            style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
-                          />
-                        </div>
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+    <input value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
+      placeholder="Nombre"
+      style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+    />
+    <input value={editForm.username} onChange={e => setEditForm({ ...editForm, username: e.target.value })}
+      placeholder="Username"
+      style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+    />
+  </div>
+ <input
+  type="password"
+  value="__sin_cambios__"
+  disabled
+  placeholder="••••••••"
+  style={{
+    border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px',
+    fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af',
+    background: '#f3f4f6', width: '100%', boxSizing: 'border-box',
+    cursor: 'not-allowed', outline: 'none'
+  }}
+/>
+</div>
                         <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                           <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit} style={{ background: '#4f46e5', border: 'none', borderRadius: '7px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                             <Check size={14} color="white" />

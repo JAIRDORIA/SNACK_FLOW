@@ -45,7 +45,9 @@ export default function Sidebar() {
 
       {/* Logo */}
       <div style={{
+        
         padding: '0px',
+        paddingTop:"10px",
         borderBottom: '1px solid #1f2937'
       }}>
         <div style={{ marginTop: "6px",marginLeft:"20px", display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', borderRadius: '8px', width: '180px', height: '100px' }}>

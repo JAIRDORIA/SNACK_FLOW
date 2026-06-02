@@ -5,12 +5,11 @@ export const productService = {
 
   // RF24: Listar productos
   getAll: async () => {
-    const response = await api.get("/productos");
-    return Array.isArray(response.data)
-      ? response.data
-      : response.data.productos || [];
-  },
-
+  const response = await api.get("/productos/");
+   // Agrega este log para depurar
+  return response.data.datos;
+},
+ // Agrega este log para depurar
   // RF21: Registrar producto
   create: async (productData) => {
     const response = await api.post("/productos", productData);

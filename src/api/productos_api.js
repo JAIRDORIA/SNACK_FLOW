@@ -3,7 +3,7 @@ import api from "./axios";
 
 // RF24: Listar todos los productos
 export const getProductos = (pagina = 1, limite = 20) =>
-  api.get(`/productos/?pagina=${pagina}&limite=${limite}`);
+  api.get(`/productos/?pagina=${pagina}&limite=${limite}/`);
 
 // RF21: Registrar producto
 // body: { nombre, descripcion, precio, unidades_por_bandeja }

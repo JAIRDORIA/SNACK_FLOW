@@ -22,6 +22,7 @@ export default function ProductsManager() {
     try {
       setLoading(true);
       const data = await productService.getAll();
+      console.log(data);
       setProducts(data);
       setError(null);
     } catch (err) {
@@ -75,7 +76,7 @@ export default function ProductsManager() {
       alert('No se pudo eliminar');
     }
   };
-
+console.log(products)
   const filteredProducts = products.filter(
     (p) => p.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())

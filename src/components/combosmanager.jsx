@@ -24,11 +24,8 @@ export default function CombosManager() {
   const loadCombos = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/combos');
-      const data = res.data;
-      setCombos(
-        Array.isArray(data) ? data : data.items || data.combos || []
-      );
+      const res = await api.get('/combos/');
+       setCombos(res.data.items || []);
       setError(null);
     } catch (err) {
       console.error(err);

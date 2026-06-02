@@ -11,6 +11,7 @@ import Balance from './pages/balance/Balance'
 import Compras from '@/pages/compras/Compras'
 import Proveedores from '@/pages/proveedores/Proveedores'
 import Abonos from './pages/abonos/Abonos'
+import CombosManager    from './components/combosmanager'
 
 function Placeholder({ name }) {
   return <div style={{ padding: '2rem' }}><h2>{name} — Próximamente</h2></div>
@@ -30,15 +31,16 @@ function App() {
         <Route path="/" element={<RutaProtegida><Layout /></RutaProtegida>}>
           <Route index element={<Dashboard />} />
           <Route path="ventas"               element={<Ventas />} />
-          <Route path="clientes"             element={<Placeholder name="Clientes" />} />
-          <Route path="inventario/productos" element={<Placeholder name="Productos" />} />
+          <Route path="clientes"             element={<CustomersManager />} />
+          <Route path="inventario/productos" element={<ProductsManager />} />
           <Route path="inventario/ver"       element={<Inventario />} />
-          <Route path="inventario/combos"    element={<Placeholder name="Combos" />} />
+          <Route path="inventario/combos"    element={<CombosManager />} />
           <Route path="compras"              element={<Compras />} />
           <Route path="balance"              element={<Balance />} />
           <Route path="cortes"               element={<Cortes />} />
           <Route path="abonos"               element={<Abonos />} />
           <Route path="proveedores"          element={<Proveedores />} />
+          
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

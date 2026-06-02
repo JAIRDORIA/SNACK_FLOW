@@ -5,6 +5,8 @@ import Dashboard from '@/pages/dashboard/Dashboard'
 import Ventas from '@/pages/Ventas/Ventas'
 import Cortes from '@/pages/cortes/Cortes'
 import Inventario from '@/pages/inventario/Inventario'
+import CustomersManager from './components/CustomersManager'
+import ProductsManager from './components/ProductsManager'
 import Balance from './pages/balance/Balance'
 import Compras from '@/pages/compras/Compras'
 import Proveedores from '@/pages/proveedores/Proveedores'
@@ -15,7 +17,7 @@ function Placeholder({ name }) {
 
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('access_token')
-  return token ? children : <Navigate to="/login" replace />
+  return token ? children : <Navigate to="/Login" replace />
 }
 
 function App() {

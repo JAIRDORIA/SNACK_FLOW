@@ -1,12 +1,17 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   Plus, Search, Pencil, Trash2, X,
   AlertTriangle, ShoppingBag, DollarSign,
-  Calendar, Truck, SlidersHorizontal, ChevronDown
+  Calendar, Truck, SlidersHorizontal, ChevronDown,
+  TrendingDown, BarChart3, CheckCircle2, FileText, Info
 } from 'lucide-react'
 import useComprasStore from '@/store/useComprasStore'
 import useProveedoresStore from '@/store/useProveedoresStore'
+import useDashboardStore from '@/store/useDashboardStore'
 
+// ══════════════════════════════════════════
+// MODAL COMPRA (Tonos Blancos - Estilos en Línea)
+// ══════════════════════════════════════════
 function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
   const [form, setForm] = useState({
     id_proveedor: compra?.id_proveedor || '',
@@ -36,68 +41,163 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
     } finally { setGuardando(false) }
   }
 
-  const inputStyle = { width: '100%', padding: '10px 12px', background: '#111827', border: '1px solid #374151', borderRadius: '8px', color: 'white', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }
-  const labelStyle = { display: 'block', color: '#9ca3af', fontSize: '13px', marginBottom: '6px', fontWeight: 500 }
-
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div style={{ background: '#1B1D2E', borderRadius: '16px', width: '100%', maxWidth: '480px', padding: '32px', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
-          <h2 style={{ color: 'white', fontSize: '20px', fontWeight: 700, margin: 0 }}>
-            {compra ? 'Editar Compra' : 'Nueva Compra'}
-          </h2>
-          <button onClick={onClose} style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#9ca3af' }}><X size={20} /></button>
+    <div style={{
+      position: 'fixed', inset: 0,
+      background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(6px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 50, padding: '16px',
+    }}>
+      <div style={{
+        background: '#ffffff', borderRadius: '20px', width: '100%', maxWidth: '480px',
+        boxShadow: '0 24px 64px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.06)', overflow: 'hidden',
+        fontFamily: "'Montserrat', 'Poppins', sans-serif",
+      }}>
+
+        {/* ── Header Modal ── */}
+        <div style={{
+          padding: '24px 28px 20px', borderBottom: '1px solid #f1f5f9',
+          display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            <div style={{
+              width: '44px', height: '44px', borderRadius: '12px',
+              background: 'rgba(88,66,255,0.08)', border: '1px solid rgba(88,66,255,0.15)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <ShoppingBag size={20} color="#5842ff" />
+            </div>
+            <div>
+              <p style={{ margin: 0, fontWeight: 700, fontSize: '17px', color: '#0f172a' }}>
+                {compra ? 'Editar Compra' : 'Nueva Compra'}
+              </p>
+              <p style={{ margin: '2px 0 0', fontSize: '13px', color: '#94a3b8' }}>
+                {compra ? 'Modifica los datos de la compra' : 'Registra una nueva adquisición'}
+              </p>
+            </div>
+          </div>
+          <button onClick={onClose} style={{
+            width: '32px', height: '32px', borderRadius: '8px', background: '#f8fafc', border: '1px solid #e2e8f0',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
+          }}>
+            <X size={15} color="#94a3b8" />
+          </button>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        {/* ── Body Modal ── */}
+        <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          
           <div>
-            <label style={labelStyle}>Proveedor *</label>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Proveedor <span style={{ color: '#f43f5e' }}>*</span>
+            </label>
             <div style={{ position: 'relative' }}>
-              <Truck size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none' }} />
-              <select name="id_proveedor" value={form.id_proveedor} onChange={handleChange}
-                style={{ ...inputStyle, paddingLeft: '36px', appearance: 'none' }}>
+              <Truck size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <ChevronDown size={14} color="#cbd5e1" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <select
+                name="id_proveedor" value={form.id_proveedor} onChange={handleChange}
+                style={{
+                  width: '100%', boxSizing: 'border-box', padding: '11px 36px 11px 40px',
+                  border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', color: '#0f172a',
+                  background: '#fafafa', outline: 'none', transition: 'all 0.15s', appearance: 'none', cursor: 'pointer', fontFamily: 'inherit'
+                }}
+                onFocus={e => { e.target.style.border = '1.5px solid #5842ff'; e.target.style.background = '#ffffff' }}
+                onBlur={e => { e.target.style.border = '1.5px solid #e2e8f0'; e.target.style.background = '#fafafa' }}
+              >
                 <option value="">Seleccionar proveedor...</option>
-                {proveedores.map(p => <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>)}
+                {proveedores.map(p => (
+                  <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>
+                ))}
               </select>
             </div>
           </div>
 
           <div>
-            <label style={labelStyle}>Descripción / Insumos</label>
-            <textarea name="descripcion" value={form.descripcion} onChange={handleChange}
-              placeholder="¿Qué se compró? Ej: Papas, aceite, sal..." rows={3}
-              style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit', lineHeight: '1.5' }} />
-          </div>
-
-          <div>
-            <label style={labelStyle}>Costo Total *</label>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Descripción / Insumos
+            </label>
             <div style={{ position: 'relative' }}>
-              <DollarSign size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none' }} />
-              <input type="number" name="costo_total" value={form.costo_total} onChange={handleChange}
-                placeholder="0" min="0" style={{ ...inputStyle, paddingLeft: '36px' }} />
+              <FileText size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '14px', pointerEvents: 'none' }} />
+              <textarea
+                name="descripcion" value={form.descripcion} onChange={handleChange}
+                placeholder="¿Qué se compró? Ej: Insumos, empaques..." rows={2}
+                style={{
+                  width: '100%', boxSizing: 'border-box', padding: '11px 16px 11px 40px', border: '1.5px solid #e2e8f0', borderRadius: '10px',
+                  fontSize: '14px', color: '#0f172a', background: '#fafafa', outline: 'none', transition: 'all 0.15s',
+                  resize: 'none', fontFamily: 'inherit', lineHeight: '1.5'
+                }}
+                onFocus={e => { e.target.style.border = '1.5px solid #5842ff'; e.target.style.background = '#ffffff' }}
+                onBlur={e => { e.target.style.border = '1.5px solid #e2e8f0'; e.target.style.background = '#fafafa' }}
+              />
             </div>
           </div>
 
-          <div>
-            <label style={labelStyle}>Fecha de Compra</label>
-            <div style={{ position: 'relative' }}>
-              <Calendar size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6b7280', pointerEvents: 'none' }} />
-              <input type="date" name="fecha_compra" value={form.fecha_compra} onChange={handleChange}
-                style={{ ...inputStyle, paddingLeft: '36px', colorScheme: 'dark' }} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Costo Total <span style={{ color: '#f43f5e' }}>*</span>
+              </label>
+              <div style={{ position: 'relative' }}>
+                <DollarSign size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                <input
+                  type="number" name="costo_total" value={form.costo_total} onChange={handleChange} placeholder="0" min="0"
+                  style={{
+                    width: '100%', boxSizing: 'border-box', padding: '11px 16px 11px 40px', border: '1.5px solid #e2e8f0', borderRadius: '10px',
+                    fontSize: '14px', color: '#0f172a', background: '#fafafa', outline: 'none', transition: 'all 0.15s', fontFamily: 'inherit'
+                  }}
+                  onFocus={e => { e.target.style.border = '1.5px solid #5842ff'; e.target.style.background = '#ffffff' }}
+                  onBlur={e => { e.target.style.border = '1.5px solid #e2e8f0'; e.target.style.background = '#fafafa' }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Fecha de Compra
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Calendar size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+                <input
+                  type="date" name="fecha_compra" value={form.fecha_compra} onChange={handleChange}
+                  style={{
+                    width: '100%', boxSizing: 'border-box', padding: '11px 16px 11px 40px', border: '1.5px solid #e2e8f0', borderRadius: '10px',
+                    fontSize: '14px', color: '#0f172a', background: '#fafafa', outline: 'none', transition: 'all 0.15s', fontFamily: 'inherit'
+                  }}
+                  onFocus={e => { e.target.style.border = '1.5px solid #5842ff'; e.target.style.background = '#ffffff' }}
+                  onBlur={e => { e.target.style.border = '1.5px solid #e2e8f0'; e.target.style.background = '#fafafa' }}
+                />
+              </div>
             </div>
           </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '10px' }}>
+            <Info size={15} color="#94a3b8" style={{ flexShrink: 0 }} />
+            <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>La compra se asociará al corte activo automáticamente.</p>
+          </div>
+
+          {errForm && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 14px', background: '#fff1f2', border: '1.5px solid #fecdd3', borderRadius: '10px' }}>
+              <AlertTriangle size={15} color="#f43f5e" style={{ flexShrink: 0, marginTop: '1px' }} />
+              <p style={{ margin: 0, fontSize: '13px', color: '#e11d48' }}>{errForm}</p>
+            </div>
+          )}
         </div>
 
-        {errForm && (
-          <div style={{ marginTop: '16px', padding: '10px 14px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#dc2626', fontSize: '13px' }}>
-            {errForm}
-          </div>
-        )}
-
-        <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #374151', background: 'transparent', color: '#9ca3af', cursor: 'pointer', fontSize: '14px' }}>Cancelar</button>
-          <button onClick={handleGuardar} disabled={guardando} style={{ flex: 1, padding: '10px', borderRadius: '8px', background: '#4f46e5', border: 'none', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
-            {guardando ? 'Guardando...' : compra ? 'Actualizar' : 'Registrar Compra'}
+        {/* ── Footer Modal ── */}
+        <div style={{ padding: '16px 28px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '10px' }}>
+          <button onClick={onClose} style={{
+            flex: 1, padding: '11px', borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white',
+            fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit'
+          }}>
+            Cancelar
+          </button>
+          <button onClick={handleGuardar} disabled={guardando} style={{
+            flex: 1, padding: '11px', borderRadius: '10px', border: 'none',
+            background: guardando ? '#a5b4fc' : '#5842ff', color: 'white', fontSize: '14px', fontWeight: 600,
+            cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px'
+          }}>
+            <CheckCircle2 size={15} />
+            {guardando ? 'Guardando...' : compra ? 'Guardar Cambios' : 'Crear Compra'}
           </button>
         </div>
       </div>
@@ -105,6 +205,9 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
   )
 }
 
+// ══════════════════════════════════════════
+// MODAL ELIMINAR
+// ══════════════════════════════════════════
 function ModalEliminar({ compra, onClose, onConfirmar }) {
   const [eliminando, setEliminando] = useState(false)
   const fmt = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v)
@@ -116,22 +219,22 @@ function ModalEliminar({ compra, onClose, onConfirmar }) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div style={{ background: '#1B1D2E', borderRadius: '16px', width: '100%', maxWidth: '400px', padding: '32px', boxShadow: '0 25px 60px rgba(0,0,0,0.5)' }}>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <div style={{ width: '56px', height: '56px', background: '#fef2f2', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <AlertTriangle size={28} color="#dc2626" />
-          </div>
-          <h2 style={{ color: 'white', fontSize: '18px', fontWeight: 700, margin: '0 0 8px' }}>¿Eliminar compra?</h2>
-          <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0 }}>
-            Compra de <strong style={{ color: 'white' }}>{compra?.nombre_proveedor || 'este proveedor'}</strong> por{' '}
-            <strong style={{ color: '#34d399' }}>{fmt(compra?.costo_total || 0)}</strong>. El dinero retornará a la caja.
-          </p>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
+      <div style={{ background: '#ffffff', borderRadius: '20px', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.14)', padding: '36px 32px', textAlign: 'center', fontFamily: "'Montserrat', 'Poppins', sans-serif" }}>
+        <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: '#fff1f2', border: '1px solid #fecdd3', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+          <Trash2 size={26} color="#f43f5e" />
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: '1px solid #374151', background: 'transparent', color: '#9ca3af', cursor: 'pointer', fontSize: '14px' }}>Cancelar</button>
-          <button onClick={handleConfirmar} disabled={eliminando} style={{ flex: 1, padding: '10px', borderRadius: '8px', background: '#dc2626', border: 'none', color: 'white', cursor: 'pointer', fontSize: '14px', fontWeight: 600 }}>
-            {eliminando ? 'Eliminando...' : 'Eliminar'}
+        <p style={{ margin: '0 0 8px', fontWeight: 700, fontSize: '18px', color: '#0f172a' }}>¿Eliminar compra?</p>
+        <p style={{ margin: '0 0 28px', fontSize: '14px', color: '#64748b', lineHeight: 1.6 }}>
+          Compra de <strong style={{ color: '#0f172a' }}>{compra?.nombre_proveedor || 'este proveedor'}</strong> por{' '}
+          <strong style={{ color: '#e11d48' }}>{fmt(compra?.costo_total || 0)}</strong>. Esta acción no se puede deshacer.
+        </p>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
+            Cancelar
+          </button>
+          <button onClick={handleConfirmar} disabled={eliminando} style={{ flex: 1, padding: '11px', borderRadius: '10px', border: 'none', background: eliminando ? '#fda4af' : '#f43f5e', color: 'white', fontSize: '14px', fontWeight: 600, cursor: eliminando ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+            {eliminando ? 'Eliminando...' : 'Sí, eliminar'}
           </button>
         </div>
       </div>
@@ -139,9 +242,17 @@ function ModalEliminar({ compra, onClose, onConfirmar }) {
   )
 }
 
+// ══════════════════════════════════════════
+// COMPONENTE PRINCIPAL
+// ══════════════════════════════════════════
 export default function Compras() {
-  const { compras, cargando, error, fetchCompras, crearCompra, editarCompra, eliminarCompra, corteIdFiltro, cortes, fetchCortes } = useComprasStore()
+  const {
+    compras, cargando, error,
+    fetchCompras, crearCompra, editarCompra, eliminarCompra,
+    corteIdFiltro, cortes, fetchCortes
+  } = useComprasStore()
   const { proveedores, fetchProveedores } = useProveedoresStore()
+  const { balance } = useDashboardStore()
 
   const [busqueda,        setBusqueda]        = useState('')
   const [modalFormOpen,   setModalFormOpen]   = useState(false)
@@ -151,7 +262,18 @@ export default function Compras() {
   const [filtroProveedor, setFiltroProveedor] = useState('')
   const filtroRef = useRef(null)
 
-  useEffect(() => { fetchCompras(); fetchProveedores(); fetchCortes() }, [])
+  useEffect(() => {
+    fetchProveedores()
+    fetchCortes()
+  }, [])
+
+  useEffect(() => {
+    if (balance?.corte_id) {
+      fetchCompras(1, 20, balance.corte_id)
+    } else {
+      fetchCompras()
+    }
+  }, [balance])
 
   useEffect(() => {
     const fn = (e) => { if (filtroRef.current && !filtroRef.current.contains(e.target)) setPanelFiltro(false) }
@@ -170,233 +292,188 @@ export default function Compras() {
   })
 
   const totalCompras = lista.reduce((acc, c) => acc + (c.costo_total || 0), 0)
+  const promedio     = lista.length ? totalCompras / lista.length : 0
   const nFiltros     = filtroProveedor ? 1 : 0
 
-  const abrirCrear  = () => { setCompraEditar(null); setModalFormOpen(true) }
-  const abrirEditar = (c) => { setCompraEditar(c); setModalFormOpen(true) }
-  const cerrarForm  = () => { setModalFormOpen(false); setCompraEditar(null) }
+  const abrirCrear    = () => { setCompraEditar(null); setModalFormOpen(true) }
+  const abrirEditar   = (c) => { setCompraEditar(c); setModalFormOpen(true) }
+  const cerrarForm    = () => { setModalFormOpen(false); setCompraEditar(null) }
   const handleGuardar = async (data) => {
     if (compraEditar) await editarCompra(compraEditar.id_compra, data)
     else await crearCompra(data)
   }
 
   if (cargando) return (
-    <div className="flex items-center justify-center h-64">
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-10 h-10 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm text-slate-500 font-medium">Cargando compras...</p>
-      </div>
-    </div>
-  )
-
-  if (error) return (
-    <div className="p-8 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-4 max-w-2xl">
-      <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
-        <AlertTriangle size={20} className="text-red-500" />
-      </div>
-      <div>
-        <p className="text-red-700 font-semibold text-sm mb-1">Error al cargar compras</p>
-        <p className="text-red-500 text-sm">{error}</p>
-      </div>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
+      <div style={{ width: '36px', height: '36px', border: '3px solid #5842ff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
     </div>
   )
 
   return (
-    <div style={{ padding: '32px', flex: 1, background: '#f9fafb', minHeight: '100vh' }}>
+    <div style={{ padding: '40px 48px', flex: 1, background: '#fafbfc', minHeight: '100vh', fontFamily: "'Montserrat', 'Poppins', sans-serif" }}>
 
-      {/* Header */}
+      {/* ═══ HEADER ═══ */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#000000', margin: 0, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-          Gestión De Compras
-        </h1>
-        <button onClick={abrirCrear} style={{ padding: '8px 14px' }}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95">
-          <Plus className="w-4 h-4" />
-          <span className="text-sm">Nueva Compra</span>
+        <div>
+          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+            GESTIÓN DE COMPRAS
+          </h1>
+        </div>
+        <button onClick={abrirCrear} style={{
+          display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: '#5842ff',
+          color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit'
+        }}>
+          <Plus size={18} />
+          Nueva Compra
         </button>
       </div>
 
-      {/* Tarjetas resumen */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '28px' }}>
+      {/* ═══ KPI CARDS (Diseño Oscuro Exacto) ═══ */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '32px' }}>
         {[
-          { label: 'Total Compras',     value: lista.length,                                    color: '#4f46e5', isMoney: false },
-          { label: 'Total Egresado',    value: totalCompras,                                    color: '#e879f9', isMoney: true  },
-          { label: 'Promedio x Compra', value: lista.length ? totalCompras / lista.length : 0, color: '#fb923c', isMoney: true  },
+          { icon: <ShoppingBag size={20} color="#8b5cf6" />, borderColor: '#8b5cf6', value: lista.length,  label: 'Total Compras',     isMoney: false },
+          { icon: <TrendingDown size={20} color="#f43f5e" />, borderColor: '#f43f5e', value: totalCompras, label: 'Total Egresado',    isMoney: true  },
+          { icon: <BarChart3 size={20} color="#f59e0b" />,    borderColor: '#f59e0b', value: promedio,     label: 'Promedio x Compra', isMoney: true  },
         ].map((card, i) => (
-          <div key={i} style={{ background: '#1B1D2E', borderRadius: '12px', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '10px', background: card.color + '22', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShoppingBag size={20} color={card.color} />
+          <div key={i} style={{ background: '#1a1b26', borderRadius: '16px', padding: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ width: '48px', height: '48px', borderRadius: '12px', border: `1.5px solid ${card.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              {card.icon}
             </div>
             <div>
-              <p style={{ color: '#9ca3af', fontSize: '12px', margin: '0 0 4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{card.label}</p>
-              <p style={{ color: 'white', fontSize: '20px', fontWeight: 700, margin: 0 }}>{card.isMoney ? fmt(card.value) : card.value}</p>
+              <p style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#ffffff', lineHeight: 1.2 }}>
+                {card.isMoney ? fmt(card.value) : card.value}
+              </p>
+              <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#94a3b8', fontWeight: 500 }}>{card.label}</p>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Barra de búsqueda, filtros y selector de corte */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px', alignItems: 'center' }}>
+      {/* ═══ CONTENEDOR TABLA Y FILTROS ═══ */}
+      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden' }}>
 
-        {/* Buscador */}
-        <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
-          <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af', pointerEvents: 'none' }} />
-          <input
-            value={busqueda}
-            onChange={e => setBusqueda(e.target.value)}
-            placeholder="Buscar por proveedor, descripción..."
-            style={{ width: '100%', padding: '10px 12px 10px 36px', background: 'white', border: '1px solid #e5e7eb', borderRadius: '10px', fontSize: '14px', color: '#111827', outline: 'none', boxSizing: 'border-box' }}
-          />
-        </div>
-
-        {/* Filtros por proveedor */}
-        <div ref={filtroRef} style={{ position: 'relative' }}>
-          <button
-            onClick={() => setPanelFiltro(p => !p)}
-            style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 14px', borderRadius: '10px', border: `1px solid ${nFiltros > 0 ? '#4f46e5' : '#e5e7eb'}`, background: nFiltros > 0 ? '#eff6ff' : 'white', color: nFiltros > 0 ? '#4f46e5' : '#6b7280', cursor: 'pointer', fontSize: '14px' }}
-          >
-            <SlidersHorizontal size={15} />
-            Filtros
-            {nFiltros > 0 && (
-              <span style={{ background: '#4f46e5', color: 'white', borderRadius: '9999px', padding: '1px 7px', fontSize: '11px', fontWeight: 700 }}>
-                {nFiltros}
-              </span>
-            )}
-            <ChevronDown size={14} />
-          </button>
-
-          {panelFiltro && (
-            <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, zIndex: 40, background: 'white', border: '1px solid #e5e7eb', borderRadius: '12px', padding: '16px', minWidth: '240px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }}>
-              <p style={{ fontSize: '12px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 10px' }}>Proveedor</p>
-              <select
-                value={filtroProveedor}
-                onChange={e => setFiltroProveedor(e.target.value)}
-                style={{ width: '100%', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e5e7eb', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
-              >
-                <option value="">Todos los proveedores</option>
-                {proveedores.map(p => (
-                  <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>
-                ))}
-              </select>
-              {nFiltros > 0 && (
-                <button
-                  onClick={() => { setFiltroProveedor(''); setPanelFiltro(false) }}
-                  style={{ marginTop: '12px', width: '100%', padding: '7px', borderRadius: '8px', border: '1px solid #e5e7eb', background: '#f9fafb', color: '#6b7280', cursor: 'pointer', fontSize: '13px' }}
-                >
-                  Limpiar filtros
-                </button>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Selector de corte */}
-        <select
-          value={corteIdFiltro ?? ''}
-          onChange={e => {
-            const val = e.target.value ? Number(e.target.value) : null
-            fetchCompras(1, 20, val)
-          }}
-          style={{ padding: '10px 14px', borderRadius: '10px', border: '1px solid #e5e7eb', background: 'white', color: '#374151', fontSize: '14px', cursor: 'pointer', outline: 'none' }}
-        >
-          <option value="">📂 Corte actual</option>
-          {cortes
-            .filter(c => c.estado === 'cerrado')
-            .map(c => (
-              <option key={c.id} value={c.id}>
-                Corte #{c.numero} — {c.fecha_inicio?.slice(0, 10)}
-              </option>
-            ))
-          }
-        </select>
-
-      </div>
-
-      {/* Tabla */}
-      <div style={{ background: 'white', borderRadius: '14px', border: '1px solid #e5e7eb', overflow: 'hidden' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 2fr 1fr 1fr 120px', padding: '12px 20px', background: '#f9fafb', borderBottom: '1px solid #e5e7eb' }}>
-          {['Proveedor', 'Descripción', 'Costo Total', 'Fecha', 'Acciones'].map(h => (
-            <span key={h} style={{ fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</span>
-          ))}
-        </div>
-
-        {lista.length === 0 ? (
-          <div style={{ padding: '60px', textAlign: 'center' }}>
-            <ShoppingBag size={40} color="#d1d5db" style={{ margin: '0 auto 12px' }} />
-            <p style={{ color: '#9ca3af', fontSize: '14px' }}>
-              {busqueda || nFiltros > 0 ? 'Sin resultados.' : 'No hay compras registradas.'}
-            </p>
+        {/* Barra de herramientas */}
+        <div style={{ padding: '16px 24px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <div style={{ position: 'relative', width: '320px' }}>
+            <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
+            <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar proveedor, descripción..."
+              style={{
+                width: '100%', boxSizing: 'border-box', padding: '10px 16px 10px 44px', border: '1px solid #e2e8f0', borderRadius: '8px',
+                fontSize: '14px', color: '#0f172a', background: '#ffffff', outline: 'none', fontFamily: 'inherit'
+              }}
+              onFocus={e => e.target.style.border = '1px solid #5842ff'}
+              onBlur={e => e.target.style.border = '1px solid #e2e8f0'}
+            />
           </div>
-        ) : (
-          lista.map((c, idx) => (
-            <div
-              key={c.id_compra}
-              style={{ display: 'grid', gridTemplateColumns: '1.5fr 2fr 1fr 1fr 120px', padding: '14px 20px', alignItems: 'center', borderBottom: idx < lista.length - 1 ? '1px solid #f3f4f6' : 'none', transition: 'background 0.15s' }}
-              onMouseEnter={e => e.currentTarget.style.background = '#fafafa'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#e879f922', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Truck size={16} color="#e879f9" />
-                </div>
-                <span style={{ fontWeight: 600, fontSize: '14px', color: '#111827' }}>{c.nombre_proveedor || '—'}</span>
+
+          <div ref={filtroRef} style={{ position: 'relative' }}>
+            <button onClick={() => setPanelFiltro(p => !p)} style={{
+              display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px',
+              border: nFiltros > 0 ? '1px solid #5842ff' : '1px solid #e2e8f0',
+              background: '#ffffff', color: nFiltros > 0 ? '#5842ff' : '#475569',
+              fontSize: '14px', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px'
+            }}>
+              <SlidersHorizontal size={16} />
+              Filtros
+              {nFiltros > 0 && <span style={{ background: '#5842ff', color: 'white', padding: '2px 6px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>{nFiltros}</span>}
+              <ChevronDown size={14} style={{ transform: panelFiltro ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+            </button>
+
+            {panelFiltro && (
+              <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', minWidth: '240px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 40 }}>
+                <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Proveedor</p>
+                <select value={filtroProveedor} onChange={e => setFiltroProveedor(e.target.value)} style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', outline: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <option value="">Todos los proveedores</option>
+                  {proveedores.map(p => <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>)}
+                </select>
+                {nFiltros > 0 && (
+                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                    <button onClick={() => { setFiltroProveedor(''); setPanelFiltro(false) }} style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0 }}>
+                      Limpiar filtros
+                    </button>
+                  </div>
+                )}
               </div>
-              <span style={{ fontSize: '13px', color: '#6b7280', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', paddingRight: '12px' }}>
-                {c.descripcion || <span style={{ color: '#d1d5db' }}>Sin descripción</span>}
-              </span>
-              <span style={{ fontWeight: 700, fontSize: '14px', color: '#111827' }}>{fmt(c.costo_total || 0)}</span>
-              <span style={{ fontSize: '13px', color: '#6b7280' }}>{fmtFecha(c.fecha_compra)}</span>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  onClick={() => abrirEditar(c)}
-                  style={{ padding: '7px', borderRadius: '8px', border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', color: '#6b7280', transition: 'all 0.15s', display: 'flex', alignItems: 'center' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#eff6ff'; e.currentTarget.style.color = '#4f46e5'; e.currentTarget.style.borderColor = '#c7d2fe' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#6b7280'; e.currentTarget.style.borderColor = '#e5e7eb' }}
-                >
-                  <Pencil size={14} />
-                </button>
-                <button
-                  onClick={() => setCompraEliminar(c)}
-                  style={{ padding: '7px', borderRadius: '8px', border: '1px solid #e5e7eb', background: 'white', cursor: 'pointer', color: '#6b7280', transition: 'all 0.15s', display: 'flex', alignItems: 'center' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.color = '#dc2626'; e.currentTarget.style.borderColor = '#fecaca' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'white'; e.currentTarget.style.color = '#6b7280'; e.currentTarget.style.borderColor = '#e5e7eb' }}
-                >
-                  <Trash2 size={14} />
-                </button>
-              </div>
-            </div>
-          ))
-        )}
+            )}
+          </div>
+
+          <select value={corteIdFiltro ?? ''} onChange={e => fetchCompras(1, 20, e.target.value ? Number(e.target.value) : null)} style={{
+            padding: '10px 16px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#ffffff',
+            color: '#475569', fontSize: '14px', fontWeight: 500, cursor: 'pointer', outline: 'none', fontFamily: 'inherit'
+          }}>
+            <option value="">Corte actual</option>
+            {cortes.filter(c => c.estado === 'cerrado').map(c => (
+              <option key={c.id} value={c.id}>Corte #{c.numero} — {c.fecha_inicio?.slice(0, 10)}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Tabla */}
+        <div style={{ overflowX: 'auto' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ background: '#fafbfc', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
+                {['ID', 'PROVEEDOR', 'DESCRIPCIÓN', 'COSTO TOTAL', 'FECHA', 'ACCIONES'].map((h, i) => (
+                  <th key={h} style={{ padding: '14px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {lista.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ padding: '60px 0', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+                    No se encontraron compras en este periodo.
+                  </td>
+                </tr>
+              ) : lista.map((c, idx) => (
+                <tr key={c.id_compra} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 600, color: '#5842ff' }}>
+                    #{String(c.id_compra || idx + 1).padStart(3, '0')}
+                  </td>
+                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#111827', fontWeight: 600 }}>
+                    {c.nombre_proveedor || '—'}
+                  </td>
+                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
+                    {c.descripcion || <span style={{ color: '#cbd5e1' }}>—</span>}
+                  </td>
+                  <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                    {fmt(c.costo_total || 0)}
+                  </td>
+                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
+                    {fmtFecha(c.fecha_compra)}
+                  </td>
+                  <td style={{ padding: '16px 24px' }}>
+                    <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                      <button onClick={() => abrirEditar(c)} title="Editar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+                        <Pencil size={18} color="#f59e0b" />
+                      </button>
+                      <button onClick={() => setCompraEliminar(c)} title="Eliminar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+                        <Trash2 size={18} color="#ef4444" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pie Tabla */}
+        <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', borderTop: '1px solid #f1f5f9' }}>
+          <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>
+            Mostrando <strong style={{ color: '#111827' }}>{lista.length}</strong> de <strong style={{ color: '#111827' }}>{compras.length}</strong> registros
+          </span>
+          <span style={{ fontSize: '14px', fontWeight: 600, color: '#475569' }}>
+            Total en este corte: <span style={{ color: '#f43f5e', fontWeight: 700, marginLeft: '4px' }}>{fmt(totalCompras)}</span>
+          </span>
+        </div>
       </div>
 
-      {/* Footer de la tabla */}
-      {lista.length > 0 && (
-        <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
-          <p style={{ fontSize: '13px', color: '#9ca3af', margin: 0 }}>
-            {lista.length} {lista.length === 1 ? 'compra' : 'compras'}
-          </p>
-          <p style={{ fontSize: '13px', color: '#374151', margin: 0, fontWeight: 600 }}>
-            Total egresado: <span style={{ color: '#dc2626' }}>{fmt(totalCompras)}</span>
-          </p>
-        </div>
-      )}
-
-      {/* Modales */}
-      {modalFormOpen && (
-        <ModalCompra
-          compra={compraEditar}
-          proveedores={proveedores}
-          onClose={cerrarForm}
-          onGuardar={handleGuardar}
-        />
-      )}
-      {compraEliminar && (
-        <ModalEliminar
-          compra={compraEliminar}
-          onClose={() => setCompraEliminar(null)}
-          onConfirmar={() => eliminarCompra(compraEliminar.id_compra)}
-        />
-      )}
+      {/* ═══ MODALES ═══ */}
+      {modalFormOpen && <ModalCompra compra={compraEditar} proveedores={proveedores} onClose={cerrarForm} onGuardar={handleGuardar} />}
+      {compraEliminar && <ModalEliminar compra={compraEliminar} onClose={() => setCompraEliminar(null)} onConfirmar={() => eliminarCompra(compraEliminar.id_compra)} />}
     </div>
   )
 }

@@ -161,6 +161,7 @@ export default function Balance() {
                   <button
                     onClick={() => setMostrarVentasFuturo(true)}
                     disabled={ventasFuturo.length === 0}
+                    style={{padding:"8px 16px"}}
                     className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
                   >
                     <Info size={16} />
@@ -325,9 +326,9 @@ export default function Balance() {
       )}
       {/* Modal ventas del corte futuro */}
 {mostrarVentasFuturo && (
-  <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+  <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
     <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
-      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-50">
+      <div style={{padding:"16px 24px"}} className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-50">
         <h3 className="text-lg font-bold text-slate-800">
           Ventas del corte futuro #{resumenFuturo?.numero}
         </h3>
@@ -338,27 +339,27 @@ export default function Balance() {
           <X size={20} color="#64748b" />
         </button>
       </div>
-      <div className="p-6 max-h-[70vh] overflow-y-auto">
+      <div style={{padding:"24px"}} className="p-6 max-h-[70vh] overflow-y-auto">
         {ventasFuturo.length === 0 ? (
           <p className="text-center text-slate-400">No hay ventas registradas aún.</p>
         ) : (
           <table className="w-full text-sm border-collapse">
             <thead>
               <tr className="bg-slate-50">
-                <th className="px-4 py-2 text-left text-xs text-slate-500 uppercase">ID</th>
-                <th className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Cliente</th>
-                <th className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Total</th>
-                <th className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Estado</th>
+                <th style={{padding:"8px 16px"}} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">ID</th>
+                <th style={{padding:"8px 16px"}} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Cliente</th>
+                <th style={{padding:"8px 16px"}} className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Total</th>
+                <th style={{padding:"8px 16px"}} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Estado</th>
               </tr>
             </thead>
             <tbody>
               {ventasFuturo.map((v) => (
                 <tr key={v.id_venta} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td className="px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
-                  <td className="px-4 py-2 text-slate-700">{v.nombre_cliente}</td>
-                  <td className="px-4 py-2 text-right font-semibold">${v.total.toLocaleString('es-CO')}</td>
-                  <td className="px-4 py-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
+                  <td style={{padding:"8px 16px"}} className="px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
+                  <td style={{padding:"8px 16px"}} className="px-4 py-2 text-slate-700">{v.nombre_cliente}</td>
+                  <td style={{padding:"8px 16px"}} className="px-4 py-2 text-right font-semibold">${v.total.toLocaleString('es-CO')}</td>
+                  <td style={{padding:"8px 16px"}} className="px-4 py-2">
+                    <span style={{padding:"2px 6px"}} className={`text-xs px-2 py-0.5 rounded-full ${
                       v.estado === 'pendiente' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
                     }`}>
                       {v.estado}
@@ -370,9 +371,10 @@ export default function Balance() {
           </table>
         )}
       </div>
-      <div className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
+      <div style={{padding:"16px 24px"}} className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
         <button
           onClick={() => setMostrarVentasFuturo(false)}
+          style={{padding:"8px 16px"}}
           className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
         >
           Cerrar

@@ -46,10 +46,17 @@ const useProveedoresStore = create((set, get) => ({
     return res.data
   },
 
-  eliminarProveedor: async (id) => {
-    await deleteProveedor(id)
-    await get().fetchProveedores()
-  },
+ eliminarProveedor: async (id) => {
+  // En vez de DELETE, enviamos PUT con activo: 0
+  await putProveedor(id, {
+    activo: 0,
+    nombre:    get().proveedores.find(p => p.id_proveedor === id)?.nombre    || '',
+    telefono:  get().proveedores.find(p => p.id_proveedor === id)?.telefono  || '',
+    direccion: get().proveedores.find(p => p.id_proveedor === id)?.direccion || '',
+    email:     get().proveedores.find(p => p.id_proveedor === id)?.email     || '',
+  })
+  await get().fetchProveedores()
+},
 }))
 
 export default useProveedoresStore

@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import useInventarioStore from '@/store/useInventarioStore'
 import { putInventario } from '@/api/inventario_api'
-import { postProduccion } from '@/api/producciones_api'
+import { postProduccion, getProducciones } from '@/api/producciones_api'
 import { getProductos } from '@/api/productos_api'
 
 // ══════════════════════════════════════════
@@ -311,6 +311,152 @@ function ModalProduccion({ onCerrar, onGuardado }) {
 }
 
 // ══════════════════════════════════════════
+// MODAL HISTORIAL DE PRODUCCIONES
+// ══════════════════════════════════════════
+function ModalHistorialProduccion({ onCerrar }) {
+  const [producciones, setProducciones] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState('')
+  const [pagina, setPagina] = useState(1)
+  const [totalPaginas, setTotalPaginas] = useState(1)
+
+  const cargarProducciones = async (page = 1) => {
+    setCargando(true)
+    try {
+      const response = await getProducciones(page, 10)
+      const data = response.data || response
+      setProducciones(data.datos || data.data || data)
+      setTotalPaginas(data.total_paginas || Math.ceil((data.total || 0) / 10) || 1)
+      setPagina(page)
+    } catch (err) {
+      console.error('Error:', err)
+      setError(err.response?.data?.mensaje || 'Error al cargar el historial')
+    } finally {
+      setCargando(false)
+    }
+  }
+
+  useEffect(() => {
+    cargarProducciones()
+  }, [])
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+      onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
+    >
+      <div style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '900px', maxHeight: '80vh', boxShadow: '0 24px 60px rgba(0,0,0,0.25)', overflow: 'hidden', display: 'flex', flexDirection: 'column', animation: 'popIn 0.2s ease' }}>
+
+        {/* header */}
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <ClipboardList size={16} color="#4f46e5" />
+            </div>
+            <div>
+              <p style={{ margin: 0, fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Historial de producciones</p>
+              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Registro de todas las producciones realizadas</p>
+            </div>
+          </div>
+          <button onClick={onCerrar} style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <X size={15} color="#64748b" />
+          </button>
+        </div>
+
+        {/* contenido */}
+        <div style={{ overflow: 'auto', flex: 1 }}>
+          {cargando ? (
+            <div style={{ padding: '60px', textAlign: 'center' }}>
+              <div className="w-10 h-10 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" style={{ margin: '0 auto' }} />
+              <p style={{ marginTop: '16px', color: '#64748b' }}>Cargando historial...</p>
+            </div>
+          ) : error ? (
+            <div style={{ padding: '40px', textAlign: 'center', color: '#ef4444' }}>
+              <AlertTriangle size={32} style={{ margin: '0 auto 12px' }} />
+              <p>{error}</p>
+            </div>
+          ) : producciones.length === 0 ? (
+            <div style={{ padding: '60px', textAlign: 'center', color: '#94a3b8' }}>
+              <Package size={48} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
+              <p>No hay producciones registradas</p>
+            </div>
+          ) : (
+            <>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead style={{ position: 'sticky', top: 0, background: 'white', zIndex: 1 }}>
+                  <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>ID</th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Producto</th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Cantidad (bandejas)</th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Unidades sueltas</th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Usuario</th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Fecha</th>
+                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Observación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {producciones.map(prod => (
+                    <tr key={prod.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', fontWeight: 500, color: '#4f46e5' }}>#{prod.id}</td>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#0f172a' }}>{prod.producto_nombre || prod.producto?.nombre}</td>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{prod.cantidad}</td>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{prod.unidades_sueltas || 0}</td>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', padding: '4px 10px', borderRadius: '20px' }}>
+                          👤 {prod.usuario_nombre || prod.usuario?.nombre || `Usuario #${prod.usuario_id}`}
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{prod.fecha}</td>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#64748b', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {prod.observacion || '—'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              {/* paginación */}
+              {totalPaginas > 1 && (
+                <div style={{ padding: '16px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <button
+                    onClick={() => cargarProducciones(pagina - 1)}
+                    disabled={pagina === 1}
+                    style={{
+                      padding: '8px 16px',
+                      background: pagina === 1 ? '#f1f5f9' : 'white',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      cursor: pagina === 1 ? 'not-allowed' : 'pointer',
+                      color: pagina === 1 ? '#94a3b8' : '#475569'
+                    }}
+                  >
+                    ← Anterior
+                  </button>
+                  <span style={{ fontSize: '13px', color: '#64748b' }}>Página {pagina} de {totalPaginas}</span>
+                  <button
+                    onClick={() => cargarProducciones(pagina + 1)}
+                    disabled={pagina === totalPaginas}
+                    style={{
+                      padding: '8px 16px',
+                      background: pagina === totalPaginas ? '#f1f5f9' : 'white',
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px',
+                      cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer',
+                      color: pagina === totalPaginas ? '#94a3b8' : '#475569'
+                    }}
+                  >
+                    Siguiente →
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ══════════════════════════════════════════
 // COMPONENTE PRINCIPAL
 // ══════════════════════════════════════════
 export default function Inventario() {
@@ -323,6 +469,7 @@ export default function Inventario() {
   const [busqueda, setBusqueda] = useState('')
   const [editando, setEditando] = useState(null)
   const [modalProduccion, setModalProduccion] = useState(false)
+  const [modalHistorial, setModalHistorial] = useState(false)
 
   useEffect(() => {
     fetchInventario()
@@ -381,6 +528,14 @@ export default function Inventario() {
           >
             <Plus size={15} />
             Registrar producción
+          </button>
+          <button
+            onClick={() => setModalHistorial(true)}
+            className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl transition-all"
+            style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
+          >
+            <ClipboardList size={14} />
+            Ver historial
           </button>
           <button
             onClick={() => cargar(pagina)}
@@ -548,6 +703,11 @@ export default function Inventario() {
         <ModalProduccion
           onCerrar={() => setModalProduccion(false)}
           onGuardado={() => cargar(pagina)}
+        />
+      )}
+      {modalHistorial && (
+        <ModalHistorialProduccion
+          onCerrar={() => setModalHistorial(false)}
         />
       )}
     </div>

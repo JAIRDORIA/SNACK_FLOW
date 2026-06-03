@@ -444,7 +444,7 @@ export default function Header() {
             <span style={{ color: '#6b7280' }}>empezó el</span>
             <span style={{ fontWeight: 600, color: '#111827' }}>{fechaCorte}</span>
           </div>
-        </div>
+        </div> 
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 

@@ -10,8 +10,6 @@ export const eliminarAbono = (id) => api.delete(`/abonos/${id}`)
 
 
 
-
-
 export const getAbonosPorVentas = async (ventaIds) => {
   if (!ventaIds.length) return []
 

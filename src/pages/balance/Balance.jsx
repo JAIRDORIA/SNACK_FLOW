@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
 import {
-  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar,Info,
+  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar, Info,
   AlertCircle, CheckCircle2, Loader2, X
 } from 'lucide-react'
 import useBalanceStore from '@/store/useBalanceStore'
-
+import useDashboardStore from '@/store/useDashboardStore'
 export default function Balance() {
   const {
     balance, historial,
     cargandoBalance, cargandoHistorial, cerrandoCorte, error, exitoCierre,
-    fetchBalance, fetchHistorial, cerrarCorteActual, resetExitoCierre, resumenFuturo, cargandoFuturo, fetchResumenFuturo, errorFuturo, fetchVentasPendientesAnteriores,ventasFuturo, ventasPendientesAnteriores, cargandoVentasPendientes, errorVentasPendientes
+    fetchBalance, fetchHistorial, cerrarCorteActual, resetExitoCierre, resumenFuturo, cargandoFuturo, fetchResumenFuturo, errorFuturo, fetchVentasPendientesAnteriores, ventasFuturo, ventasPendientesAnteriores, cargandoVentasPendientes, errorVentasPendientes
   } = useBalanceStore()
+
 
   const [modalCerrar, setModalCerrar] = useState(false)
   const [mostrarVentasFuturo, setMostrarVentasFuturo] = useState(false)
@@ -29,16 +30,20 @@ export default function Balance() {
   const totalVentas = balance?.total_ventas ?? 0
   const saldoPendiente = balance?.saldo_pendiente_ventas ?? 0
   const saldoInicial = balance?.saldo_inicial ?? 0
+  const  total_compras = balance?.total_compras ?? 0
+  
 
   // Tarjetas KPI
   const kpiCards = [
+    { label: 'Total en caja', value: totalCaja, icon: DollarSign, ring: 'ring-emerald-500/40', iconCol: 'text-emerald-300' },
+    { label: 'Total en Compras', value: total_compras, icon: DollarSign, ring: 'ring-emerald-500/40', iconCol: 'text-emerald-300' },
     { label: 'Saldo inicial', value: saldoInicial, icon: Wallet, ring: 'ring-slate-500/40', iconCol: 'text-slate-300' },
     { label: 'Efectivo en caja', value: efectivo, icon: Wallet, ring: 'ring-amber-500/40', iconCol: 'text-amber-300' },
     { label: 'Transferencias', value: transferencias, icon: CreditCard, ring: 'ring-violet-500/40', iconCol: 'text-violet-300' },
-    { label: 'Total en caja', value: totalCaja, icon: DollarSign, ring: 'ring-emerald-500/40', iconCol: 'text-emerald-300' },
+    
     { label: 'Ventas del corte', value: totalVentas, icon: TrendingUp, ring: 'ring-indigo-500/40', iconCol: 'text-indigo-300' },
     { label: 'Saldo pendiente', value: saldoPendiente, icon: Clock, ring: 'ring-rose-500/40', iconCol: 'text-rose-300' },
-    {label: 'Deuda cortes anteriores',value: balance?.saldo_pendiente_anteriores ?? 0,icon: Clock,ring: 'ring-rose-500/40',conCol: 'text-rose-300',},
+    { label: 'Deuda cortes anteriores', value: balance?.saldo_pendiente_anteriores ?? 0, icon: Clock, ring: 'ring-rose-500/40', conCol: 'text-rose-300', },
   ]
 
   const handleCerrarCorte = async () => {
@@ -157,11 +162,11 @@ export default function Balance() {
                 </td>
               </tr>
               <tr className="border-t border-gray-100">
-                <td style={{padding:"12px 24px"}} colSpan={2} className="px-6 py-3 text-right">
+                <td style={{ padding: "12px 24px" }} colSpan={2} className="px-6 py-3 text-right">
                   <button
                     onClick={() => setMostrarVentasFuturo(true)}
                     disabled={ventasFuturo.length === 0}
-                    style={{padding:"8px 16px"}}
+                    style={{ padding: "8px 16px" }}
                     className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
                   >
                     <Info size={16} />
@@ -325,64 +330,63 @@ export default function Balance() {
         </div>
       )}
       {/* Modal ventas del corte futuro */}
-{mostrarVentasFuturo && (
-  <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
-      <div style={{padding:"16px 24px"}} className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-50">
-        <h3 className="text-lg font-bold text-slate-800">
-          Ventas del corte futuro #{resumenFuturo?.numero}
-        </h3>
-        <button
-          onClick={() => setMostrarVentasFuturo(false)}
-          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
-        >
-          <X size={20} color="#64748b" />
-        </button>
-      </div>
-      <div style={{padding:"24px"}} className="p-6 max-h-[70vh] overflow-y-auto">
-        {ventasFuturo.length === 0 ? (
-          <p className="text-center text-slate-400">No hay ventas registradas aún.</p>
-        ) : (
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-slate-50">
-                <th style={{padding:"8px 16px"}} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">ID</th>
-                <th style={{padding:"8px 16px"}} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Cliente</th>
-                <th style={{padding:"8px 16px"}} className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Total</th>
-                <th style={{padding:"8px 16px"}} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Estado</th>
-              </tr>
-            </thead>
-            <tbody>
-              {ventasFuturo.map((v) => (
-                <tr key={v.id_venta} className="border-t border-gray-100 hover:bg-gray-50">
-                  <td style={{padding:"8px 16px"}} className="px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
-                  <td style={{padding:"8px 16px"}} className="px-4 py-2 text-slate-700">{v.nombre_cliente}</td>
-                  <td style={{padding:"8px 16px"}} className="px-4 py-2 text-right font-semibold">${v.total.toLocaleString('es-CO')}</td>
-                  <td style={{padding:"8px 16px"}} className="px-4 py-2">
-                    <span style={{padding:"2px 6px"}} className={`text-xs px-2 py-0.5 rounded-full ${
-                      v.estado === 'pendiente' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
-                    }`}>
-                      {v.estado}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
-      <div style={{padding:"16px 24px"}} className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
-        <button
-          onClick={() => setMostrarVentasFuturo(false)}
-          style={{padding:"8px 16px"}}
-          className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
-        >
-          Cerrar
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {mostrarVentasFuturo && (
+        <div style={{ padding: "16px" }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
+            <div style={{ padding: "16px 24px" }} className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-50">
+              <h3 className="text-lg font-bold text-slate-800">
+                Ventas del corte futuro #{resumenFuturo?.numero}
+              </h3>
+              <button
+                onClick={() => setMostrarVentasFuturo(false)}
+                className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
+              >
+                <X size={20} color="#64748b" />
+              </button>
+            </div>
+            <div style={{ padding: "24px" }} className="p-6 max-h-[70vh] overflow-y-auto">
+              {ventasFuturo.length === 0 ? (
+                <p className="text-center text-slate-400">No hay ventas registradas aún.</p>
+              ) : (
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50">
+                      <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">ID</th>
+                      <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Cliente</th>
+                      <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Total</th>
+                      <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Estado</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {ventasFuturo.map((v) => (
+                      <tr key={v.id_venta} className="border-t border-gray-100 hover:bg-gray-50">
+                        <td style={{ padding: "8px 16px" }} className="px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
+                        <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-slate-700">{v.nombre_cliente}</td>
+                        <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-right font-semibold">${v.total.toLocaleString('es-CO')}</td>
+                        <td style={{ padding: "8px 16px" }} className="px-4 py-2">
+                          <span style={{ padding: "2px 6px" }} className={`text-xs px-2 py-0.5 rounded-full ${v.estado === 'pendiente' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
+                            }`}>
+                            {v.estado}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+            <div style={{ padding: "16px 24px" }} className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
+              <button
+                onClick={() => setMostrarVentasFuturo(false)}
+                style={{ padding: "8px 16px" }}
+                className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

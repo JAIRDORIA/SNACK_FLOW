@@ -34,7 +34,7 @@ export default function CombosManager() {
   const loadCombos = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/combos');
+      const res = await api.get('/combos/');
       const data = res.data;
       setCombos(Array.isArray(data) ? data : data.items || data.combos || []);
       setError(null);
@@ -48,7 +48,7 @@ export default function CombosManager() {
 
   const loadProductos = async () => {
     try {
-      const res = await api.get('/productos');
+      const res = await api.get('/productos/');
       const data = res.data;
       setProductos(Array.isArray(data) ? data : data.datos || []);
     } catch (err) {

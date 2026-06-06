@@ -30,7 +30,7 @@ export default function CustomersManager() {
   const fetchCustomers = async () => {
     setLoading(true)
     try {
-      const response = await api.get('/clientes')
+      const response = await api.get('/clientes/')
       setCustomers(
         Array.isArray(response.data)
           ? response.data

@@ -5,7 +5,7 @@ export const productService = {
 
   // RF24: Listar productos
   getAll: async () => {
-  const response = await api.get("/productos/");
+  const response = await api.get("/productos");
    // Agrega este log para depurar
   return response.data.datos;
 },

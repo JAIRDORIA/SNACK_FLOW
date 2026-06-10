@@ -23,14 +23,14 @@ export default function Dashboard() {
 
   const statsCards = [
     {
-      title: 'Total de Dinero en Caja',
+      title: 'Total de Dinero en Caja del corte actual',
       value: balance?.dinero_caja ?? 0,
       icon: Wallet,
       iconColor: '#22d3ee',
       ringColor: 'rgba(34,211,238,0.4)'
     },
     {
-      title: 'Total de Dinero en Venta',
+      title: 'Total de Dinero en Venta del corte actual',
       value: balance?.total_ventas ?? 0,
       icon: TrendingUp,
       iconColor: '#34d399',

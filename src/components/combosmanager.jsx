@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import {
   Plus, Pencil, Trash2, X,
   Search, DollarSign, Layers, AlertTriangle,
-  PackageOpen, ChevronDown, Check
+  PackageOpen
 } from 'lucide-react';
 import api from '../api/axios';
 
-const FORM_INICIAL = { nombre: '', descripcion: '', precio: '' };
+const FORM_INICIAL = { nombre: '', precio: '' };
 
 export default function CombosManager() {
   const [combos, setCombos] = useState([]);
@@ -15,7 +15,6 @@ export default function CombosManager() {
   const [error, setError] = useState(null);
 
   const [formData, setFormData] = useState(FORM_INICIAL);
-  // productosSeleccionados: [{ producto_id, nombre, cantidad_unidades }]
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -34,9 +33,9 @@ export default function CombosManager() {
   const loadCombos = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/combos');
+      const res = await api.get('/combos/', { params: { page: 1, per_page: 50 } });
       const data = res.data;
-      setCombos(Array.isArray(data) ? data : data.items || data.combos || []);
+      setCombos(Array.isArray(data) ? data : data.datos || data.items || data.combos || []);
       setError(null);
     } catch (err) {
       console.error(err);
@@ -48,7 +47,7 @@ export default function CombosManager() {
 
   const loadProductos = async () => {
     try {
-      const res = await api.get('/productos');
+      const res = await api.get('/productos/', { params: { pagina: 1, limite: 100 } });
       const data = res.data;
       setProductos(Array.isArray(data) ? data : data.datos || []);
     } catch (err) {
@@ -58,7 +57,6 @@ export default function CombosManager() {
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // Agregar producto al combo
   const agregarProducto = (producto) => {
     const existe = productosSeleccionados.find(p => p.producto_id === producto.id);
     if (existe) return;
@@ -96,7 +94,7 @@ export default function CombosManager() {
     try {
       const payload = {
         nombre: formData.nombre,
-        descripcion: formData.descripcion,
+        descripcion: '',
         precio: Number(formData.precio),
         productos: productosSeleccionados.map(p => ({
           producto_id: p.producto_id,
@@ -106,7 +104,7 @@ export default function CombosManager() {
       if (editingId) {
         await api.put(`/combos/${editingId}`, payload);
       } else {
-        await api.post('/combos', payload);
+        await api.post('/combos/', payload);
       }
       setFormData(FORM_INICIAL);
       setProductosSeleccionados([]);
@@ -124,10 +122,8 @@ export default function CombosManager() {
     setEditingId(combo.id);
     setFormData({
       nombre: combo.nombre || '',
-      descripcion: combo.descripcion || '',
       precio: combo.precio || '',
     });
-    // Si el combo trae su detalle de productos
     if (combo.productos && Array.isArray(combo.productos)) {
       setProductosSeleccionados(combo.productos.map(p => ({
         producto_id: p.producto_id,
@@ -161,9 +157,7 @@ export default function CombosManager() {
   };
 
   const filteredCombos = combos.filter(
-    (c) =>
-      c.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
+    (c) => c.nombre?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const productosFiltrados = productos.filter(p =>
@@ -189,7 +183,6 @@ export default function CombosManager() {
   return (
     <div style={{ padding: '32px' }} className="flex-1 bg-gray-50">
 
-      {/* HEADER */}
       <div style={{ marginBottom: '24px' }} className="flex items-center justify-between">
         <div>
           <p style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#6366f1', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>
@@ -209,7 +202,6 @@ export default function CombosManager() {
         </button>
       </div>
 
-      {/* KPI CARDS */}
       <div style={{ marginBottom: '32px' }} className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4"
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)' }}
@@ -259,7 +251,6 @@ export default function CombosManager() {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
 
-        {/* FORMULARIO */}
         {showForm && (
           <div style={{ padding: '24px' }} className="bg-white border border-slate-200 rounded-2xl shadow-sm h-fit sticky top-6">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
@@ -275,8 +266,6 @@ export default function CombosManager() {
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-
-              {/* Nombre */}
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre *</label>
                 <input type="text" name="nombre" placeholder="Ej: Combo Tradicional"
@@ -286,33 +275,10 @@ export default function CombosManager() {
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }} />
               </div>
 
-              {/* Descripción */}
-              <div>
-                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción</label>
-                <textarea name="descripcion" placeholder="Descripción opcional"
-                  value={formData.descripcion} onChange={handleChange} rows="2"
-                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', resize: 'none', boxSizing: 'border-box' }}
-                  onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
-                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }} />
-              </div>
-
-              {/* Precio */}
-              <div>
-                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio *</label>
-                <input type="number" name="precio" placeholder="$ 0"
-                  value={formData.precio} onChange={handleChange} required min="0"
-                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
-                  onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
-                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }} />
-              </div>
-
-              {/* PRODUCTOS DEL COMBO */}
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Productos del combo *
                 </label>
-
-                {/* Buscador de productos */}
                 <div style={{ position: 'relative' }}>
                   <div style={{ position: 'relative' }}>
                     <input
@@ -325,18 +291,13 @@ export default function CombosManager() {
                     />
                     <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                   </div>
-
-                  {/* Dropdown productos */}
                   {showProductoPicker && productosFiltrados.length > 0 && (
                     <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: 'white', border: '1px solid #e2e8f0', borderRadius: '10px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 50, maxHeight: '200px', overflowY: 'auto', marginTop: '4px' }}>
                       {productosFiltrados.map(p => (
-                        <div
-                          key={p.id}
-                          onClick={() => agregarProducto(p)}
+                        <div key={p.id} onClick={() => agregarProducto(p)}
                           style={{ padding: '10px 14px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '14px', borderBottom: '1px solid #f1f5f9' }}
                           onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
-                          onMouseLeave={e => e.currentTarget.style.background = 'white'}
-                        >
+                          onMouseLeave={e => e.currentTarget.style.background = 'white'}>
                           <span style={{ fontWeight: 500, color: '#334155' }}>{p.nombre}</span>
                           <span style={{ fontSize: '11px', color: '#94a3b8' }}>{p.unidades_por_bandeja} und/bandeja</span>
                         </div>
@@ -345,7 +306,6 @@ export default function CombosManager() {
                   )}
                 </div>
 
-                {/* Lista de productos seleccionados */}
                 {productosSeleccionados.length > 0 && (
                   <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     {productosSeleccionados.map(p => (
@@ -354,15 +314,11 @@ export default function CombosManager() {
                           <p style={{ fontSize: '13px', fontWeight: 600, color: '#334155', margin: 0 }}>{p.nombre}</p>
                           <p style={{ fontSize: '11px', color: '#94a3b8', margin: 0 }}>unidades en el combo</p>
                         </div>
-                        <input
-                          type="number"
-                          min="1"
-                          value={p.cantidad_unidades}
+                        <input type="number" min="1" value={p.cantidad_unidades}
                           onChange={e => actualizarCantidad(p.producto_id, e.target.value)}
                           style={{ width: '64px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 8px', fontSize: '14px', fontWeight: 600, textAlign: 'center', outline: 'none', color: '#4f46e5' }}
                           onFocus={e => e.target.style.borderColor = '#6366f1'}
-                          onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-                        />
+                          onBlur={e => e.target.style.borderColor = '#e2e8f0'} />
                         <button type="button" onClick={() => quitarProducto(p.producto_id)}
                           style={{ width: '28px', height: '28px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
                           onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
@@ -381,6 +337,15 @@ export default function CombosManager() {
                 )}
               </div>
 
+              <div>
+                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio *</label>
+                <input type="number" name="precio" placeholder="$ 0"
+                  value={formData.precio} onChange={handleChange} required min="0"
+                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
+                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }} />
+              </div>
+
               <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
                 <button type="submit"
                   style={{ flex: 1, background: 'linear-gradient(to right, #4f46e5, #7c3aed)', color: 'white', padding: '11px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', border: 'none', cursor: 'pointer' }}>
@@ -395,7 +360,6 @@ export default function CombosManager() {
           </div>
         )}
 
-        {/* TABLA */}
         <div className={showForm ? 'xl:col-span-2' : 'xl:col-span-3'}
           style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
 
@@ -405,8 +369,7 @@ export default function CombosManager() {
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 16px 10px 40px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                 onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
-                onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }}
-              />
+                onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }} />
               <Search size={15} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
             </div>
           </div>
@@ -417,8 +380,7 @@ export default function CombosManager() {
                 <tr style={{ background: '#f8fafc' }}>
                   {[
                     { label: 'Combo', align: 'left' },
-                    { label: 'Descripción', align: 'left' },
-                    { label: 'Productos', align: 'center' },
+                    { label: 'Productos', align: 'left' },
                     { label: 'Precio', align: 'right' },
                     { label: 'Acciones', align: 'center' },
                   ].map(h => (
@@ -431,7 +393,7 @@ export default function CombosManager() {
               <tbody>
                 {filteredCombos.length === 0 ? (
                   <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '48px', color: '#94a3b8', fontSize: '14px' }}>
+                    <td colSpan="4" style={{ textAlign: 'center', padding: '48px', color: '#94a3b8', fontSize: '14px' }}>
                       No hay combos registrados
                     </td>
                   </tr>
@@ -439,24 +401,15 @@ export default function CombosManager() {
                   <tr key={combo.id} style={{ borderBottom: '1px solid #f1f5f9' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                     onMouseLeave={e => e.currentTarget.style.background = 'white'}>
-                    <td style={{ padding: '12px 16px', fontWeight: 600, color: '#334155', fontSize: '14px' }}>
-                      {combo.nombre}
-                    </td>
-                    <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '14px', maxWidth: '180px' }}>
-                      <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {combo.descripcion || '—'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                    <td style={{ padding: '12px 16px', fontWeight: 600, color: '#334155', fontSize: '14px', whiteSpace: 'nowrap' }}>{combo.nombre}</td>
+                    <td style={{ padding: '12px 16px', fontSize: '13px', color: '#334155' }}>
                       {combo.productos && combo.productos.length > 0 ? (
-                        <span style={{ background: '#eef2ff', color: '#4f46e5', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 700 }}>
-                          {combo.productos.length} productos
-                        </span>
+                        <span>{combo.productos.map(p => p.nombre).join(', ')}</span>
                       ) : (
-                        <span style={{ color: '#94a3b8', fontSize: '13px' }}>—</span>
+                        <span style={{ color: '#94a3b8' }}>—</span>
                       )}
                     </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#334155', fontSize: '14px' }}>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#334155', fontSize: '14px', whiteSpace: 'nowrap' }}>
                       ${Number(combo.precio || 0).toLocaleString('es-CO')}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
@@ -481,7 +434,6 @@ export default function CombosManager() {
             </table>
           </div>
 
-          {/* PIE TABLA */}
           {filteredCombos.length > 0 && (
             <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', background: '#f8fafc' }}>
               <span style={{ fontSize: '13px', color: '#64748b' }}>
@@ -493,7 +445,6 @@ export default function CombosManager() {
         </div>
       </div>
 
-      {/* MODAL ELIMINAR */}
       {deleteId && (
         <div style={{ padding: '16px' }} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
           <div style={{ width: '100%', maxWidth: '400px', borderRadius: '20px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)', padding: '32px', textAlign: 'center', background: 'white' }}>
@@ -502,7 +453,7 @@ export default function CombosManager() {
             </div>
             <p style={{ fontWeight: 700, fontSize: '18px', color: '#1e293b', marginBottom: '8px' }}>Eliminar Combo</p>
             <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>
-              ¿Seguro que deseas eliminar <strong style={{ color: '#4f46e5' }}>{deleteNombre}</strong>? Esta acción no se puede deshacer.
+              Seguro que deseas eliminar <strong style={{ color: '#4f46e5' }}>{deleteNombre}</strong>? Esta accion no se puede deshacer.
             </p>
             <div style={{ display: 'flex', gap: '12px' }}>
               <button onClick={() => { setDeleteId(null); setDeleteNombre(''); }}

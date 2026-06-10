@@ -30,11 +30,11 @@ export default function CustomersManager() {
   const fetchCustomers = async () => {
     setLoading(true)
     try {
-      const response = await api.get('/clientes')
+      const response = await api.get('/clientes/')
       setCustomers(
         Array.isArray(response.data)
           ? response.data
-          : response.data.clientes || []
+          : response.data.items || []
       )
       setError(null)
     } catch (err) {
@@ -56,7 +56,7 @@ export default function CustomersManager() {
       return
     }
     try {
-      await api.post('/clientes', formData)
+      await api.post('/clientes/', formData)
       setFormData({ nombre: '', telefono: '', direccion: '' })
       fetchCustomers()
     } catch (err) {
@@ -94,8 +94,8 @@ export default function CustomersManager() {
   }
 
   const filteredCustomers = customers.filter((c) =>
-    c.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.telefono?.includes(searchTerm)
+    c.Cli_Nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.Cli_Telefono?.includes(searchTerm)
   )
 
   if (loading) {
@@ -289,13 +289,13 @@ export default function CustomersManager() {
                   </tr>
                 ) : (
                   filteredCustomers.map((customer) => (
-                    <tr key={customer.id} style={{ borderBottom: '1px solid #f1f5f9' }}
+                    <tr key={customer.ID_Cliente} style={{ borderBottom: '1px solid #f1f5f9' }}
                       onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                       onMouseLeave={e => e.currentTarget.style.background = 'white'}
                     >
-                      <td style={{ padding: '12px 16px', fontWeight: 600, color: '#334155', fontSize: '14px' }}>{customer.nombre}</td>
-                      <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '14px' }}>{customer.telefono}</td>
-                      <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '14px' }}>{customer.direccion || '—'}</td>
+                      <td style={{ padding: '12px 16px', fontWeight: 600, color: '#334155', fontSize: '14px' }}>{customer.Cli_Nombre}</td>
+                      <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '14px' }}>{customer.Cli_Telefono}</td>
+                      <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '14px' }}>{customer.Cli_Direccion || '—'}</td>
                       <td style={{ padding: '12px 16px' }}>
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '4px' }}>
                           <button

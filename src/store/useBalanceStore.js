@@ -70,6 +70,7 @@ errorVentasPendientes: null,
       const ventasRes = await getVentas(1,100,corteFuturo.id)
       const ventas = ventasRes.data?.datos  || []
       const totalVentasFuturo = ventas.reduce((sum, v) => sum + (v.total || 0), 0)
+      const totalPagado = parseFloat(corteFuturo.saldo_inicial || 0)
 
       set({
         resumenFuturo: {
@@ -77,6 +78,7 @@ errorVentasPendientes: null,
           numero: corteFuturo.numero,
           fecha_inicio: corteFuturo.fecha_inicio,
           total_ventas: totalVentasFuturo,
+          total_pagado: totalPagado,
           // Puedes agregar más campos si el backend los devuelve
         },
         ventasFuturo: ventas,

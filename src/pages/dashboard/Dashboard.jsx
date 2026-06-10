@@ -23,7 +23,7 @@ export default function Dashboard() {
 
   const statsCards = [
     {
-      title: 'Total de Dinero en Caja del corte actual y el proximo',
+      title: 'Total de Dinero en Caja del corte actual',
       value: balance?.dinero_caja ?? 0,
       icon: Wallet,
       iconColor: '#22d3ee',

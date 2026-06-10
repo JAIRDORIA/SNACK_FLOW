@@ -1,16 +1,25 @@
 import { useEffect, useState } from 'react'
 import {
-  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar, Info,
-  AlertCircle, CheckCircle2, Loader2, X
+  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar, Info,AlertTriangle,
+  AlertCircle, CheckCircle2, Loader2, X, Trash2
 } from 'lucide-react'
 import useBalanceStore from '@/store/useBalanceStore'
-import useDashboardStore from '@/store/useDashboardStore'
+import { getVentaDetalle, anularVenta } from '@/api/ventas_api'
+
+
+
+
 export default function Balance() {
   const {
     balance, historial,
     cargandoBalance, cargandoHistorial, cerrandoCorte, error, exitoCierre,
     fetchBalance, fetchHistorial, cerrarCorteActual, resetExitoCierre, resumenFuturo, cargandoFuturo, fetchResumenFuturo, errorFuturo, fetchVentasPendientesAnteriores, ventasFuturo, ventasPendientesAnteriores, cargandoVentasPendientes, errorVentasPendientes
   } = useBalanceStore()
+
+  const [detalleVentaFuturo, setDetalleVentaFuturo] = useState(null)
+  const [cargandoDetalleFuturo, setCargandoDetalleFuturo] = useState(false)
+  const [ventaAnularId, setVentaAnularId] = useState(null)
+  const [anulandoVentaFuturo, setAnulandoVentaFuturo] = useState(false)
 
 
   const [modalCerrar, setModalCerrar] = useState(false)
@@ -30,8 +39,8 @@ export default function Balance() {
   const totalVentas = balance?.total_ventas ?? 0
   const saldoPendiente = balance?.saldo_pendiente_ventas ?? 0
   const saldoInicial = balance?.saldo_inicial ?? 0
-  const  total_compras = balance?.total_compras ?? 0
-  
+  const total_compras = balance?.total_compras ?? 0
+
 
   // Tarjetas KPI
   const kpiCards = [
@@ -40,7 +49,7 @@ export default function Balance() {
     { label: 'Saldo inicial', value: saldoInicial, icon: Wallet, ring: 'ring-slate-500/40', iconCol: 'text-slate-300' },
     { label: 'Efectivo en caja', value: efectivo, icon: Wallet, ring: 'ring-amber-500/40', iconCol: 'text-amber-300' },
     { label: 'Transferencias', value: transferencias, icon: CreditCard, ring: 'ring-violet-500/40', iconCol: 'text-violet-300' },
-    
+
     { label: 'Ventas del corte', value: totalVentas, icon: TrendingUp, ring: 'ring-indigo-500/40', iconCol: 'text-indigo-300' },
     { label: 'Saldo pendiente', value: saldoPendiente, icon: Clock, ring: 'ring-rose-500/40', iconCol: 'text-rose-300' },
     { label: 'Deuda cortes anteriores', value: balance?.saldo_pendiente_anteriores ?? 0, icon: Clock, ring: 'ring-rose-500/40', conCol: 'text-rose-300', },
@@ -77,6 +86,33 @@ export default function Balance() {
         </div>
       </div>
     )
+  }
+
+  const verDetalleFuturo = async (id) => {
+    setCargandoDetalleFuturo(true)
+    try {
+      const res = await getVentaDetalle(id)
+      setDetalleVentaFuturo(res.data)
+    } catch (err) {
+      console.error('Error al cargar detalle', err)
+    } finally {
+      setCargandoDetalleFuturo(false)
+    }
+  }
+
+  const handleAnularVentaFuturo = async () => {
+    if (!ventaAnularId) return
+    setAnulandoVentaFuturo(true)
+    try {
+      await anularVenta(ventaAnularId)
+      fetchResumenFuturo() // Refrescar la tabla de ventas futuras
+      setVentaAnularId(null)
+    } catch (err) {
+      console.error('Error al anular venta', err)
+      alert(err.response?.data?.mensaje || 'Error al anular la venta')
+    } finally {
+      setAnulandoVentaFuturo(false)
+    }
   }
 
   return (
@@ -161,6 +197,19 @@ export default function Balance() {
                   ${resumenFuturo.total_ventas.toLocaleString('es-CO')}
                 </td>
               </tr>
+              <tr className="border-t border-gray-100">
+                <td style={{ padding: "16px 24px" }} className="px-6 py-4 font-medium text-slate-700">Total pagado</td>
+                <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-right font-semibold text-emerald-600">
+                  ${(resumenFuturo.total_pagado || 0).toLocaleString('es-CO')}
+                </td>
+              </tr>
+              <tr className="border-t border-gray-100">
+                <td style={{ padding: "16px 24px" }} className="px-6 py-4 font-medium text-slate-700">Pendiente de pago</td>
+                <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-right font-semibold text-amber-600">
+                  ${((resumenFuturo.total_ventas || 0) - (resumenFuturo.total_pagado || 0)).toLocaleString('es-CO')}
+                </td>
+              </tr>
+
               <tr className="border-t border-gray-100">
                 <td style={{ padding: "12px 24px" }} colSpan={2} className="px-6 py-3 text-right">
                   <button
@@ -360,14 +409,32 @@ export default function Balance() {
                   <tbody>
                     {ventasFuturo.map((v) => (
                       <tr key={v.id_venta} className="border-t border-gray-100 hover:bg-gray-50">
-                        <td style={{ padding: "8px 16px" }} className="px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
-                        <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-slate-700">{v.nombre_cliente}</td>
-                        <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-right font-semibold">${v.total.toLocaleString('es-CO')}</td>
-                        <td style={{ padding: "8px 16px" }} className="px-4 py-2">
-                          <span style={{ padding: "2px 6px" }} className={`text-xs px-2 py-0.5 rounded-full ${v.estado === 'pendiente' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
+                        <td style={{padding:"8px 16px"}} className="px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
+                        <td style={{padding:"8px 16px"}} className="px-4 py-2 text-slate-700">{v.nombre_cliente}</td>
+                        <td style={{padding:"8px 16px"}} className="px-4 py-2 text-right font-semibold">${v.total.toLocaleString('es-CO')}</td>
+                        <td style={{padding:"8px 16px"}} className="px-4 py-2">
+                          <span style={{padding:"2px 8px"}} className={`text-xs px-2 py-0.5 rounded-full ${v.estado === 'pendiente' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
                             }`}>
                             {v.estado}
                           </span>
+                        </td>
+                        <td style={{padding:"8px 16px"}} className="px-4 py-2">
+                          <div className="flex gap-1">
+                            <button
+                              title="Ver detalle"
+                              onClick={() => verDetalleFuturo(v.id_venta)}
+                              className="w-8 h-8 rounded-lg hover:bg-indigo-100 flex items-center justify-center transition-colors"
+                            >
+                              <Info size={14} color="#4f46e5" />
+                            </button>
+                            <button
+                              title="Anular"
+                              onClick={() => setVentaAnularId(v.id_venta)}
+                              className="w-8 h-8 rounded-lg hover:bg-rose-100 flex items-center justify-center transition-colors"
+                            >
+                              <Trash2 size={14} color="#ef4444" />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -386,7 +453,118 @@ export default function Balance() {
             </div>
           </div>
         </div>
+      )
+
+
+      }
+      {/* Modal detalle venta futuro */}
+      {detalleVentaFuturo && (
+        <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden">
+            <div style={{padding:"24px 32px"}} className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
+              <div>
+                <p className="font-bold text-xl text-gray-800">
+                  Detalle de Venta{' '}
+                  <span className="text-indigo-600">#{String(detalleVentaFuturo.id).padStart(3, '0')}</span>
+                </p>
+                <p style={{marginTop:"4px"}} className="text-sm text-gray-500 mt-1">
+                  Cliente: <strong className="text-gray-700">{detalleVentaFuturo.nombre_cliente}</strong>
+                </p>
+              </div>
+              <button
+                onClick={() => setDetalleVentaFuturo(null)}
+                className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-gray-100"
+              >
+                <X size={20} color="#64748b" />
+              </button>
+            </div>
+            <div style={{padding:"32px"}} className="p-8 max-h-[70vh] overflow-y-auto">
+              {/* Tabla de productos */}
+              <table style={{marginBottom:"24px"}} className="w-full border-collapse mb-6">
+                <thead className="bg-slate-200">
+                  <tr>
+                    <th style={{padding:"8px 16px"}} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
+                    <th style={{padding:"8px 16px"}} className="px-4 py-2 text-center text-xs text-slate-500 uppercase">Cantidad</th>
+                    <th style={{padding:"8px 16px"}} className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Precio unit.</th>
+                    <th style={{padding:"8px 16px"}} className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {detalleVentaFuturo.detalle?.map((d, i) => (
+                    <tr key={i} className="border-t border-gray-100 hover:bg-gray-50">
+                      <td style={{padding:"8px 16px"}} className="px-4 py-2 text-sm text-slate-700">{d.nombre_producto}</td>
+                      <td style={{padding:"8px 16px"}} className="px-4 py-2 text-sm text-center text-slate-600">{d.cantidad}</td>
+                      <td style={{padding:"8px 16px"}} className="px-4 py-2 text-sm text-right text-slate-600">${d.precio_unitario.toLocaleString('es-CO')}</td>
+                      <td style={{padding:"8px 16px"}} className="px-4 py-2 text-sm text-right font-medium text-slate-700">${d.subtotal.toLocaleString('es-CO')}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {/* Totales */}
+              <div className="grid grid-cols-3 gap-4">
+                <div style={{padding:"16px"}} className="bg-indigo-50 p-4 rounded-xl text-center">
+                  <p className="text-xs text-slate-500">Total</p>
+                  <p className="text-xl font-bold text-indigo-600">${detalleVentaFuturo.total?.toLocaleString('es-CO')}</p>
+                </div>
+                <div style={{padding:"16px"}} className="bg-emerald-50 p-4 rounded-xl text-center">
+                  <p className="text-xs text-slate-500">Abonado</p>
+                  <p className="text-xl font-bold text-emerald-600">${detalleVentaFuturo.total_abonado?.toLocaleString('es-CO')}</p>
+                </div>
+                <div style={{padding:"16px"}} className={`p-4 rounded-xl text-center ${detalleVentaFuturo.saldo_pendiente > 0 ? 'bg-amber-50' : 'bg-emerald-50'}`}>
+                  <p className="text-xs text-slate-500">Saldo pendiente</p>
+                  <p className={`text-xl font-bold ${detalleVentaFuturo.saldo_pendiente > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
+                    ${detalleVentaFuturo.saldo_pendiente?.toLocaleString('es-CO')}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div style={{padding:"16px 32px"}} className="px-8 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
+              <button
+                onClick={() => setDetalleVentaFuturo(null)}
+                style={{padding:"8px 16px"}}
+                className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
+      {/* Modal confirmar anular venta futuro */}
+{ventaAnularId && (
+  <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div style={{padding:"32px"}} className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-8 text-center">
+      <div style={{marginBottom:"24px",marginLeft:"auto",marginRight:"auto"}} className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <AlertTriangle size={32} className="text-rose-500" />
+      </div>
+      <p style={{marginBottom:"12px"}} className="font-bold text-xl text-gray-800 mb-3">¿Anular venta?</p>
+      <p style={{marginBottom:"32px"}} className="text-sm text-gray-500 mb-8">
+        La venta <strong>#{String(ventaAnularId).padStart(3, '0')}</strong> del corte futuro será anulada. 
+        Si tenía pagos, el dinero se revertirá del saldo inicial del corte.
+      </p>
+      <div className="flex gap-3">
+        <button
+          onClick={() => setVentaAnularId(null)}
+          disabled={anulandoVentaFuturo}
+          style={{paddingTop:"12px",paddingBottom:"12px"}}
+          className="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={handleAnularVentaFuturo}
+          disabled={anulandoVentaFuturo}
+          style={{paddingTop:"12px",paddingBottom:"12px"}}
+          className="flex-1 py-3 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 disabled:opacity-50"
+        >
+          {anulandoVentaFuturo ? 'Anulando...' : 'Sí, anular'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
     </div>
   )
 }

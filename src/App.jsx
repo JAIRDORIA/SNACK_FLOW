@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout'
-import {Login} from '@/pages/Login/Login'
+import Login from '@/pages/Login/Login'
 import Dashboard from '@/pages/dashboard/Dashboard'
 import Ventas from '@/pages/Ventas/Ventas'
 import Cortes from '@/pages/cortes/Cortes'
@@ -13,9 +13,7 @@ import Proveedores from '@/pages/proveedores/proveedores'
 import Abonos from './pages/abonos/Abonos'
 import CombosManager    from './components/combosmanager'
 
-function Placeholder({ name }) {
-  return <div style={{ padding: '2rem' }}><h2>{name} — Próximamente</h2></div>
-}
+
 
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('access_token')

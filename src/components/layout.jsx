@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router';
-import Sidebar from './Sidebar';
+import Sidebar from './sidebar'
 import Header from './header';
 
 export default function Layout() {

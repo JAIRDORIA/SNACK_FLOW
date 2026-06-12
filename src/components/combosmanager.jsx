@@ -94,7 +94,7 @@ export default function CombosManager() {
     try {
       const payload = {
         nombre: formData.nombre,
-        descripcion: '',
+       
         precio: Number(formData.precio),
         productos: productosSeleccionados.map(p => ({
           producto_id: p.producto_id,

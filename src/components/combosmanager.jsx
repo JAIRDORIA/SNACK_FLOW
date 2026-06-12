@@ -206,13 +206,13 @@ export default function CombosManager() {
         <div className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4"
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)' }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
-          style={{ transition: 'all 0.2s' }}>
+          style={{ transition: 'all 0.2s',padding:"10px" }}>
           <div style={{ margin: '12px 0 12px 14px' }} className="bg-[#13152280] ring-2 ring-indigo-500/30 w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
-            <Layers size={15} className="text-indigo-300" />
+            <Layers size={18} className="text-indigo-300" />
           </div>
           <div>
-            <p style={{ fontSize: '18px', fontWeight: 800, color: 'white', lineHeight: 1 }}>{totalCombos}</p>
-            <p style={{ marginTop: '3px', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Combos activos</p>
+            <p style={{ fontSize: '24px', fontWeight: 800, color: 'white', lineHeight: 1 }}>{totalCombos}</p>
+            <p style={{ marginTop: '3px', fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>Combos activos</p>
           </div>
         </div>
 
@@ -221,11 +221,11 @@ export default function CombosManager() {
           onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
           style={{ transition: 'all 0.2s' }}>
           <div style={{ margin: '12px 0 12px 14px' }} className="bg-[#13152280] ring-2 ring-cyan-500/30 w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
-            <PackageOpen size={15} className="text-cyan-300" />
+            <PackageOpen size={18} className="text-cyan-300" />
           </div>
           <div>
-            <p style={{ fontSize: '18px', fontWeight: 800, color: 'white', lineHeight: 1 }}>${precioPromedio.toLocaleString('es-CO')}</p>
-            <p style={{ marginTop: '3px', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Precio promedio</p>
+            <p style={{ fontSize: '23px', fontWeight: 800, color: 'white', lineHeight: 1 }}>${precioPromedio.toLocaleString('es-CO')}</p>
+            <p style={{ marginTop: '3px', fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>Precio promedio</p>
           </div>
         </div>
 
@@ -234,11 +234,11 @@ export default function CombosManager() {
           onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
           style={{ transition: 'all 0.2s' }}>
           <div style={{ margin: '12px 0 12px 14px' }} className="bg-[#13152280] ring-2 ring-emerald-500/30 w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
-            <DollarSign size={15} className="text-emerald-300" />
+            <DollarSign size={18} className="text-emerald-300" />
           </div>
           <div>
-            <p style={{ fontSize: '17px', fontWeight: 800, color: 'white', lineHeight: 1 }}>${valorTotal.toLocaleString('es-CO')}</p>
-            <p style={{ marginTop: '3px', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Valor total</p>
+            <p style={{ fontSize: '23px', fontWeight: 800, color: 'white', lineHeight: 1 }}>${valorTotal.toLocaleString('es-CO')}</p>
+            <p style={{ marginTop: '3px', fontSize: '14px', color: 'rgba(255,255,255,0.5)' }}>Valor total</p>
           </div>
         </div>
       </div>

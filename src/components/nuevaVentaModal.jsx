@@ -1,4 +1,4 @@
-import { useEffect, useRef,useState } from 'react'
+import { useEffect, useRef, useState,useMemo } from 'react'
 import {
   X, Plus, Trash2, AlertCircle, Loader2, CheckCircle2
 } from 'lucide-react'
@@ -17,22 +17,55 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     setConAbono, setMontoAbono, setMedioPago, setObservacionAbono,
     agregarProducto, eliminarProducto, pagarTotal, resetFormulario,
     registrarVenta,
-    totalVenta, caso, saldoPendiente,
+    totalVenta, caso, saldoPendiente, cargarCombos, combos, agregarItem,
   } = useNuevaVentaStore()
   const [localMontoAbono, setLocalMontoAbono] = useState('')
   const selectProductoRef = useRef(null)
+  const [textoBusqueda, setTextoBusqueda] = useState('');
+  const [itemsFiltrados, setItemsFiltrados] = useState([]);
+  const [itemSeleccionado, setItemSeleccionado] = useState(null);
+  const [cantidadItem, setCantidadItem] = useState(1);
 
+ const todosLosItems = useMemo(() => {
+    const prods = productos.map(p => ({ ...p, tipo: 'producto' }))
+    const combs = combos.map(c => ({ ...c, tipo: 'combo', precio_venta: c.precio })) // el backend usa 'precio' en GET /combos
+    return [...prods, ...combs]
+  }, [productos, combos])
   // Cargar datos al abrir
   useEffect(() => {
     if (open) {
       resetFormulario()
       cargarDatos()
+      cargarCombos()
 
     }
   }, [open])
   useEffect(() => {
     setLocalMontoAbono(montoAbono.toString())
   }, [montoAbono])
+
+  useEffect(() => {
+    const productosFiltrados = productos
+      .filter(p => p.nombre?.toLowerCase().includes(textoBusqueda.toLowerCase()))
+      .map(p => ({ ...p, tipo: 'producto' }));
+
+    const combosFiltrados = combos
+      .filter(c => c.nombre?.toLowerCase().includes(textoBusqueda.toLowerCase()))
+      .map(c => ({ ...c, tipo: 'combo' }));
+
+    setItemsFiltrados([...productosFiltrados, ...combosFiltrados]);
+  }, [textoBusqueda, productos, combos]);
+  useEffect(() => {
+    if (!textoBusqueda.trim()) {
+      setItemsFiltrados([])
+      return
+    }
+    const q = textoBusqueda.toLowerCase()
+    const filtrados = todosLosItems.filter(item =>
+      item.nombre?.toLowerCase().includes(q)
+    )
+    setItemsFiltrados(filtrados)
+  }, [textoBusqueda, todosLosItems])
 
   const handleAgregarProducto = () => {
     const select = selectProductoRef.current
@@ -68,8 +101,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     }
   }
 
-  if (!open) return null
-
+  
+ 
+if (!open) return null
   return (
     <div style={{ padding: "16px" }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
@@ -153,41 +187,81 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
           {/* Sección 2: Productos */}
           <div>
-            <h3 style={{ marginBottom: "12px" }} className="text-sm font-semibold text-slate-600 ">Productos</h3>
+            <h3 style={{ marginBottom: "0px" }} className="text-sm font-semibold text-slate-600 ">Productos</h3>
             <div style={{ marginBottom: "12px" }} className="flex flex-wrap items-end gap-2 ">
-              <div className="flex-1 min-w-[160px]">
-                <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Producto</label>
-                <select
-                  ref={selectProductoRef}
-                  style={{ padding: "8px" }}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
-                >
-                  <option value="">Seleccionar producto...</option>
-                  {productos.map(p => (
-                    <option key={p.id} value={p.id}>
-                      {p.nombre} - ${parseFloat(p.precio_venta).toLocaleString('es-CO')}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="w-20">
-                <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Cantidad</label>
+              <div className="relative flex-1 min-w-[200px]">
                 <input
-                  id="cantidad-producto"
-                  type="number"
-                  min="1"
-                  defaultValue="1"
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
-                  style={{ padding: "8px" }}
+                  type="text"
+                  placeholder="Buscar producto o combo..."
+                  value={textoBusqueda}
+                  onChange={e => setTextoBusqueda(e.target.value)}
+                  style={{padding:"8px"}}
+                  className="w-full border border-slate-200 rounded-lg p-2 text-sm"
                 />
+                {itemSeleccionado && (
+                  <div style={{marginTop:"12px"}} className="flex items-center gap-2 mt-3">
+                    <span className="text-sm text-slate-600 flex-1">
+                      {itemSeleccionado.nombre} ({itemSeleccionado.tipo})
+                    </span>
+                    <input
+                      type="number"
+                      min="1"
+                      value={cantidadItem}
+                      onChange={e => setCantidadItem(Number(e.target.value))}
+                      style={{padding:"4px"}}
+                      className="w-20 border border-slate-200 rounded-lg p-1 text-sm"
+                    />
+                    <button
+                      onClick={() => {
+                        if (!itemSeleccionado || cantidadItem < 1) return
+                        const precio = parseFloat(itemSeleccionado.precio_venta || itemSeleccionado.precio)
+                        agregarItem({
+                          tipo: itemSeleccionado.tipo,
+                          producto_id: itemSeleccionado.tipo === 'producto' ? itemSeleccionado.id : null,
+                          combo_id: itemSeleccionado.tipo === 'combo' ? itemSeleccionado.id : null,
+                          nombre_producto: itemSeleccionado.nombre,
+                          cantidad: cantidadItem,
+                          precio_unitario: precio,
+                        })
+                        // limpiar
+                        setTextoBusqueda('')
+                        setItemSeleccionado(null)
+                        setCantidadItem(1)
+                      }}
+                      style={{padding:"8px 16px"}}
+                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                    >
+                      Agregar
+                    </button>
+                  </div>
+                )}
+                {textoBusqueda && itemsFiltrados.length > 0 && (
+                  <ul style={{marginTop:"4px"}} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg">
+                    {itemsFiltrados.map(item => (
+                      <li
+                        key={`${item.tipo}-${item.id}`}
+                        onClick={() => {
+                          // Al hacer clic, rellenamos el input y guardamos el item seleccionado
+                          setTextoBusqueda(`${item.nombre} (${item.tipo})`)
+                          setItemSeleccionado(item)
+                          setItemsFiltrados([]) // ocultar lista
+                        }}
+                        style={{padding:"8px 12px"}}
+                        className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm flex justify-between items-center"
+                      >
+                        <span>{item.nombre}</span>
+                        <span style={{padding:"2px 8px"}} className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded">
+                          {item.tipo === 'combo' ? 'Combo' : 'Producto'}
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          ${parseFloat(item.precio_venta || item.precio).toLocaleString('es-CO')}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
-              <button
-                onClick={handleAgregarProducto}
-                className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-                style={{ padding: "8px 16px" }}
-              >
-                <Plus size={16} /> Agregar
-              </button>
+              
             </div>
 
             {detalle.length > 0 ? (

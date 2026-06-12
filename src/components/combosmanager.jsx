@@ -181,9 +181,10 @@ export default function CombosManager() {
   );
 
   return (
-    <div style={{ padding: '32px' }} className="flex-1 bg-gray-50">
+    <div className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8">
 
-      <div style={{ marginBottom: '24px' }} className="flex items-center justify-between">
+      {/* HEADER */}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <p style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#6366f1', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>
             módulo operativo
@@ -202,7 +203,8 @@ export default function CombosManager() {
         </button>
       </div>
 
-      <div style={{ marginBottom: '32px' }} className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+      {/* KPI CARDS */}
+      <div style={{ marginBottom: '32px' }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4"
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)' }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
@@ -252,7 +254,7 @@ export default function CombosManager() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
 
         {showForm && (
-          <div style={{ padding: '24px' }} className="bg-white border border-slate-200 rounded-2xl shadow-sm h-fit sticky top-6">
+          <div style={{ padding: '24px' }} className="bg-white border border-slate-200 rounded-2xl shadow-sm h-fit xl:sticky top-6">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', margin: 0 }}>
                 {editingId ? 'Editar Combo' : 'Registrar Combo'}
@@ -375,7 +377,7 @@ export default function CombosManager() {
           </div>
 
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '460px' }}>
               <thead>
                 <tr style={{ background: '#f8fafc' }}>
                   {[

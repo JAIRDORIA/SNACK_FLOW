@@ -1,6 +1,6 @@
 // src/store/customerService.js
 // URL base de tu backend de Flask para clientes
-const API_URL = "http://localhost:4000/api/clientes";
+const API_URL = "http://10.2.139.163:4000";
 
 export const customerService = {
   // RF13: Listar todos los clientes registrados

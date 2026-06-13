@@ -6,7 +6,7 @@ export default function RequireCorte({ children }) {
   const [cortesExisten, setCortesExisten] = useState(null) // null = cargando
 
   useEffect(() => {
-    api.get('/cortes')
+    api.get('/cortes/')
       .then(res => {
         const cortes = res.data?.datos || res.data?.items || res.data || []
         setCortesExisten(cortes.length > 0)

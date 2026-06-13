@@ -6,20 +6,21 @@ export default function PrimerCorte() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
-
-  const handleCrearPrimerCorte = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      await api.post('/cortes/iniciar')
-      navigate('/')          // vuelve al dashboard (ahora con cortes)
-    } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al crear el primer corte')
-    } finally {
-      setLoading(false)
-    }
+  
+const handleCrearPrimerCorte = async () => {
+  setLoading(true)
+  setError('')
+  try {
+    await api.post('/cortes/iniciar')
+    // Pequeña pausa para asegurar que el backend termine de crear los cortes
+    setTimeout(() => {
+      navigate('/') // Redirige al dashboard
+    }, 800)
+  } catch (err) {
+    setError(err.response?.data?.mensaje || 'Error al crear el primer corte')
+    setLoading(false)
   }
-
+}
   return (
     <div style={{
       minHeight: '100vh',

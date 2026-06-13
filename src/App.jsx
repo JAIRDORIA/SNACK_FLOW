@@ -14,10 +14,11 @@ import Abonos from './pages/abonos/Abonos'
 import CombosManager from './components/combosmanager'
 import PrimerCorte from './pages/pcorte/PrimerCorte'
 import RequireCorte from './components/RequireCortes'
-
+import useInactivityTimer from './hooks/useInactivityTimer'
 
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('access_token')
+  useInactivityTimer()   // ← activa el temporizador de inactividad
   return token ? children : <Navigate to="/login" replace />
 }
 

@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout'
-import Login from '@/pages/Login/Login'
+import logins from '@/pages/login/login'
 import Dashboard from '@/pages/dashboard/Dashboard'
 import Ventas from '@/pages/Ventas/Ventas'
 import Cortes from '@/pages/cortes/Cortes'
@@ -17,14 +17,14 @@ import CombosManager    from './components/combosmanager'
 
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('access_token')
-  return token ? children : <Navigate to="/Login" replace />
+  return token ? children : <Navigate to="/login" replace />
 }
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/Login" element={<Login />} />
+        <Route path="/Login" element={<logins/>} />
 
         <Route path="/" element={<RutaProtegida><Layout /></RutaProtegida>}>
           <Route index element={<Dashboard />} />

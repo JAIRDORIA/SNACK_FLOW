@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout'
 import Dashboard from '@/pages/dashboard/Dashboard'
-import Login from '@/pages/login/login'
+import Login from '@/pages/login/Login'
 import Ventas from '@/pages/Ventas/Ventas'
 import Cortes from '@/pages/cortes/Cortes'
 import Inventario from '@/pages/Inventario/Inventario'

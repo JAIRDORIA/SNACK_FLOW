@@ -181,10 +181,10 @@ export default function CombosManager() {
   );
 
   return (
-    <div className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div style={{padding:"16px"}} className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8">
 
       {/* HEADER */}
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div style={{marginBottom:"24px"}} className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <p style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#6366f1', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>
             módulo operativo

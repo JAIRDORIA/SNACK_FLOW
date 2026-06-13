@@ -1,6 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/layout'
-import logins from '@/pages/login/login'
+import Login from '@/pages/login/login'
 import Dashboard from '@/pages/dashboard/Dashboard'
 import Ventas from '@/pages/Ventas/Ventas'
 import Cortes from '@/pages/cortes/Cortes'
@@ -24,7 +24,7 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/Login" element={<logins/>} />
+        <Route path="/login" element={<Login />} />
 
         <Route path="/" element={<RutaProtegida><Layout /></RutaProtegida>}>
           <Route index element={<Dashboard />} />

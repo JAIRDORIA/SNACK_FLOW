@@ -515,7 +515,7 @@ function LoginScreen({ onRecuperar }) {
 }
 
 // ── Raíz ──────────────────────────────────────────────────────────────────────
-export default function logins() {
+export default function Login() {
   const [modo, setModo] = useState(null)
   const navigate = useNavigate()
 

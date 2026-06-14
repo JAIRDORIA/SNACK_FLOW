@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Calendar, LogOut, Users, Plus, X, Eye, EyeOff, Trash2, Shield, Pencil, Check } from 'lucide-react'
+import { Calendar, LogOut, Users, Plus, X, Eye, EyeOff, Trash2, Shield, Pencil, Check, Menu } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import useDashboardStore from '@/store/useDashboardStore'
 import api from '@/api/axios'
@@ -18,7 +18,16 @@ const nombresPagina = {
   '/inventario/combos': 'Combos',
 }
 
-// ── Modal genérico de alerta / confirmación ───────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return isMobile
+}
+
 function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
   const colores = {
     error: { bg: '#fef2f2', border: '#fecaca', titulo: '#b91c1c', btn: '#ef4444', btnHover: '#dc2626', icono: '🚫' },
@@ -77,8 +86,9 @@ function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
   )
 }
 
-// ── Modal gestión de usuarios ─────────────────────────────────────────────────
+//Modal gestión de usuarios 
 function ModalUsuarios({ onCerrar }) {
+  const isMobile = useIsMobile()
   const [usuarios, setUsuarios] = useState([])
   const [cargando, setCargando] = useState(true)
   const [mostrarForm, setMostrarForm] = useState(false)
@@ -88,7 +98,7 @@ function ModalUsuarios({ onCerrar }) {
   const [guardando, setGuardando] = useState(false)
 
   // modales internos
-  const [alerta, setAlerta] = useState(null) // { tipo, titulo, mensaje, onConfirmar, onCancelar }
+  const [alerta, setAlerta] = useState(null)
 
   // edición
   const [editandoId, setEditandoId] = useState(null)
@@ -206,14 +216,27 @@ function ModalUsuarios({ onCerrar }) {
         onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
       >
         <div style={{
-          background: 'white', borderRadius: '16px',
-          width: '100%', maxWidth: '620px',
-          maxHeight: '82vh', display: 'flex', flexDirection: 'column',
-          boxShadow: '0 24px 60px rgba(0,0,0,0.3)', overflow: 'hidden'
+          background: 'white',
+          borderRadius: isMobile ? '5px' : '16px',
+          width: '100%',
+          maxWidth: isMobile ? '100%' : '620px',
+          height: isMobile ? '80vh' : 'auto',
+          maxHeight: isMobile ? '100vh' : '82vh',
+          display: 'flex',
+          flexDirection: 'column',
         }}>
 
           {/* header */}
-          <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div style={{
+            padding: isMobile ? '16px' : '20px 24px',
+            borderBottom: '1px solid #e5e7eb',
+            display: 'flex',
+            flexDirection: isMobile ? 'column' : 'row',
+            alignItems: isMobile ? 'stretch' : 'center',
+            justifyContent: 'space-between',
+            gap: isMobile ? '12px' : '0',
+            flexShrink: 0
+          }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Users size={18} color="#4f46e5" />
@@ -246,7 +269,7 @@ function ModalUsuarios({ onCerrar }) {
             {mostrarForm && (
               <form onSubmit={crearUsuario} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
                 <p style={{ margin: '0 0 16px', fontWeight: 600, color: '#111827', fontSize: '14px' }}>Nuevo administrador</p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                   {[
                     { name: 'nombre', label: 'Nombre completo', ph: 'Carlos Pérez' },
                     { name: 'username', label: 'Usuario', ph: 'cperez' },
@@ -306,15 +329,15 @@ function ModalUsuarios({ onCerrar }) {
                         <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           <Pencil size={14} color="#4f46e5" />
                         </div>
-                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        <div style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                          <div style={{ width: '100%', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
                             <input value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
                               placeholder="Nombre"
-                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
                             />
                             <input value={editForm.username} onChange={e => setEditForm({ ...editForm, username: e.target.value })}
                               placeholder="Username"
-                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
                             />
                           </div>
                           <input type="password" value="__sin_cambios__" disabled placeholder="••••••••" style={{
@@ -333,8 +356,8 @@ function ModalUsuarios({ onCerrar }) {
                         </div>
                       </div>
                     ) : (
-                      // ── modo normal ──
-                      <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      // modo normal
+                      <div style={{ padding: '12px 16px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', gap: isMobile ? '12px' : '0' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{ width: '36px', height: '36px', background: u.id === 1 ? '#fef3c7' : '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             {u.id === 1
@@ -356,7 +379,7 @@ function ModalUsuarios({ onCerrar }) {
                             {u.rol}
                           </span>
 
-                          {/* editar — para todos */}
+                          {/* editar */}
                           <button onClick={() => iniciarEdicion(u)} style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '6px', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.15s' }}
                             onMouseEnter={e => { e.currentTarget.style.background = '#e0f2fe'; e.currentTarget.style.borderColor = '#7dd3fc' }}
                             onMouseLeave={e => { e.currentTarget.style.background = '#f0f9ff'; e.currentTarget.style.borderColor = '#bae6fd' }}
@@ -365,7 +388,7 @@ function ModalUsuarios({ onCerrar }) {
                             <Pencil size={12} color="#0284c7" />
                           </button>
 
-                          {/* eliminar — bloqueado para admin principal */}
+                          {/* eliminar */}
                           <button onClick={() => intentarEliminar(u)} style={{
                             background: u.id === 1 ? '#f9fafb' : '#fef2f2',
                             border: `1px solid ${u.id === 1 ? '#e5e7eb' : '#fecaca'}`,
@@ -404,8 +427,9 @@ function ModalUsuarios({ onCerrar }) {
   )
 }
 
-// ── Header principal ──────────────────────────────────────────────────────────
-export default function Header() {
+// Header principal
+export default function Header({ setSidebarAbierto }) {
+  const isMobile = useIsMobile()
   const usuario = JSON.parse(localStorage.getItem('usuario'))
   const { balance, fetchDashboard } = useDashboardStore()
   const location = useLocation()
@@ -435,16 +459,35 @@ export default function Header() {
       <header style={{ padding: '20px 17px' }} className="bg-white border-b-2 border-gray-300 shadow-sm flex items-center justify-between shrink-0">
 
         <div className="flex items-center gap-4">
-          <span className="text-2xl text-indigo-600 font-bold">{paginaActual}</span>
-          <div style={{ width: '1px', height: '35px', background: '#8e8f94' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px' }}>
+
+          {/* Botón hamburguesa */}
+          <button className="block lg:hidden" onClick={() => setSidebarAbierto(true)}
+            style={{
+              border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex lg:hidden', alignItems: 'center', justifyContent: 'center'
+            }}
+          >
+            <Menu size={24} />
+          </button>
+
+          <span className="text-base md:text-lg lg:text-xl text-indigo-600 font-bold">
+            {paginaActual}
+          </span>
+
+          <div className="hidden md:block" style={{ width: '1px', height: '35px', background: '#8e8f94' }} />
+
+          <div className="hidden md:flex" style={{ alignItems: 'center', gap: '6px', fontSize: '14px' }}>
             <Calendar size={16} color="#9ca3af" />
             <span style={{ color: '#6b7280' }}>Corte</span>
-            <span style={{ fontWeight: 600, color: '#111827' }}>#{balance?.corte_numero ?? '...'}</span>
+            <span style={{ fontWeight: 600, color: '#111827' }}>
+              #{balance?.corte_numero ?? '...'}
+            </span>
             <span style={{ color: '#6b7280' }}>empezó el</span>
-            <span style={{ fontWeight: 600, color: '#111827' }}>{fechaCorte}</span>
+            <span style={{ fontWeight: 600, color: '#111827' }}>
+              {fechaCorte}
+            </span>
           </div>
-        </div> 
+
+        </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
 

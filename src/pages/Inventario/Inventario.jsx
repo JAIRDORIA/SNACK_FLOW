@@ -9,9 +9,16 @@ import { putInventario } from '@/api/inventario_api'
 import { postProduccion, getProducciones } from '@/api/producciones_api'
 import { getProductos } from '@/api/productos_api'
 
-// ══════════════════════════════════════════
-// MODAL EDITAR STOCK MÍNIMO
-// ══════════════════════════════════════════
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return isMobile
+}
+// MODAL EDITAR STOCK MINIMO
 function ModalEditarStockMinimo({ item, onCerrar, onGuardado }) {
   const [valor, setValor] = useState(String(item.stock_minimo))
   const [error, setError] = useState('')
@@ -93,12 +100,10 @@ function ModalEditarStockMinimo({ item, onCerrar, onGuardado }) {
   )
 }
 
-// ══════════════════════════════════════════
-// MODAL REGISTRAR PRODUCCIÓN
-// ══════════════════════════════════════════
+// MODAL REGISTRAR PRODUCCION
 function ModalProduccion({ onCerrar, onGuardado }) {
-  const hoy = new Date().toISOString().split('T')[0] // YYYY-MM-DD para el input date
-
+  const hoy = new Date().toISOString().split('T')[0]
+  const isMobile = useIsMobile()
   const [productos, setProductos] = useState([])
   const [cargandoProd, setCargandoProd] = useState(true)
   const [form, setForm] = useState({
@@ -140,11 +145,9 @@ function ModalProduccion({ onCerrar, onGuardado }) {
     }
     if (!form.fecha) { setError('La fecha es requerida.'); return }
 
-    // convertir fecha de YYYY-MM-DD a DD/MM/YYYY para el backend
     const [y, m, d] = form.fecha.split('-')
     const fechaBackend = `${d}/${m}/${y}`
 
-    // obtener usuario_id del localStorage
     const usuario = JSON.parse(localStorage.getItem('usuario') || '{}')
     if (!usuario.id) { setError('No se pudo obtener el usuario. Inicia sesión de nuevo.'); return }
 
@@ -269,7 +272,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
             </div>
           </div>
 
-          {/* observación */}
+          {/* observacion */}
           <div style={{ marginBottom: '20px' }}>
             <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
               Observación <span style={{ color: '#94a3b8', fontWeight: 400 }}>(opcional)</span>
@@ -283,7 +286,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
             />
           </div>
 
-          {/* errores y éxito */}
+          {/* errores y exito */}
           {error && (
             <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', color: '#ef4444', fontSize: '13px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               ⚠ {error}
@@ -310,10 +313,9 @@ function ModalProduccion({ onCerrar, onGuardado }) {
   )
 }
 
-// ══════════════════════════════════════════
 // MODAL HISTORIAL DE PRODUCCIONES
-// ══════════════════════════════════════════
 function ModalHistorialProduccion({ onCerrar }) {
+  const isMobile = useIsMobile()
   const [producciones, setProducciones] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
@@ -381,7 +383,7 @@ function ModalHistorialProduccion({ onCerrar }) {
             </div>
           ) : (
             <>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <table style={{ minWidth: '1100px', width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{ position: 'sticky', top: 0, background: 'white', zIndex: 1 }}>
                   <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
                     <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>ID</th>
@@ -394,15 +396,15 @@ function ModalHistorialProduccion({ onCerrar }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {producciones.map(prod => (
+                  {producciones.map(prod => ( 
                     <tr key={prod.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '14px 12px', fontSize: '13px', fontWeight: 500, color: '#4f46e5' }}>#{prod.id}</td>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#0f172a' }}>{prod.producto_nombre || prod.producto?.nombre}</td>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#0f172a' }}> {prod.nombre_producto}</td>
                       <td style={{ padding: '14px 12px', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{prod.cantidad}</td>
                       <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{prod.unidades_sueltas || 0}</td>
                       <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', padding: '4px 10px', borderRadius: '20px' }}>
-                          👤 {prod.usuario_nombre || prod.usuario?.nombre || `Usuario #${prod.usuario_id}`}
+                          👤 {prod.nombre_usuario || `Usuario #${prod.usuario_id}`}
                         </span>
                       </td>
                       <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{prod.fecha}</td>
@@ -420,30 +422,14 @@ function ModalHistorialProduccion({ onCerrar }) {
                   <button
                     onClick={() => cargarProducciones(pagina - 1)}
                     disabled={pagina === 1}
-                    style={{
-                      padding: '8px 16px',
-                      background: pagina === 1 ? '#f1f5f9' : 'white',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      cursor: pagina === 1 ? 'not-allowed' : 'pointer',
-                      color: pagina === 1 ? '#94a3b8' : '#475569'
-                    }}
-                  >
+                    style={{ padding: '8px 16px', background: pagina === 1 ? '#f1f5f9' : 'white', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: pagina === 1 ? 'not-allowed' : 'pointer', color: pagina === 1 ? '#94a3b8' : '#475569' }}>
                     ← Anterior
                   </button>
                   <span style={{ fontSize: '13px', color: '#64748b' }}>Página {pagina} de {totalPaginas}</span>
                   <button
                     onClick={() => cargarProducciones(pagina + 1)}
                     disabled={pagina === totalPaginas}
-                    style={{
-                      padding: '8px 16px',
-                      background: pagina === totalPaginas ? '#f1f5f9' : 'white',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer',
-                      color: pagina === totalPaginas ? '#94a3b8' : '#475569'
-                    }}
-                  >
+                    style={{ padding: '8px 16px', background: pagina === totalPaginas ? '#f1f5f9' : 'white', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer', color: pagina === totalPaginas ? '#94a3b8' : '#475569' }} >
                     Siguiente →
                   </button>
                 </div>
@@ -456,10 +442,9 @@ function ModalHistorialProduccion({ onCerrar }) {
   )
 }
 
-// ══════════════════════════════════════════
 // COMPONENTE PRINCIPAL
-// ══════════════════════════════════════════
 export default function Inventario() {
+
   const {
     inventario, total, pagina, total_paginas,
     bajoStock, cargando, error,
@@ -470,6 +455,7 @@ export default function Inventario() {
   const [editando, setEditando] = useState(null)
   const [modalProduccion, setModalProduccion] = useState(false)
   const [modalHistorial, setModalHistorial] = useState(false)
+  const isMobile = useIsMobile()
 
   useEffect(() => {
     fetchInventario()
@@ -516,15 +502,15 @@ export default function Inventario() {
     <div style={{ padding: '32px' }} className="flex-1 bg-gray-50">
 
       {/* título */}
-      <div style={{ marginBottom: '32px' }} className="flex items-center justify-between">
+      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '16px' : '0' }}>
         <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#000000', margin: 0, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
           Gestión de Inventario
         </h1>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: isMobile ? 'wrap' : 'nowrap', width: isMobile ? '100%' : 'auto' }}>
           <button
             onClick={() => setModalProduccion(true)}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95"
-            style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, border: 'none' }}
+            style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, border: 'none', flex: isMobile ? 1 : undefined }}
           >
             <Plus size={15} />
             Registrar producción
@@ -532,18 +518,10 @@ export default function Inventario() {
           <button
             onClick={() => setModalHistorial(true)}
             className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl transition-all"
-            style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
+            style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, border: 'none', flex: isMobile ? 1 : undefined }}
           >
             <ClipboardList size={14} />
             Ver historial
-          </button>
-          <button
-            onClick={() => cargar(pagina)}
-            className="flex items-center gap-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 rounded-xl transition-all"
-            style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: 500 }}
-          >
-            <RefreshCw size={14} />
-            Actualizar
           </button>
         </div>
       </div>
@@ -551,22 +529,23 @@ export default function Inventario() {
       {/* KPI cards */}
       <div style={{ marginBottom: '30px' }} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Total productos', val: totalProductos, icon: <Layers size={22} color="#818cf8" />, ring: 'ring-indigo-500/40' },
-          { label: 'Stock OK', val: stockOk, icon: <CheckCircle size={22} color="#34d399" />, ring: 'ring-emerald-400/40' },
-          { label: 'Bajo stock', val: bajoStockCount, icon: <TrendingDown size={22} color="#fbbf24" />, ring: 'ring-amber-400/40' },
-          { label: 'Sin stock', val: sinStock, icon: <Package size={22} color="#f87171" />, ring: 'ring-red-400/40' },
+          { label: isMobile ? 'Productos' : 'Total productos', val: totalProductos, icon: <Layers size={isMobile ? 16 : 22} color="#818cf8" />, ring: 'ring-indigo-500/40' },
+          { label: isMobile ? 'Stock OK' : 'Total stock OK', val: stockOk, icon: <CheckCircle size={isMobile ? 16 : 22} color="#34d399" />, ring: 'ring-emerald-400/40' },
+          { label: isMobile ? 'Bajo stock' : 'Total bajo stock', val: bajoStockCount, icon: <TrendingDown size={isMobile ? 16 : 22} color="#fbbf24" />, ring: 'ring-amber-400/40' },
+          { label: isMobile ? 'Sin stock' : 'Total sin stock', val: sinStock, icon: <Package size={isMobile ? 16 : 22} color="#f87171" />, ring: 'ring-red-400/40' },
         ].map((card, i) => (
-          <div key={i} className={`bg-[#1B1D2E] rounded-2xl flex items-center gap-4`}
+          <div
+            key={i}
+            className="bg-[#1B1D2E] rounded-2xl flex items-center"
+            style={{ gap: isMobile ? '10px' : '16px', padding: isMobile ? '16px' : '20px' }}
             onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
-            style={{ transition: 'all 0.2s' }}
-          >
-            <div style={{ margin: '20px 0 20px 20px' }} className={`bg-[#13152280] ring-2 ${card.ring} w-12 h-12 rounded-xl flex items-center justify-center shrink-0`}>
+            onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }} >
+            <div className={`bg-[#13152280] ring-2 ${card.ring} rounded-xl flex items-center justify-center shrink-0`} style={{ width: isMobile ? '48px' : '56px', height: isMobile ? '48px' : '56px' }}>
               {card.icon}
             </div>
             <div>
-              <p className="text-3xl text-white">{card.val}</p>
-              <p className="text-xs text-white/50 mt-0.5">{card.label}</p>
+              <p style={{ fontSize: isMobile ? '24px' : '30px', color: 'white', fontWeight: 700, margin: 0, lineHeight: 1 }} >{card.val} </p>
+              <p style={{ fontSize: isMobile ? '11px' : '12px', color: 'rgba(255,255,255,0.5)', margin: '4px 0 0', lineHeight: 1.2, wordBreak: 'break-word' }}>{card.label}</p>
             </div>
           </div>
         ))}
@@ -591,8 +570,8 @@ export default function Inventario() {
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-visible">
 
         <div className="border-b border-slate-100 flex gap-4 items-center flex-wrap" style={{ padding: '12px' }}>
-          <div className="relative flex-1 min-w-[280px] max-w-md">
-            <input type="text" placeholder="Buscar por ID o nombre de producto..."
+          <div className="relative flex-1 max-w-md" style={{ minWidth: isMobile ? '100%' : '280px' }}>
+            <input type="text" placeholder="Buscar por ID o producto..."
               value={busqueda} onChange={e => setBusqueda(e.target.value)}
               style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
               className="w-full border border-slate-200 rounded-xl text-sm outline-none text-slate-700 bg-white focus:border-indigo-400 focus:ring-3 focus:ring-indigo-50 transition-all placeholder:text-slate-400"
@@ -602,7 +581,7 @@ export default function Inventario() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="border-collapse" style={{ minWidth: '900px', width: '100%' }}>
             <thead>
               <tr className="bg-slate-50/80">
                 {['ID', 'Producto', 'Stock actual', 'Unidades sueltas', 'Stock mínimo', 'Estado', 'Acciones'].map((h, i) => (

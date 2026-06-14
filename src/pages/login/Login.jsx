@@ -96,7 +96,7 @@ function useIsMobile() {
   return isMobile
 }
 
-// ── Panel izquierdo ───────────────────────────────────────────────────────────
+//Panel izquierdo 
 function PanelIzquierdo({ modo }) {
   
   return (
@@ -133,7 +133,7 @@ function PanelIzquierdo({ modo }) {
   )
 }
 
-// ── Bienvenida + Setup ────────────────────────────────────────────────────────
+// Bienvenida + Setup 
 function Bienvenida({ onSetupComplete }) {
   const navigate = useNavigate()
   const isMobile = useIsMobile()
@@ -279,7 +279,7 @@ function Bienvenida({ onSetupComplete }) {
   )
 }
 
-// ── Recuperar contraseña ──────────────────────────────────────────────────────
+// Recuperar contraseña 
 function RecuperarPassword({ onVolver }) {
   const isMobile = useIsMobile()
   const [paso, setPaso] = useState(1)
@@ -436,7 +436,7 @@ function RecuperarPassword({ onVolver }) {
   )
 }
 
-// ── Login normal ──────────────────────────────────────────────────────────────
+// Login normal 
 function LoginScreen({ onRecuperar }) {
   const isMobile = useIsMobile()
   const navigate = useNavigate()
@@ -525,7 +525,7 @@ function LoginScreen({ onRecuperar }) {
   )
 }
 
-// ── Raíz ──────────────────────────────────────────────────────────────────────
+// Raíz 
 export default function Login() {
   const [modo, setModo] = useState(null)
   const navigate = useNavigate()

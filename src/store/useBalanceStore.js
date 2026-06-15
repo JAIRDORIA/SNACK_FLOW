@@ -62,8 +62,8 @@ fetchDetalleCorte: async (corteId) => {
   try {
     console.log('🔍 Solicitando ventas y compras para el corte:', corteId)
     const [ventasRes, comprasRes] = await Promise.all([
-      getVentas(corteId),
-      getCompras(corteId)
+      getVentas(1,100,corteId),
+      getCompras(1,100,corteId)
     ])
      console.log('📦 Respuesta ventas:', ventasRes.data)
     console.log('📦 Respuesta compras:', comprasRes.data)

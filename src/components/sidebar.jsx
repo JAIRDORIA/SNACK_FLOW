@@ -33,7 +33,10 @@ const inventarioSubMenu = [
   { id: 'inventario-combos', label: 'Combos', icon: Layers, path: '/inventario/combos' },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({
+  sidebarAbierto,
+  setSidebarAbierto
+}) {
   const location = useLocation()
 
   const inventarioActivo = location.pathname.startsWith('/inventario')
@@ -41,7 +44,22 @@ export default function Sidebar() {
   const [inventarioAbierto, setInventarioAbierto] = useState(inventarioActivo)
 
   return (
-    <aside className="w-60 bg-[#1B1D2E] h-screen flex flex-col text-white border-r border-white/5">
+    <aside
+  className={`
+    fixed lg:static
+    top-0 left-0
+    z-50
+    w-60
+    h-screen
+    bg-[#1B1D2E]
+    flex flex-col
+    text-white
+    border-r border-white/5
+    transform transition-transform duration-300
+    ${sidebarAbierto ? 'translate-x-0' : '-translate-x-full'}
+    lg:translate-x-0
+  `}
+>
 
       {/* Logo */}
       <div style={{

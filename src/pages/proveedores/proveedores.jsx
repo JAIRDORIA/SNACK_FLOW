@@ -311,18 +311,12 @@ export default function Proveedores() {
                       
                       <td style={{ padding: '16px 24px' }}>
                         <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                          <button title="Detalles" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
-                            <Info size={18} color="#5842ff" />
-                          </button>
                           
                           {/* BOTONES DE ACCIÓN */}
                           {!inactivo ? (
                             <>
                               <button onClick={() => abrirEditar(p)} title="Editar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
                                 <Pencil size={18} color="#f59e0b" />
-                              </button>
-                              <button title="Validar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
-                                <CheckCircle2 size={18} color="#10b981" />
                               </button>
                               <button onClick={() => setProveedorEliminar(p)} title="Desactivar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
                                 <Trash2 size={18} color="#ef4444" />

@@ -9,11 +9,12 @@ import { exportarAExcel } from '@/utils/exportarExcel'
 
 
 
+
 export default function Balance() {
   const {
     balance, historial,
     cargandoBalance, cargandoHistorial, cerrandoCorte, error, exitoCierre,
-    fetchBalance, fetchHistorial, cerrarCorteActual, resetExitoCierre, resumenFuturo, cargandoFuturo, fetchResumenFuturo, errorFuturo, fetchVentasPendientesAnteriores, ventasFuturo, ventasPendientesAnteriores, cargandoVentasPendientes, errorVentasPendientes
+    fetchBalance, fetchHistorial, cerrarCorteActual, resetExitoCierre, resumenFuturo, cargandoFuturo,fetchDetalleCorte, fetchResumenFuturo, errorFuturo, fetchVentasPendientesAnteriores, ventasFuturo, ventasPendientesAnteriores, cargandoVentasPendientes, errorVentasPendientes
   } = useBalanceStore()
 
   const [detalleVentaFuturo, setDetalleVentaFuturo] = useState(null)

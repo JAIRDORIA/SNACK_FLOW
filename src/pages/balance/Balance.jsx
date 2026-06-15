@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import {
-  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar, Info,AlertTriangle,
+  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar, Info, AlertTriangle,Download,
   AlertCircle, CheckCircle2, Loader2, X, Trash2
 } from 'lucide-react'
 import useBalanceStore from '@/store/useBalanceStore'
 import { getVentaDetalle, anularVenta } from '@/api/ventas_api'
-
+import { exportarAExcel } from '@/utils/exportarExcel'
 
 
 
@@ -302,6 +302,7 @@ export default function Balance() {
                 <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Corte #</th>
                 <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Inicio</th>
                 <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Cierre</th>
+                <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-center text-xs text-slate-500 uppercase tracking-wider">Ver</th>
                 <th style={{ padding: "12px 24px" }} className="px-6 py-3 text-center text-xs text-slate-500 uppercase tracking-wider">Estado</th>
               </tr>
             </thead>
@@ -316,6 +317,17 @@ export default function Balance() {
                     <td style={{ padding: "16px 24px" }} className="px-6 py-4 font-medium text-indigo-600">#{corte.numero}</td>
                     <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-gray-500">{corte.fecha_inicio || '—'}</td>
                     <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-gray-500">{corte.fecha_cierre || '—'}</td>
+                    <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-center">
+                      {corte.estado === 'cerrado' && (
+                        <button
+                          onClick={() => fetchDetalleCorte(corte.id)}
+                          className="w-8 h-8 rounded-lg hover:bg-indigo-50 flex items-center justify-center transition-colors"
+                          title="Ver detalle del corte"
+                        >
+                          <Search size={16} color="#4f46e5" />
+                        </button>
+                      )}
+                    </td>
                     <td style={{ padding: "16px 24px" }} className="px-6 py-4 text-center">
                       <span style={{ padding: "4px 12px" }} className={`inline-flex items-center gap-1 text-xs px-3 py-1 rounded-full font-medium ${corte.estado === 'cerrado'
                         ? 'bg-gray-100 text-gray-600'
@@ -333,6 +345,90 @@ export default function Balance() {
           </table>
         )}
       </div>
+      {/* Modal detalle de corte */}
+{detalleCorte && (
+  <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden">
+      
+      {/* Header */}
+      <div style={{padding:"16px 24px"}} className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-50">
+        <h3 className="text-lg font-bold text-slate-800">
+          Detalle del Corte #{detalleCorte.corteId}
+        </h3>
+        <button
+          onClick={() => set({ detalleCorte: null })}
+          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
+        >
+          <X size={20} color="#64748b" />
+        </button>
+      </div>
+
+      {/* Resumen */}
+      <div style={{padding:"24px"}} className="p-6">
+        <div style={{marginBottom:"24px"}} className="grid grid-cols-3 gap-4 mb-6">
+          <div style={{padding:"16px"}} className="bg-indigo-50 p-4 rounded-xl text-center">
+            <p style={{marginBottom:"4px"}} className="text-xs text-slate-500 mb-1">Total Ventas</p>
+            <p className="text-xl font-bold text-indigo-600">
+              ${detalleCorte.totalVentas.toLocaleString('es-CO')}
+            </p>
+          </div>
+          <div style={{padding:"16px"}} className="bg-rose-50 p-4 rounded-xl text-center">
+            <p style={{marginBottom:"4px"}} className="text-xs text-slate-500 mb-1">Total Compras</p>
+            <p className="text-xl font-bold text-rose-600">
+              ${detalleCorte.totalCompras.toLocaleString('es-CO')}
+            </p>
+          </div>
+          <div style={{padding:"16px"}} className={`p-4 rounded-xl text-center ${detalleCorte.utilidad >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
+            <p style={{marginBottom:"4px"}} className="text-xs text-slate-500 mb-1">Utilidad</p>
+            <p className={`text-xl font-bold ${detalleCorte.utilidad >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              ${detalleCorte.utilidad.toLocaleString('es-CO')}
+            </p>
+          </div>
+        </div>
+
+        {/* Botones de exportación */}
+        <div style={{marginBottom:"24px"}} className="flex gap-3 mb-6">
+          <button
+            onClick={() => exportarAExcel(
+              detalleCorte.ventas,
+              `Ventas_Corte_${detalleCorte.corteId}`,
+              [
+                { key: 'id_venta', label: 'ID Venta' },
+                { key: 'nombre_cliente', label: 'Cliente' },
+                { key: 'fecha_entrega', label: 'Fecha' },
+                { key: 'total', label: 'Total', format: (item) => `$${item.total?.toLocaleString('es-CO')}` },
+                { key: 'estado', label: 'Estado' }
+              ]
+            )}
+            style={{padding:"8px 16px"}}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+          >
+            <Download size={16} />
+            Exportar Ventas
+          </button>
+          <button
+            onClick={() => exportarAExcel(
+              detalleCorte.compras,
+              `Compras_Corte_${detalleCorte.corteId}`,
+              [
+                { key: 'id', label: 'ID Compra' },
+                { key: 'proveedor_nombre', label: 'Proveedor' },
+                { key: 'fecha', label: 'Fecha' },
+                { key: 'total', label: 'Total', format: (item) => `$${item.total?.toLocaleString('es-CO')}` },
+                { key: 'estado', label: 'Estado' }
+              ]
+            )}
+            style={{padding:"8px 16px"}}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+          >
+            <Download size={16} />
+            Exportar Compras
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Modal cerrar corte */}
       {modalCerrar && (
@@ -409,16 +505,16 @@ export default function Balance() {
                   <tbody>
                     {ventasFuturo.map((v) => (
                       <tr key={v.id_venta} className="border-t border-gray-100 hover:bg-gray-50">
-                        <td style={{padding:"8px 16px"}} className="px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
-                        <td style={{padding:"8px 16px"}} className="px-4 py-2 text-slate-700">{v.nombre_cliente}</td>
-                        <td style={{padding:"8px 16px"}} className="px-4 py-2 text-right font-semibold">${v.total.toLocaleString('es-CO')}</td>
-                        <td style={{padding:"8px 16px"}} className="px-4 py-2">
-                          <span style={{padding:"2px 8px"}} className={`text-xs px-2 py-0.5 rounded-full ${v.estado === 'pendiente' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
+                        <td style={{ padding: "8px 16px" }} className="px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
+                        <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-slate-700">{v.nombre_cliente}</td>
+                        <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-right font-semibold">${v.total.toLocaleString('es-CO')}</td>
+                        <td style={{ padding: "8px 16px" }} className="px-4 py-2">
+                          <span style={{ padding: "2px 8px" }} className={`text-xs px-2 py-0.5 rounded-full ${v.estado === 'pendiente' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
                             }`}>
                             {v.estado}
                           </span>
                         </td>
-                        <td style={{padding:"8px 16px"}} className="px-4 py-2">
+                        <td style={{ padding: "8px 16px" }} className="px-4 py-2">
                           <div className="flex gap-1">
                             <button
                               title="Ver detalle"
@@ -459,15 +555,15 @@ export default function Balance() {
       }
       {/* Modal detalle venta futuro */}
       {detalleVentaFuturo && (
-        <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div style={{ padding: "16px" }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden">
-            <div style={{padding:"24px 32px"}} className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
+            <div style={{ padding: "24px 32px" }} className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
               <div>
                 <p className="font-bold text-xl text-gray-800">
                   Detalle de Venta{' '}
                   <span className="text-indigo-600">#{String(detalleVentaFuturo.id).padStart(3, '0')}</span>
                 </p>
-                <p style={{marginTop:"4px"}} className="text-sm text-gray-500 mt-1">
+                <p style={{ marginTop: "4px" }} className="text-sm text-gray-500 mt-1">
                   Cliente: <strong className="text-gray-700">{detalleVentaFuturo.nombre_cliente}</strong>
                 </p>
               </div>
@@ -478,39 +574,39 @@ export default function Balance() {
                 <X size={20} color="#64748b" />
               </button>
             </div>
-            <div style={{padding:"32px"}} className="p-8 max-h-[70vh] overflow-y-auto">
+            <div style={{ padding: "32px" }} className="p-8 max-h-[70vh] overflow-y-auto">
               {/* Tabla de productos */}
-              <table style={{marginBottom:"24px"}} className="w-full border-collapse mb-6">
+              <table style={{ marginBottom: "24px" }} className="w-full border-collapse mb-6">
                 <thead className="bg-slate-200">
                   <tr>
-                    <th style={{padding:"8px 16px"}} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
-                    <th style={{padding:"8px 16px"}} className="px-4 py-2 text-center text-xs text-slate-500 uppercase">Cantidad</th>
-                    <th style={{padding:"8px 16px"}} className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Precio unit.</th>
-                    <th style={{padding:"8px 16px"}} className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Subtotal</th>
+                    <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
+                    <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-center text-xs text-slate-500 uppercase">Cantidad</th>
+                    <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Precio unit.</th>
+                    <th style={{ padding: "8px 16px" }} className="px-4 py-2 text-right text-xs text-slate-500 uppercase">Subtotal</th>
                   </tr>
                 </thead>
                 <tbody>
                   {detalleVentaFuturo.detalle?.map((d, i) => (
                     <tr key={i} className="border-t border-gray-100 hover:bg-gray-50">
-                      <td style={{padding:"8px 16px"}} className="px-4 py-2 text-sm text-slate-700">{d.nombre_producto}</td>
-                      <td style={{padding:"8px 16px"}} className="px-4 py-2 text-sm text-center text-slate-600">{d.cantidad}</td>
-                      <td style={{padding:"8px 16px"}} className="px-4 py-2 text-sm text-right text-slate-600">${d.precio_unitario.toLocaleString('es-CO')}</td>
-                      <td style={{padding:"8px 16px"}} className="px-4 py-2 text-sm text-right font-medium text-slate-700">${d.subtotal.toLocaleString('es-CO')}</td>
+                      <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm text-slate-700">{d.nombre_producto}</td>
+                      <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm text-center text-slate-600">{d.cantidad}</td>
+                      <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm text-right text-slate-600">${d.precio_unitario.toLocaleString('es-CO')}</td>
+                      <td style={{ padding: "8px 16px" }} className="px-4 py-2 text-sm text-right font-medium text-slate-700">${d.subtotal.toLocaleString('es-CO')}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               {/* Totales */}
               <div className="grid grid-cols-3 gap-4">
-                <div style={{padding:"16px"}} className="bg-indigo-50 p-4 rounded-xl text-center">
+                <div style={{ padding: "16px" }} className="bg-indigo-50 p-4 rounded-xl text-center">
                   <p className="text-xs text-slate-500">Total</p>
                   <p className="text-xl font-bold text-indigo-600">${detalleVentaFuturo.total?.toLocaleString('es-CO')}</p>
                 </div>
-                <div style={{padding:"16px"}} className="bg-emerald-50 p-4 rounded-xl text-center">
+                <div style={{ padding: "16px" }} className="bg-emerald-50 p-4 rounded-xl text-center">
                   <p className="text-xs text-slate-500">Abonado</p>
                   <p className="text-xl font-bold text-emerald-600">${detalleVentaFuturo.total_abonado?.toLocaleString('es-CO')}</p>
                 </div>
-                <div style={{padding:"16px"}} className={`p-4 rounded-xl text-center ${detalleVentaFuturo.saldo_pendiente > 0 ? 'bg-amber-50' : 'bg-emerald-50'}`}>
+                <div style={{ padding: "16px" }} className={`p-4 rounded-xl text-center ${detalleVentaFuturo.saldo_pendiente > 0 ? 'bg-amber-50' : 'bg-emerald-50'}`}>
                   <p className="text-xs text-slate-500">Saldo pendiente</p>
                   <p className={`text-xl font-bold ${detalleVentaFuturo.saldo_pendiente > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
                     ${detalleVentaFuturo.saldo_pendiente?.toLocaleString('es-CO')}
@@ -518,10 +614,10 @@ export default function Balance() {
                 </div>
               </div>
             </div>
-            <div style={{padding:"16px 32px"}} className="px-8 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
+            <div style={{ padding: "16px 32px" }} className="px-8 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
               <button
                 onClick={() => setDetalleVentaFuturo(null)}
-                style={{padding:"8px 16px"}}
+                style={{ padding: "8px 16px" }}
                 className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
               >
                 Cerrar
@@ -531,38 +627,38 @@ export default function Balance() {
         </div>
       )}
       {/* Modal confirmar anular venta futuro */}
-{ventaAnularId && (
-  <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div style={{padding:"32px"}} className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-8 text-center">
-      <div style={{marginBottom:"24px",marginLeft:"auto",marginRight:"auto"}} className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
-        <AlertTriangle size={32} className="text-rose-500" />
-      </div>
-      <p style={{marginBottom:"12px"}} className="font-bold text-xl text-gray-800 mb-3">¿Anular venta?</p>
-      <p style={{marginBottom:"32px"}} className="text-sm text-gray-500 mb-8">
-        La venta <strong>#{String(ventaAnularId).padStart(3, '0')}</strong> del corte futuro será anulada. 
-        Si tenía pagos, el dinero se revertirá del saldo inicial del corte.
-      </p>
-      <div className="flex gap-3">
-        <button
-          onClick={() => setVentaAnularId(null)}
-          disabled={anulandoVentaFuturo}
-          style={{paddingTop:"12px",paddingBottom:"12px"}}
-          className="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
-        >
-          Cancelar
-        </button>
-        <button
-          onClick={handleAnularVentaFuturo}
-          disabled={anulandoVentaFuturo}
-          style={{paddingTop:"12px",paddingBottom:"12px"}}
-          className="flex-1 py-3 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 disabled:opacity-50"
-        >
-          {anulandoVentaFuturo ? 'Anulando...' : 'Sí, anular'}
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      {ventaAnularId && (
+        <div style={{ padding: "16px" }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div style={{ padding: "32px" }} className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-8 text-center">
+            <div style={{ marginBottom: "24px", marginLeft: "auto", marginRight: "auto" }} className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+              <AlertTriangle size={32} className="text-rose-500" />
+            </div>
+            <p style={{ marginBottom: "12px" }} className="font-bold text-xl text-gray-800 mb-3">¿Anular venta?</p>
+            <p style={{ marginBottom: "32px" }} className="text-sm text-gray-500 mb-8">
+              La venta <strong>#{String(ventaAnularId).padStart(3, '0')}</strong> del corte futuro será anulada.
+              Si tenía pagos, el dinero se revertirá del saldo inicial del corte.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setVentaAnularId(null)}
+                disabled={anulandoVentaFuturo}
+                style={{ paddingTop: "12px", paddingBottom: "12px" }}
+                className="flex-1 py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleAnularVentaFuturo}
+                disabled={anulandoVentaFuturo}
+                style={{ paddingTop: "12px", paddingBottom: "12px" }}
+                className="flex-1 py-3 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 disabled:opacity-50"
+              >
+                {anulandoVentaFuturo ? 'Anulando...' : 'Sí, anular'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
     </div>

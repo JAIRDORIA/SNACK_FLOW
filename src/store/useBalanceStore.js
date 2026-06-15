@@ -27,7 +27,7 @@ errorVentasPendientes: null,
 detalleCorte: null,
 cargandoDetalleCorte: false,
 errorDetalleCorte: null,
-
+cerrarDetalleCorte: () => set({ detalleCorte: null }),
   // Acciones
   fetchVentasPendientesAnteriores: async () => {
   set({ cargandoVentasPendientes: true, errorVentasPendientes: null })
@@ -59,7 +59,7 @@ errorDetalleCorte: null,
 
 fetchDetalleCorte: async (corteId) => {
   set({ cargandoDetalleCorte: true, errorDetalleCorte: null, detalleCorte: null })
-  cerrarDetalleCorte: () => set({ detalleCorte: null })
+  
   try {
     console.log('🔍 Solicitando ventas y compras para el corte:', corteId)
     const [ventasRes, comprasRes] = await Promise.all([

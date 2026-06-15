@@ -60,10 +60,13 @@ errorDetalleCorte: null,
 fetchDetalleCorte: async (corteId) => {
   set({ cargandoDetalleCorte: true, errorDetalleCorte: null, detalleCorte: null })
   try {
+    console.log('🔍 Solicitando ventas y compras para el corte:', corteId)
     const [ventasRes, comprasRes] = await Promise.all([
       getVentas(corteId),
       getCompras(corteId)
     ])
+     console.log('📦 Respuesta ventas:', ventasRes.data)
+    console.log('📦 Respuesta compras:', comprasRes.data)
     
     const ventas = ventasRes.data?.datos || []
     const compras = comprasRes.data?.datos || []

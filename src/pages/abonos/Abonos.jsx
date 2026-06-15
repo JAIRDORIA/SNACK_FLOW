@@ -164,13 +164,13 @@ export default function Abonos() {
 
       {/* Modal Confirmar Eliminar */}
       {eliminarId && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-8 text-center">
-            <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div style={{padding:"32px"}} className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-8 text-center">
+            <div style={{marginBottom:"32px",marginLeft:"auto" ,marginRight:"auto"}} className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
               <AlertCircle size={32} className="text-rose-500" />
             </div>
-            <p className="font-bold text-xl text-slate-800 mb-3">¿Eliminar abono?</p>
-            <p className="text-sm text-slate-500 mb-8">
+            <p style={{marginBottom:"12px"}} className="font-bold text-xl text-slate-800 mb-3">¿Eliminar abono?</p>
+            <p style={{marginBottom:"32px"}} className="text-sm text-slate-500 mb-8">
               El abono <strong>#{eliminarId}</strong> será eliminado y se revertirá su monto de la venta correspondiente.
             </p>
             <div className="flex gap-3">
@@ -179,6 +179,7 @@ export default function Abonos() {
                 Cancelar
               </button>
               <button onClick={handleEliminar} disabled={eliminando}
+              style={{paddingTop:"12px",paddingBottom:"12px"}}
                 className="flex-1 py-3 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 disabled:opacity-50">
                 {eliminando ? 'Eliminando...' : 'Sí, eliminar'}
               </button>

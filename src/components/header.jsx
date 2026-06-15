@@ -1,28 +1,28 @@
 import { useEffect, useState, useRef } from 'react'
-import { Calendar,LogOut, Users, Plus, X, Eye, EyeOff, Trash2, Shield, Pencil, Check } from 'lucide-react'
+import { Calendar, LogOut, Users, Plus, X, Eye, EyeOff, Trash2, Shield, Pencil, Check } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import useDashboardStore from '@/store/useDashboardStore'
 import api from '@/api/axios'
 
 const nombresPagina = {
-  '/':                     'Dashboard',
-  '/ventas':               'Ventas',
-  '/clientes':             'Clientes',
-  '/compras':              'Compras',
-  '/proveedores':          'Proveedores',
-  '/balance':              'Balance',
-  '/abonos':               'Abonos',
-  '/cortes':               'Cortes',
-  '/inventario/ver':       'Inventario',
+  '/': 'Dashboard',
+  '/ventas': 'Ventas',
+  '/clientes': 'Clientes',
+  '/compras': 'Compras',
+  '/proveedores': 'Proveedores',
+  '/balance': 'Balance',
+  '/abonos': 'Abonos',
+  '/cortes': 'Cortes',
+  '/inventario/ver': 'Inventario',
   '/inventario/productos': 'Productos',
-  '/inventario/combos':    'Combos',
+  '/inventario/combos': 'Combos',
 }
 
 // ── Modal genérico de alerta / confirmación ───────────────────────────────────
 function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
   const colores = {
-    error:   { bg: '#fef2f2', border: '#fecaca', titulo: '#b91c1c', btn: '#ef4444', btnHover: '#dc2626', icono: '🚫' },
-    exito:   { bg: '#f0fdf4', border: '#bbf7d0', titulo: '#15803d', btn: '#22c55e', btnHover: '#16a34a', icono: '✓' },
+    error: { bg: '#fef2f2', border: '#fecaca', titulo: '#b91c1c', btn: '#ef4444', btnHover: '#dc2626', icono: '🚫' },
+    exito: { bg: '#f0fdf4', border: '#bbf7d0', titulo: '#15803d', btn: '#22c55e', btnHover: '#16a34a', icono: '✓' },
     warning: { bg: '#fffbeb', border: '#fde68a', titulo: '#b45309', btn: '#f59e0b', btnHover: '#d97706', icono: '⚠' },
   }
   const c = colores[tipo] || colores.warning
@@ -79,19 +79,19 @@ function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
 
 // ── Modal gestión de usuarios ─────────────────────────────────────────────────
 function ModalUsuarios({ onCerrar }) {
-  const [usuarios, setUsuarios]       = useState([])
-  const [cargando, setCargando]       = useState(true)
+  const [usuarios, setUsuarios] = useState([])
+  const [cargando, setCargando] = useState(true)
   const [mostrarForm, setMostrarForm] = useState(false)
-  const [verPass, setVerPass]         = useState(false)
-  const [form, setForm]               = useState({ nombre: '', username: '', password: '', rol: 'admin' })
-  const [error, setError]             = useState('')
-  const [guardando, setGuardando]     = useState(false)
+  const [verPass, setVerPass] = useState(false)
+  const [form, setForm] = useState({ nombre: '', username: '', password: '', rol: 'admin' })
+  const [error, setError] = useState('')
+  const [guardando, setGuardando] = useState(false)
 
   // modales internos
-  const [alerta, setAlerta]           = useState(null) // { tipo, titulo, mensaje, onConfirmar, onCancelar }
+  const [alerta, setAlerta] = useState(null) // { tipo, titulo, mensaje, onConfirmar, onCancelar }
 
   // edición
-  const [editandoId, setEditandoId]   = useState(null)
+  const [editandoId, setEditandoId] = useState(null)
   const [editForm, setEditForm] = useState({ nombre: '', username: '', password: '' })
   const [guardandoEdit, setGuardandoEdit] = useState(false)
 
@@ -143,7 +143,7 @@ function ModalUsuarios({ onCerrar }) {
       titulo: '¿Desactivar usuario?',
       mensaje: `¿Estás seguro de que deseas desactivar a ${u.nombre}? El usuario ya no podrá iniciar sesión.`,
       onConfirmar: () => { setAlerta(null); desactivar(u.id) },
-      onCancelar:  () => setAlerta(null)
+      onCancelar: () => setAlerta(null)
     })
   }
 
@@ -168,8 +168,8 @@ function ModalUsuarios({ onCerrar }) {
   }
 
   const iniciarEdicion = (u) => {
-  setEditandoId(u.id)
-  setEditForm({ nombre: u.nombre, username: u.username, password: '__sin_cambios__' })
+    setEditandoId(u.id)
+    setEditForm({ nombre: u.nombre, username: u.username, password: '__sin_cambios__' })
   }
 
   const guardarEdicion = async (id) => {
@@ -248,15 +248,15 @@ function ModalUsuarios({ onCerrar }) {
                 <p style={{ margin: '0 0 16px', fontWeight: 600, color: '#111827', fontSize: '14px' }}>Nuevo administrador</p>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
                   {[
-                    { name: 'nombre',   label: 'Nombre completo', ph: 'Carlos Pérez' },
-                    { name: 'username', label: 'Usuario',          ph: 'cperez' },
+                    { name: 'nombre', label: 'Nombre completo', ph: 'Carlos Pérez' },
+                    { name: 'username', label: 'Usuario', ph: 'cperez' },
                   ].map(f => (
                     <div key={f.name}>
                       <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>{f.label}</label>
                       <input type="text" name={f.name} value={form[f.name]} onChange={change} placeholder={f.ph}
                         style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
                         onFocus={e => e.target.style.borderColor = '#4f46e5'}
-                        onBlur={e  => e.target.style.borderColor = '#e5e7eb'}
+                        onBlur={e => e.target.style.borderColor = '#e5e7eb'}
                       />
                     </div>
                   ))}
@@ -268,7 +268,7 @@ function ModalUsuarios({ onCerrar }) {
                     <input type={verPass ? 'text' : 'password'} name="password" value={form.password} onChange={change} placeholder="••••••••"
                       style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 40px 10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
                       onFocus={e => e.target.style.borderColor = '#4f46e5'}
-                      onBlur={e  => e.target.style.borderColor = '#e5e7eb'}
+                      onBlur={e => e.target.style.borderColor = '#e5e7eb'}
                     />
                     <button type="button" onClick={() => setVerPass(!verPass)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}>
                       {verPass ? <EyeOff size={16} color="#9ca3af" /> : <Eye size={16} color="#9ca3af" />}
@@ -307,29 +307,22 @@ function ModalUsuarios({ onCerrar }) {
                           <Pencil size={14} color="#4f46e5" />
                         </div>
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-    <input value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
-      placeholder="Nombre"
-      style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
-    />
-    <input value={editForm.username} onChange={e => setEditForm({ ...editForm, username: e.target.value })}
-      placeholder="Username"
-      style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
-    />
-  </div>
- <input
-  type="password"
-  value="__sin_cambios__"
-  disabled
-  placeholder="••••••••"
-  style={{
-    border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px',
-    fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af',
-    background: '#f3f4f6', width: '100%', boxSizing: 'border-box',
-    cursor: 'not-allowed', outline: 'none'
-  }}
-/>
-</div>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <input value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
+                              placeholder="Nombre"
+                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                            />
+                            <input value={editForm.username} onChange={e => setEditForm({ ...editForm, username: e.target.value })}
+                              placeholder="Username"
+                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                            />
+                          </div>
+                          <input type="password" value="__sin_cambios__" disabled placeholder="••••••••" style={{
+                            border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', width: '100%', boxSizing: 'border-box',
+                            cursor: 'not-allowed', outline: 'none'
+                          }}
+                          />
+                        </div>
                         <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                           <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit} style={{ background: '#4f46e5', border: 'none', borderRadius: '7px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                             <Check size={14} color="white" />
@@ -415,9 +408,9 @@ function ModalUsuarios({ onCerrar }) {
 export default function Header() {
   const usuario = JSON.parse(localStorage.getItem('usuario'))
   const { balance, fetchDashboard } = useDashboardStore()
-  const location  = useLocation()
-  const navigate  = useNavigate()
-  const [dropdown, setDropdown]           = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [dropdown, setDropdown] = useState(false)
   const [modalUsuarios, setModalUsuarios] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -451,10 +444,10 @@ export default function Header() {
             <span style={{ color: '#6b7280' }}>empezó el</span>
             <span style={{ fontWeight: 600, color: '#111827' }}>{fechaCorte}</span>
           </div>
-        </div>
+        </div> 
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          
+
           <div style={{ position: 'relative' }} ref={dropdownRef}>
             <button onClick={() => setDropdown(!dropdown)} style={{
               display: 'flex', alignItems: 'center', gap: '10px',

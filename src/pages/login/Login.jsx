@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import api from '@/api/axios'
 
 const ACCENT = '#4f46e5'
-const DARK   = '#1B1D2E'
+const DARK = '#1B1D2E'
 
 const inputStyle = {
   width: '100%', boxSizing: 'border-box',
@@ -34,8 +34,8 @@ function Campo({ label, name, type = 'text', placeholder, value, onChange, extra
             ...inputStyle,
             ...(disabled ? { opacity: 0.5, cursor: 'not-allowed' } : {})
           }}
-          onFocus={e => { if (!disabled) { e.target.style.borderColor = 'rgba(255,255,255,0.6)'; e.target.style.background = 'rgba(255,255,255,0.15)' }}}
-          onBlur={e  => { if (!disabled) { e.target.style.borderColor = 'rgba(255,255,255,0.16)'; e.target.style.background = 'rgba(255,255,255,0.10)' }}}
+          onFocus={e => { if (!disabled) { e.target.style.borderColor = 'rgba(255,255,255,0.6)'; e.target.style.background = 'rgba(255,255,255,0.15)' } }}
+          onBlur={e => { if (!disabled) { e.target.style.borderColor = 'rgba(255,255,255,0.16)'; e.target.style.background = 'rgba(255,255,255,0.10)' } }}
         />
         {extra}
       </div>
@@ -95,26 +95,26 @@ function PanelIzquierdo({ modo }) {
       alignItems: 'center', justifyContent: 'center',
       padding: '48px 40px', position: 'relative', overflow: 'hidden'
     }}>
-      <div style={{ position:'absolute', width:'380px', height:'380px', borderRadius:'50%', border:'3px solid rgba(79,70,229,0.35)', top:'-100px', right:'-100px' }} />
-      <div style={{ position:'absolute', width:'260px', height:'260px', borderRadius:'50%', border:'3px solid rgba(79,70,229,0.25)', top:'-40px', right:'-40px' }} />
-      <div style={{ position:'absolute', width:'300px', height:'300px', borderRadius:'50%', border:'3px solid rgba(79,70,229,0.3)', bottom:'-80px', left:'-80px' }} />
-      <div style={{ position:'absolute', width:'180px', height:'180px', borderRadius:'50%', border:'2px solid rgba(79,70,229,0.2)', bottom:'-20px', left:'-20px' }} />
-      <div style={{ position:'absolute', width:'200px', height:'200px', borderRadius:'50%', background:'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)', top:'50%', left:'50%', transform:'translate(-50%,-50%)' }} />
-      <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(79,70,229,0.2) 1px, transparent 1px)', backgroundSize:'28px 28px', pointerEvents:'none' }} />
+      <div style={{ position: 'absolute', width: '380px', height: '380px', borderRadius: '50%', border: '3px solid rgba(79,70,229,0.35)', top: '-100px', right: '-100px' }} />
+      <div style={{ position: 'absolute', width: '260px', height: '260px', borderRadius: '50%', border: '3px solid rgba(79,70,229,0.25)', top: '-40px', right: '-40px' }} />
+      <div style={{ position: 'absolute', width: '300px', height: '300px', borderRadius: '50%', border: '3px solid rgba(79,70,229,0.3)', bottom: '-80px', left: '-80px' }} />
+      <div style={{ position: 'absolute', width: '180px', height: '180px', borderRadius: '50%', border: '2px solid rgba(79,70,229,0.2)', bottom: '-20px', left: '-20px' }} />
+      <div style={{ position: 'absolute', width: '200px', height: '200px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.2) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
 
       <div style={{ zIndex: 1, textAlign: 'center' }}>
-        <img src="/logo2.png" alt="SnackFlow" style={{ width:'220px', objectFit:'contain', marginBottom:'28px', filter:'drop-shadow(0 8px 24px rgba(79,70,229,0.4))' }} />
-        <div style={{ width:'40px', height:'2px', background:'rgba(79,70,229,0.6)', borderRadius:'2px', margin:'0 auto 16px' }} />
-        <p style={{ color:'rgba(255,255,255,0.45)', fontSize:'11px', letterSpacing:'3px', textTransform:'uppercase', margin:0 }}>
+        <img src="/logo2.png" alt="SnackFlow" style={{ width: '220px', objectFit: 'contain', marginBottom: '28px', filter: 'drop-shadow(0 8px 24px rgba(79,70,229,0.4))' }} />
+        <div style={{ width: '40px', height: '2px', background: 'rgba(79,70,229,0.6)', borderRadius: '2px', margin: '0 auto 16px' }} />
+        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase', margin: 0 }}>
           {modo === 'setup' ? 'Primera configuración' : modo === 'recuperar' ? 'Recuperar acceso' : 'Sistema de gestión'}
         </p>
       </div>
 
-      <div style={{ position:'absolute', bottom:'32px', left:'32px', right:'32px', display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:'10px', zIndex:1 }}>
-        {[{ label:'Ventas', val:'∞' }, { label:'Productos', val:'∞' }, { label:'Clientes', val:'∞' }].map((s, i) => (
-          <div key={i} style={{ background:'rgba(79,70,229,0.12)', border:'1px solid rgba(79,70,229,0.3)', borderRadius:'10px', padding:'10px', textAlign:'center' }}>
-            <p style={{ color:'white', fontSize:'16px', fontWeight:700, margin:'0 0 2px' }}>{s.val}</p>
-            <p style={{ color:'rgba(255,255,255,0.4)', fontSize:'10px', textTransform:'uppercase', letterSpacing:'1px', margin:0 }}>{s.label}</p>
+      <div style={{ position: 'absolute', bottom: '32px', left: '32px', right: '32px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', zIndex: 1 }}>
+        {[{ label: 'Ventas', val: '∞' }, { label: 'Productos', val: '∞' }, { label: 'Clientes', val: '∞' }].map((s, i) => (
+          <div key={i} style={{ background: 'rgba(79,70,229,0.12)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '10px', padding: '10px', textAlign: 'center' }}>
+            <p style={{ color: 'white', fontSize: '16px', fontWeight: 700, margin: '0 0 2px' }}>{s.val}</p>
+            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>{s.label}</p>
           </div>
         ))}
       </div>
@@ -124,11 +124,11 @@ function PanelIzquierdo({ modo }) {
 
 // ── Bienvenida + Setup ────────────────────────────────────────────────────────
 function Bienvenida({ onSetupComplete }) {
-  const [paso, setPaso]           = useState('welcome')
-  const [verPass, setVerPass]     = useState(false)
-  const [form, setForm]           = useState({ nombre: '', username: '', password: '', rol: 'admin' })
-  const [error, setError]         = useState('')
-  const [exito, setExito]         = useState('')
+  const [paso, setPaso] = useState('welcome')
+  const [verPass, setVerPass] = useState(false)
+  const [form, setForm] = useState({ nombre: '', username: '', password: '', rol: 'admin' })
+  const [error, setError] = useState('')
+  const [exito, setExito] = useState('')
   const [guardando, setGuardando] = useState(false)
 
   const change = e => { setForm({ ...form, [e.target.name]: e.target.value }); setError('') }
@@ -156,51 +156,51 @@ function Bienvenida({ onSetupComplete }) {
       }}>
         <style>{`input::placeholder { color: rgba(255,255,255,0.18); } @keyframes fadeUp { from { opacity:0; transform:translateY(32px); } to { opacity:1; transform:translateY(0); } }`}</style>
 
-        <div style={{ position:'absolute', width:'600px', height:'600px', borderRadius:'50%', background:'radial-gradient(circle, rgba(79,70,229,0.1) 0%, transparent 70%)', top:'50%', left:'50%', transform:'translate(-50%,-50%)', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', inset:0, backgroundImage:'radial-gradient(circle, rgba(79,70,229,0.15) 1px, transparent 1px)', backgroundSize:'36px 36px', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', width:'400px', height:'400px', borderRadius:'50%', border:'3px solid rgba(79,70,229,0.2)', top:'-100px', right:'-100px' }} />
-        <div style={{ position:'absolute', width:'300px', height:'300px', borderRadius:'50%', border:'2px solid rgba(79,70,229,0.15)', bottom:'-80px', left:'-80px' }} />
+        <div style={{ position: 'absolute', width: '600px', height: '600px', borderRadius: '50%', background: 'radial-gradient(circle, rgba(79,70,229,0.1) 0%, transparent 70%)', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.15) 1px, transparent 1px)', backgroundSize: '36px 36px', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', width: '400px', height: '400px', borderRadius: '50%', border: '3px solid rgba(79,70,229,0.2)', top: '-100px', right: '-100px' }} />
+        <div style={{ position: 'absolute', width: '300px', height: '300px', borderRadius: '50%', border: '2px solid rgba(79,70,229,0.15)', bottom: '-80px', left: '-80px' }} />
 
-        <div style={{ textAlign:'center', zIndex:1, animation:'fadeUp 0.7s ease forwards', maxWidth:'420px', width:'100%' }}>
-          <img src="/logo2.png" alt="SnackFlow" style={{ width:'200px', objectFit:'contain', display:'block', margin:'0 auto 32px', filter:'drop-shadow(0 4px 20px rgba(79,70,229,0.5))' }} />
+        <div style={{ textAlign: 'center', zIndex: 1, animation: 'fadeUp 0.7s ease forwards', maxWidth: '420px', width: '100%' }}>
+          <img src="/logo2.png" alt="SnackFlow" style={{ width: '200px', objectFit: 'contain', display: 'block', margin: '0 auto 32px', filter: 'drop-shadow(0 4px 20px rgba(79,70,229,0.5))' }} />
 
           <div style={{
-            display:'inline-flex', alignItems:'center', gap:'6px',
-            background:'rgba(79,70,229,0.2)', border:'1px solid rgba(79,70,229,0.4)',
-            color:'#a5b4fc', fontSize:'11px', fontWeight:600,
-            letterSpacing:'1.5px', textTransform:'uppercase',
-            padding:'5px 14px', borderRadius:'20px', marginBottom:'20px'
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            background: 'rgba(79,70,229,0.2)', border: '1px solid rgba(79,70,229,0.4)',
+            color: '#a5b4fc', fontSize: '11px', fontWeight: 600,
+            letterSpacing: '1.5px', textTransform: 'uppercase',
+            padding: '5px 14px', borderRadius: '20px', marginBottom: '20px'
           }}>✦ Primera configuración</div>
 
-          <h1 style={{ color:'white', fontSize:'30px', fontWeight:700, margin:'0 0 10px', lineHeight:1.2 }}>
+          <h1 style={{ color: 'white', fontSize: '30px', fontWeight: 700, margin: '0 0 10px', lineHeight: 1.2 }}>
             Bienvenido al sistema
           </h1>
-          <p style={{ color:'rgba(255,255,255,0.4)', fontSize:'15px', lineHeight:1.7, margin:'0 0 36px' }}>
-            No hay administradores registrados aún.<br/>Crea tu cuenta para comenzar.
+          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '15px', lineHeight: 1.7, margin: '0 0 36px' }}>
+            No hay administradores registrados aún.<br />Crea tu cuenta para comenzar.
           </p>
 
-          <div style={{ background:'rgba(79,70,229,0.1)', border:'1px solid rgba(79,70,229,0.25)', borderRadius:'14px', padding:'20px 24px', marginBottom:'28px', textAlign:'left' }}>
+          <div style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.25)', borderRadius: '14px', padding: '20px 24px', marginBottom: '28px', textAlign: 'left' }}>
             {[
-              { icon:'🔐', text:'Control total del sistema' },
-              { icon:'📦', text:'Gestión de inventario y ventas' },
-              { icon:'👥', text:'Puedes crear más admins después' },
+              { icon: '🔐', text: 'Control total del sistema' },
+              { icon: '📦', text: 'Gestión de inventario y ventas' },
+              { icon: '👥', text: 'Puedes crear más admins después' },
             ].map((item, i) => (
-              <div key={i} style={{ display:'flex', alignItems:'center', gap:'12px', padding:'9px 0', borderBottom: i < 2 ? '1px solid rgba(79,70,229,0.15)' : 'none' }}>
-                <span style={{ fontSize:'18px' }}>{item.icon}</span>
-                <span style={{ color:'rgba(255,255,255,0.6)', fontSize:'13px' }}>{item.text}</span>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '9px 0', borderBottom: i < 2 ? '1px solid rgba(79,70,229,0.15)' : 'none' }}>
+                <span style={{ fontSize: '18px' }}>{item.icon}</span>
+                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>{item.text}</span>
               </div>
             ))}
           </div>
 
           <button onClick={() => setPaso('form')} style={{
-            width:'100%', border:'none', borderRadius:'12px',
-            padding:'16px', fontSize:'15px', fontWeight:700,
-            background:`linear-gradient(135deg, ${ACCENT}, #3730a3)`,
-            color:'white', cursor:'pointer', fontFamily:'inherit',
-            boxShadow:'0 8px 28px rgba(79,70,229,0.4)', transition:'all 0.2s'
+            width: '100%', border: 'none', borderRadius: '12px',
+            padding: '16px', fontSize: '15px', fontWeight: 700,
+            background: `linear-gradient(135deg, ${ACCENT}, #3730a3)`,
+            color: 'white', cursor: 'pointer', fontFamily: 'inherit',
+            boxShadow: '0 8px 28px rgba(79,70,229,0.4)', transition: 'all 0.2s'
           }}
-            onMouseEnter={e => { e.currentTarget.style.transform='translateY(-2px)'; e.currentTarget.style.boxShadow='0 12px 36px rgba(79,70,229,0.5)' }}
-            onMouseLeave={e => { e.currentTarget.style.transform='translateY(0)'; e.currentTarget.style.boxShadow='0 8px 28px rgba(79,70,229,0.4)' }}
+            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 36px rgba(79,70,229,0.5)' }}
+            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 28px rgba(79,70,229,0.4)' }}
           >
             Registrar administrador →
           </button>
@@ -238,11 +238,11 @@ function Bienvenida({ onSetupComplete }) {
           </div>
 
           <form onSubmit={submit}>
-            <Campo label="Nombre completo" name="nombre"   placeholder="Carlos Pérez"        value={form.nombre}   onChange={change} />
-            <Campo label="Usuario"         name="username" placeholder="cperez"               value={form.username} onChange={change} />
-            <Campo label="Contraseña" name="password" type={verPass ? 'text' : 'password'} placeholder="Mínimo 6 caracteres" value={form.password} onChange={change}
+            <Campo label="Nombre completo" name="nombre" placeholder="Carlos Pérez" value={form.nombre} onChange={change} />
+            <Campo label="Usuario" name="username" placeholder="cperez" value={form.username} onChange={change} />
+            <Campo label="Contraseña" name="password" type={verPass ? 'text' : 'password'} placeholder="Mínimo 8 caracteres" value={form.password} onChange={change}
               extra={
-                <button type="button" onClick={() => setVerPass(!verPass)} style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
+                <button type="button" onClick={() => setVerPass(!verPass)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>
                   {verPass ? 'Ocultar' : 'Ver'}
                 </button>
               }
@@ -254,12 +254,12 @@ function Bienvenida({ onSetupComplete }) {
             </div>
           </form>
 
-          <button onClick={() => setPaso('welcome')} style={{ display:'block', margin:'16px auto 0', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.4)', fontSize:'12px', fontFamily:'inherit', transition:'color 0.15s' }}
-            onMouseEnter={e => e.currentTarget.style.color='rgba(255,255,255,0.7)'}
-            onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.4)'}
+          <button onClick={() => setPaso('welcome')} style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'inherit', transition: 'color 0.15s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
           >← Volver</button>
 
-          <p style={{ color:'rgba(255,255,255,0.3)', fontSize:'12px', textAlign:'center', marginTop:'24px' }}>
+          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', textAlign: 'center', marginTop: '24px' }}>
             © 2026 SnackFlow v1.0
           </p>
         </div>
@@ -270,13 +270,13 @@ function Bienvenida({ onSetupComplete }) {
 
 // ── Recuperar contraseña ──────────────────────────────────────────────────────
 function RecuperarPassword({ onVolver }) {
-  const [paso, setPaso]         = useState(1)
+  const [paso, setPaso] = useState(1)
   const [verClave, setVerClave] = useState(false)
-  const [verPass, setVerPass]   = useState(false)
+  const [verPass, setVerPass] = useState(false)
   const [verPass2, setVerPass2] = useState(false)
-  const [form, setForm]         = useState({ username: '', clave: '', nueva_password: '', confirmar: '' })
-  const [error, setError]       = useState('')
-  const [exito, setExito]       = useState('')
+  const [form, setForm] = useState({ username: '', clave: '', nueva_password: '', confirmar: '' })
+  const [error, setError] = useState('')
+  const [exito, setExito] = useState('')
   const [cargando, setCargando] = useState(false)
 
   const change = e => { setForm({ ...form, [e.target.name]: e.target.value }); setError('') }
@@ -284,12 +284,12 @@ function RecuperarPassword({ onVolver }) {
   const submitPaso1 = async e => {
     e.preventDefault()
     if (!form.username.trim()) { setError('El usuario es requerido.'); return }
-    if (!form.clave.trim())    { setError('La clave maestra es requerida.'); return }
+    if (!form.clave.trim()) { setError('La clave maestra es requerida.'); return }
     setCargando(true)
     try {
       await api.post('/auth/verificar-clave-maestra', {
         username: form.username.trim(),
-        clave:    form.clave.trim()
+        clave: form.clave.trim()
       })
       setPaso(2)
       setError('')
@@ -300,12 +300,12 @@ function RecuperarPassword({ onVolver }) {
 
   const submitPaso2 = async e => {
     e.preventDefault()
-    if (!form.nueva_password)                    { setError('Ingresa la nueva contraseña.'); return }
-    if (form.nueva_password !== form.confirmar)  { setError('Las contraseñas no coinciden.'); return }
+    if (!form.nueva_password) { setError('Ingresa la nueva contraseña.'); return }
+    if (form.nueva_password !== form.confirmar) { setError('Las contraseñas no coinciden.'); return }
     setCargando(true)
     try {
       await api.post('/auth/recuperar-password', {
-        username:       form.username.trim(),
+        username: form.username.trim(),
         nueva_password: form.nueva_password
       })
       setExito('Contraseña actualizada. Redirigiendo al login...')
@@ -317,47 +317,47 @@ function RecuperarPassword({ onVolver }) {
 
   return (
     <div style={{
-      minHeight:'100vh', background: DARK,
-      display:'flex', fontFamily:"'Segoe UI', system-ui, sans-serif",
-      position:'relative', overflow:'hidden'
+      minHeight: '100vh', background: DARK,
+      display: 'flex', fontFamily: "'Segoe UI', system-ui, sans-serif",
+      position: 'relative', overflow: 'hidden'
     }}>
       <style>{`input::placeholder { color: rgba(255,255,255,0.18); } @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }`}</style>
 
       <PanelIzquierdo modo="recuperar" />
 
       <div style={{
-        flex:1, display:'flex', alignItems:'center', justifyContent:'center',
-        padding:'48px 60px',
-        background:'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '48px 60px',
+        background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
       }}>
-        <div style={{ width:'100%', maxWidth:'360px', animation:'fadeUp 0.5s ease forwards' }}>
+        <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
 
-          <div style={{ marginBottom:'28px' }}>
+          <div style={{ marginBottom: '28px' }}>
             <div style={{
-              display:'inline-flex', alignItems:'center', gap:'6px',
-              background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)',
-              color:'white', fontSize:'11px', fontWeight:600,
-              letterSpacing:'1.5px', textTransform:'uppercase',
-              padding:'5px 14px', borderRadius:'20px', marginBottom:'16px'
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
+              color: 'white', fontSize: '11px', fontWeight: 600,
+              letterSpacing: '1.5px', textTransform: 'uppercase',
+              padding: '5px 14px', borderRadius: '20px', marginBottom: '16px'
             }}>
               {paso === 1 ? '🔐 Verificación' : '🔑 Nueva contraseña'}
             </div>
-            <h2 style={{ color:'white', fontSize:'24px', fontWeight:700, margin:'0 0 6px' }}>
+            <h2 style={{ color: 'white', fontSize: '24px', fontWeight: 700, margin: '0 0 6px' }}>
               {paso === 1 ? 'Recuperar acceso' : 'Crea tu nueva contraseña'}
             </h2>
-            <p style={{ color:'rgba(255,255,255,0.6)', fontSize:'13px', margin:0 }}>
+            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', margin: 0 }}>
               {paso === 1
                 ? 'Ingresa tu usuario y la clave maestra para continuar.'
                 : `Cuenta: ${form.username} — elige una contraseña segura.`}
             </p>
           </div>
 
-          <div style={{ display:'flex', alignItems:'center', gap:'8px', marginBottom:'24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
             {[1, 2].map(n => (
               <div key={n} style={{
-                height:'4px', flex:1, borderRadius:'4px',
+                height: '4px', flex: 1, borderRadius: '4px',
                 background: n <= paso ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.2)',
-                transition:'background 0.3s'
+                transition: 'background 0.3s'
               }} />
             ))}
           </div>
@@ -371,12 +371,12 @@ function RecuperarPassword({ onVolver }) {
                 value={form.clave} onChange={change}
                 extra={
                   <button type="button" onClick={() => setVerClave(!verClave)}
-                    style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>
                     {verClave ? 'Ocultar' : 'Ver'}
                   </button>
                 }
               />
-              <div style={{ marginBottom:'8px' }} />
+              <div style={{ marginBottom: '8px' }} />
               <ErrorMsg msg={error} />
               <SubmitBtn loading={cargando} label="Verificar identidad →" />
             </form>
@@ -385,13 +385,13 @@ function RecuperarPassword({ onVolver }) {
           {paso === 2 && (
             <form onSubmit={submitPaso2}>
               <Campo label="Usuario" name="username" value={form.username}
-                onChange={() => {}} disabled={true} />
+                onChange={() => { }} disabled={true} />
               <Campo label="Nueva contraseña" name="nueva_password"
                 type={verPass ? 'text' : 'password'} placeholder="Mínimo 8 caracteres"
                 value={form.nueva_password} onChange={change}
                 extra={
                   <button type="button" onClick={() => setVerPass(!verPass)}
-                    style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>
                     {verPass ? 'Ocultar' : 'Ver'}
                   </button>
                 }
@@ -401,7 +401,7 @@ function RecuperarPassword({ onVolver }) {
                 value={form.confirmar} onChange={change}
                 extra={
                   <button type="button" onClick={() => setVerPass2(!verPass2)}
-                    style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
+                    style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>
                     {verPass2 ? 'Ocultar' : 'Ver'}
                   </button>
                 }
@@ -413,12 +413,12 @@ function RecuperarPassword({ onVolver }) {
           )}
 
           <button onClick={onVolver}
-            style={{ display:'block', margin:'16px auto 0', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.4)', fontSize:'12px', fontFamily:'inherit', transition:'color 0.15s' }}
-            onMouseEnter={e => e.currentTarget.style.color='rgba(255,255,255,0.7)'}
-            onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.4)'}
+            style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'inherit', transition: 'color 0.15s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
           >← Volver al login</button>
 
-          <p style={{ color:'rgba(255,255,255,0.3)', fontSize:'12px', textAlign:'center', marginTop:'24px' }}>
+          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', textAlign: 'center', marginTop: '24px' }}>
             © 2026 SnackFlow v1.0
           </p>
         </div>
@@ -430,9 +430,9 @@ function RecuperarPassword({ onVolver }) {
 // ── Login normal ──────────────────────────────────────────────────────────────
 function LoginScreen({ onRecuperar }) {
   const navigate = useNavigate()
-  const [form, setForm]         = useState({ username: '', password: '' })
-  const [verPass, setVerPass]   = useState(false)
-  const [error, setError]       = useState('')
+  const [form, setForm] = useState({ username: '', password: '' })
+  const [verPass, setVerPass] = useState(false)
+  const [error, setError] = useState('')
   const [cargando, setCargando] = useState(false)
 
   const change = e => { setForm({ ...form, [e.target.name]: e.target.value }); setError('') }
@@ -453,9 +453,9 @@ function LoginScreen({ onRecuperar }) {
 
   return (
     <div style={{
-      minHeight:'100vh', background: DARK,
-      display:'flex', fontFamily:"'Segoe UI', system-ui, sans-serif",
-      position:'relative', overflow:'hidden'
+      minHeight: '100vh', background: DARK,
+      display: 'flex', fontFamily: "'Segoe UI', system-ui, sans-serif",
+      position: 'relative', overflow: 'hidden'
     }}>
       <style>{`
         input::placeholder { color: rgba(255,255,255,0.18); }
@@ -465,22 +465,22 @@ function LoginScreen({ onRecuperar }) {
       <PanelIzquierdo modo="login" />
 
       <div style={{
-        flex:1, display:'flex', alignItems:'center', justifyContent:'center',
-        padding:'48px 60px',
-        background:'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
+        flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '48px 60px',
+        background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
       }}>
-        <div style={{ width:'100%', maxWidth:'360px', animation:'fadeUp 0.5s ease forwards' }}>
+        <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
 
-          <div style={{ marginBottom:'36px' }}>
+          <div style={{ marginBottom: '36px' }}>
             <div style={{
-              display:'inline-flex', alignItems:'center', gap:'6px',
-              background:'rgba(255,255,255,0.12)', border:'1px solid rgba(255,255,255,0.2)',
-              backdropFilter:'blur(8px)', color:'white', fontSize:'11px', fontWeight:600,
-              letterSpacing:'1.5px', textTransform:'uppercase',
-              padding:'5px 14px', borderRadius:'20px', marginBottom:'16px'
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
+              backdropFilter: 'blur(8px)', color: 'white', fontSize: '11px', fontWeight: 600,
+              letterSpacing: '1.5px', textTransform: 'uppercase',
+              padding: '5px 14px', borderRadius: '20px', marginBottom: '16px'
             }}>Bienvenido de nuevo</div>
-            <h2 style={{ color:'white', fontSize:'26px', fontWeight:700, margin:'0 0 8px', lineHeight:1.2 }}>Inicia sesión</h2>
-            <p style={{ color:'rgba(255,255,255,0.7)', fontSize:'14px', margin:0 }}>Ingresa tus credenciales para continuar</p>
+            <h2 style={{ color: 'white', fontSize: '26px', fontWeight: 700, margin: '0 0 8px', lineHeight: 1.2 }}>Inicia sesión</h2>
+            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>Ingresa tus credenciales para continuar</p>
           </div>
 
           <form onSubmit={submit}>
@@ -489,23 +489,23 @@ function LoginScreen({ onRecuperar }) {
               value={form.password} onChange={change}
               extra={
                 <button type="button" onClick={() => setVerPass(!verPass)}
-                  style={{ position:'absolute', right:'12px', top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.5)', fontSize:'12px', fontFamily:'inherit' }}>
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>
                   {verPass ? 'Ocultar' : 'Ver'}
                 </button>
               }
             />
-            <div style={{ marginBottom:'24px' }} />
+            <div style={{ marginBottom: '24px' }} />
             <ErrorMsg msg={error} />
             <SubmitBtn loading={cargando} label="Entrar al sistema" />
           </form>
 
           <button onClick={onRecuperar}
-            style={{ display:'block', margin:'16px auto 0', background:'none', border:'none', cursor:'pointer', color:'rgba(255,255,255,0.4)', fontSize:'12px', fontFamily:'inherit', transition:'color 0.15s' }}
-            onMouseEnter={e => e.currentTarget.style.color='rgba(255,255,255,0.8)'}
-            onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,0.4)'}
+            style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'inherit', transition: 'color 0.15s' }}
+            onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
           >¿Olvidaste tu contraseña?</button>
 
-          <p style={{ color:'rgba(255,255,255,0.35)', fontSize:'12px', textAlign:'center', marginTop:'32px' }}>
+          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', textAlign: 'center', marginTop: '32px' }}>
             © 2026 SnackFlow v1.0
           </p>
         </div>
@@ -517,7 +517,7 @@ function LoginScreen({ onRecuperar }) {
 // ── Raíz ──────────────────────────────────────────────────────────────────────
 export default function Login() {
   const [modo, setModo] = useState(null)
-  const navigate        = useNavigate()
+  const navigate = useNavigate()
 
   useEffect(() => {
     api.get('/usuarios/check-setup')
@@ -538,13 +538,13 @@ export default function Login() {
   }, [])
 
   if (!modo) return (
-    <div style={{ minHeight:'100vh', background:DARK, display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ width:'40px', height:'40px', borderRadius:'50%', border:'3px solid rgba(79,70,229,0.2)', borderTop:`3px solid ${ACCENT}`, animation:'spin 0.8s linear infinite' }} />
+    <div style={{ minHeight: '100vh', background: DARK, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ width: '40px', height: '40px', borderRadius: '50%', border: '3px solid rgba(79,70,229,0.2)', borderTop: `3px solid ${ACCENT}`, animation: 'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 
   if (modo === 'recuperar') return <RecuperarPassword onVolver={() => setModo('login')} />
-  if (modo === 'setup')     return <Bienvenida onSetupComplete={() => setModo('login')} />
+  if (modo === 'setup') return <Bienvenida onSetupComplete={() => setModo('login')} />
   return <LoginScreen onRecuperar={() => setModo('recuperar')} />
 }

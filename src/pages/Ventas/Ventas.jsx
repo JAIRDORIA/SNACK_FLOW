@@ -806,7 +806,7 @@ export default function Ventas() {
                       {/* Columna Pagada */}
                       <td className="px-6 py-4">
                         {v.saldo_pendiente === 0 ? (
-                          <span style={{ padding: "6px 14px" }}  className="inline-flex items-center gap-1 text-xs px-3.5 py-1.5 rounded-full font-medium bg-emerald-50 text-emerald-600 border border-emerald-200">
+                          <span style={{ padding: "6px 14px" }} className="inline-flex items-center gap-1 text-xs px-3.5 py-1.5 rounded-full font-medium bg-emerald-50 text-emerald-600 border border-emerald-200">
                             <CheckCircle2 size={12} />
                             Pagada
                           </span>

@@ -19,12 +19,13 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
   const [exito, setExito] = useState(false)
 
   const { crearAbono } =useAbonosModuleStore()
-  const { balance, fetchBalance } = useBalanceStore()
+  const { balance, fetchBalance,fetchResumenFuturo,resumenFuturo } = useBalanceStore()
 
   useEffect(() => {
     if (open) {
       api.get('/clientes/').then(res => setClientes(res.data.items || res.data.datos || []))
       if (!balance) fetchBalance()
+      if (!resumenFuturo) fetchResumenFuturo()
     } else {
       // Limpiar al cerrar
       setBusquedaCliente('')
@@ -52,7 +53,22 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
     try {
       // Obtener ventas pendientes de ese cliente
       const res = await api.get('/ventas/?limite=100')
-      const todas = res.data.datos || []
+      let todas = res.data.datos || []
+      console.log(resumenFuturo)
+      if (resumenFuturo?.id) {
+      try {
+        const resFuturo = await api.get(`/ventas/?corte_id=${resumenFuturo.id}&limite=100/`)
+        const ventasFuturo = resFuturo.data.datos || []
+        todas = [...todas, ...ventasFuturo]
+      } catch (err) {
+        // Si falla, al menos tenemos las actuales
+        console.warn('No se pudieron cargar ventas del corte futuro', err)
+      }
+    }
+
+
+
+
       const pendientes = todas.filter(v =>
         v.cliente_id === cliente.ID_Cliente &&
         v.saldo_pendiente > 0 &&

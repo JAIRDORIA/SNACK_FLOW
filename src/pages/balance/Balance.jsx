@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
-  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar, Info, AlertTriangle,Download,
-  AlertCircle, CheckCircle2, Loader2, X, Trash2
+  Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar, Info, AlertTriangle, Download,
+  AlertCircle, CheckCircle2, Loader2, X, Trash2,Search
 } from 'lucide-react'
 import useBalanceStore from '@/store/useBalanceStore'
 import { getVentaDetalle, anularVenta } from '@/api/ventas_api'
@@ -14,7 +14,7 @@ export default function Balance() {
   const {
     balance, historial,
     cargandoBalance, cargandoHistorial, cerrandoCorte, error, exitoCierre,
-    fetchBalance, fetchHistorial, cerrarCorteActual, resetExitoCierre, resumenFuturo, cargandoFuturo,fetchDetalleCorte,detalleCorte,cargandoDetalleCorte,errorDetalleCorte, fetchResumenFuturo, errorFuturo, fetchVentasPendientesAnteriores, ventasFuturo, ventasPendientesAnteriores, cargandoVentasPendientes, errorVentasPendientes
+    fetchBalance, fetchHistorial, cerrarCorteActual, resetExitoCierre, resumenFuturo, cargandoFuturo, fetchDetalleCorte, detalleCorte, cargandoDetalleCorte, errorDetalleCorte, fetchResumenFuturo, errorFuturo, fetchVentasPendientesAnteriores, ventasFuturo, ventasPendientesAnteriores, cargandoVentasPendientes, errorVentasPendientes
   } = useBalanceStore()
 
   const [detalleVentaFuturo, setDetalleVentaFuturo] = useState(null)
@@ -347,89 +347,89 @@ export default function Balance() {
         )}
       </div>
       {/* Modal detalle de corte */}
-{detalleCorte && (
-  <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden">
-      
-      {/* Header */}
-      <div style={{padding:"16px 24px"}} className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-50">
-        <h3 className="text-lg font-bold text-slate-800">
-          Detalle del Corte #{detalleCorte.corteId}
-        </h3>
-        <button
-          onClick={() => set({ detalleCorte: null })}
-          className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
-        >
-          <X size={20} color="#64748b" />
-        </button>
-      </div>
+      {detalleCorte && (
+        <div style={{ padding: "16px" }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden">
 
-      {/* Resumen */}
-      <div style={{padding:"24px"}} className="p-6">
-        <div style={{marginBottom:"24px"}} className="grid grid-cols-3 gap-4 mb-6">
-          <div style={{padding:"16px"}} className="bg-indigo-50 p-4 rounded-xl text-center">
-            <p style={{marginBottom:"4px"}} className="text-xs text-slate-500 mb-1">Total Ventas</p>
-            <p className="text-xl font-bold text-indigo-600">
-              ${detalleCorte.totalVentas.toLocaleString('es-CO')}
-            </p>
-          </div>
-          <div style={{padding:"16px"}} className="bg-rose-50 p-4 rounded-xl text-center">
-            <p style={{marginBottom:"4px"}} className="text-xs text-slate-500 mb-1">Total Compras</p>
-            <p className="text-xl font-bold text-rose-600">
-              ${detalleCorte.totalCompras.toLocaleString('es-CO')}
-            </p>
-          </div>
-          <div style={{padding:"16px"}} className={`p-4 rounded-xl text-center ${detalleCorte.utilidad >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
-            <p style={{marginBottom:"4px"}} className="text-xs text-slate-500 mb-1">Utilidad</p>
-            <p className={`text-xl font-bold ${detalleCorte.utilidad >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-              ${detalleCorte.utilidad.toLocaleString('es-CO')}
-            </p>
+            {/* Header */}
+            <div style={{ padding: "16px 24px" }} className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-50">
+              <h3 className="text-lg font-bold text-slate-800">
+                Detalle del Corte #{detalleCorte.corteId}
+              </h3>
+              <button
+                onClick={() => set({ detalleCorte: null })}
+                className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
+              >
+                <X size={20} color="#64748b" />
+              </button>
+            </div>
+
+            {/* Resumen */}
+            <div style={{ padding: "24px" }} className="p-6">
+              <div style={{ marginBottom: "24px" }} className="grid grid-cols-3 gap-4 mb-6">
+                <div style={{ padding: "16px" }} className="bg-indigo-50 p-4 rounded-xl text-center">
+                  <p style={{ marginBottom: "4px" }} className="text-xs text-slate-500 mb-1">Total Ventas</p>
+                  <p className="text-xl font-bold text-indigo-600">
+                    ${detalleCorte.totalVentas.toLocaleString('es-CO')}
+                  </p>
+                </div>
+                <div style={{ padding: "16px" }} className="bg-rose-50 p-4 rounded-xl text-center">
+                  <p style={{ marginBottom: "4px" }} className="text-xs text-slate-500 mb-1">Total Compras</p>
+                  <p className="text-xl font-bold text-rose-600">
+                    ${detalleCorte.totalCompras.toLocaleString('es-CO')}
+                  </p>
+                </div>
+                <div style={{ padding: "16px" }} className={`p-4 rounded-xl text-center ${detalleCorte.utilidad >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                  <p style={{ marginBottom: "4px" }} className="text-xs text-slate-500 mb-1">Utilidad</p>
+                  <p className={`text-xl font-bold ${detalleCorte.utilidad >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                    ${detalleCorte.utilidad.toLocaleString('es-CO')}
+                  </p>
+                </div>
+              </div>
+
+              {/* Botones de exportación */}
+              <div style={{ marginBottom: "24px" }} className="flex gap-3 mb-6">
+                <button
+                  onClick={() => exportarAExcel(
+                    detalleCorte.ventas,
+                    `Ventas_Corte_${detalleCorte.corteId}`,
+                    [
+                      { key: 'id_venta', label: 'ID Venta' },
+                      { key: 'nombre_cliente', label: 'Cliente' },
+                      { key: 'fecha_entrega', label: 'Fecha' },
+                      { key: 'total', label: 'Total', format: (item) => `$${item.total?.toLocaleString('es-CO')}` },
+                      { key: 'estado', label: 'Estado' }
+                    ]
+                  )}
+                  style={{ padding: "8px 16px" }}
+                  className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                >
+                  <Download size={16} />
+                  Exportar Ventas
+                </button>
+                <button
+                  onClick={() => exportarAExcel(
+                    detalleCorte.compras,
+                    `Compras_Corte_${detalleCorte.corteId}`,
+                    [
+                      { key: 'id', label: 'ID Compra' },
+                      { key: 'proveedor_nombre', label: 'Proveedor' },
+                      { key: 'fecha', label: 'Fecha' },
+                      { key: 'total', label: 'Total', format: (item) => `$${item.total?.toLocaleString('es-CO')}` },
+                      { key: 'estado', label: 'Estado' }
+                    ]
+                  )}
+                  style={{ padding: "8px 16px" }}
+                  className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
+                >
+                  <Download size={16} />
+                  Exportar Compras
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* Botones de exportación */}
-        <div style={{marginBottom:"24px"}} className="flex gap-3 mb-6">
-          <button
-            onClick={() => exportarAExcel(
-              detalleCorte.ventas,
-              `Ventas_Corte_${detalleCorte.corteId}`,
-              [
-                { key: 'id_venta', label: 'ID Venta' },
-                { key: 'nombre_cliente', label: 'Cliente' },
-                { key: 'fecha_entrega', label: 'Fecha' },
-                { key: 'total', label: 'Total', format: (item) => `$${item.total?.toLocaleString('es-CO')}` },
-                { key: 'estado', label: 'Estado' }
-              ]
-            )}
-            style={{padding:"8px 16px"}}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
-          >
-            <Download size={16} />
-            Exportar Ventas
-          </button>
-          <button
-            onClick={() => exportarAExcel(
-              detalleCorte.compras,
-              `Compras_Corte_${detalleCorte.corteId}`,
-              [
-                { key: 'id', label: 'ID Compra' },
-                { key: 'proveedor_nombre', label: 'Proveedor' },
-                { key: 'fecha', label: 'Fecha' },
-                { key: 'total', label: 'Total', format: (item) => `$${item.total?.toLocaleString('es-CO')}` },
-                { key: 'estado', label: 'Estado' }
-              ]
-            )}
-            style={{padding:"8px 16px"}}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
-          >
-            <Download size={16} />
-            Exportar Compras
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
       {/* Modal cerrar corte */}
       {modalCerrar && (

@@ -59,6 +59,7 @@ errorDetalleCorte: null,
 
 fetchDetalleCorte: async (corteId) => {
   set({ cargandoDetalleCorte: true, errorDetalleCorte: null, detalleCorte: null })
+  cerrarDetalleCorte: () => set({ detalleCorte: null })
   try {
     console.log('🔍 Solicitando ventas y compras para el corte:', corteId)
     const [ventasRes, comprasRes] = await Promise.all([
@@ -69,7 +70,7 @@ fetchDetalleCorte: async (corteId) => {
     console.log('📦 Respuesta compras:', comprasRes.data)
     
     const ventas = ventasRes.data?.datos || []
-    const compras = comprasRes.data?.datos || []
+    const compras = comprasRes.data?.compras || []
     const totalVentas = ventas.reduce((sum, v) => sum + (v.total || 0), 0)
     const totalCompras = compras.reduce((sum, c) => sum + (c.total || 0), 0)
     

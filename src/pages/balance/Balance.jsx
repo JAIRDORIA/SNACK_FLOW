@@ -357,7 +357,7 @@ export default function Balance() {
                 Detalle del Corte #{detalleCorte.corteId}
               </h3>
               <button
-                onClick={() => set({ cerrarDetalleCorte })}
+                onClick={cerrarDetalleCorte}
                 className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
               >
                 <X size={20} color="#64748b" />

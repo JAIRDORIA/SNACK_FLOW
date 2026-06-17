@@ -45,7 +45,7 @@ export default function Sidebar({
 
   return (
     <aside
-  className={`
+      className={`
     fixed lg:static
     top-0 left-0
     z-50
@@ -59,16 +59,16 @@ export default function Sidebar({
     ${sidebarAbierto ? 'translate-x-0' : '-translate-x-full'}
     lg:translate-x-0
   `}
->
+    >
 
       {/* Logo */}
       <div style={{
-        
+
         padding: '0px',
-        paddingTop:"10px",
+        paddingTop: "10px",
         borderBottom: '1px solid #1f2937'
       }}>
-        <div style={{ marginTop: "6px",marginLeft:"20px", display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', borderRadius: '8px', width: '180px', height: '100px' }}>
+        <div style={{ marginTop: "6px", marginLeft: "20px", display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', borderRadius: '8px', width: '180px', height: '100px' }}>
           {/* Imagen que contiene logo + nombre + slogan */}
           <img
             src="/SNACKFLOW_LOGO_BLANCO.png"

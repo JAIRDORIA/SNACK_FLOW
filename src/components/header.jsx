@@ -93,7 +93,7 @@ function ModalUsuarios({ onCerrar }) {
   const [cargando, setCargando] = useState(true)
   const [mostrarForm, setMostrarForm] = useState(false)
   const [verPass, setVerPass] = useState(false)
-  const [form, setForm] = useState({ nombre: '', username: '', password: '', rol: 'admin' })
+  const [form, setForm] = useState({ nombre: '', apellido: '', username: '', password: '', rol: 'admin' })
   const [error, setError] = useState('')
   const [guardando, setGuardando] = useState(false)
 
@@ -102,7 +102,7 @@ function ModalUsuarios({ onCerrar }) {
 
   // edición
   const [editandoId, setEditandoId] = useState(null)
-  const [editForm, setEditForm] = useState({ nombre: '', username: '', password: '' })
+  const [editForm, setEditForm] = useState({ nombre: '', apellido: '', username: '', password: '' })
   const [guardandoEdit, setGuardandoEdit] = useState(false)
 
   const cargarUsuarios = async () => {
@@ -120,17 +120,23 @@ function ModalUsuarios({ onCerrar }) {
 
   const crearUsuario = async e => {
     e.preventDefault()
-    if (!form.nombre || !form.username || !form.password) { setError('Completa todos los campos.'); return }
+    if (!form.nombre || !form.apellido || !form.username || !form.password) { setError('Completa todos los campos.'); return }
     setGuardando(true)
     try {
-      await api.post('/usuarios/', form)
+      const data = {
+        nombre: `${form.nombre} ${form.apellido}`.replace(/\s+/g, ' ').trim(),
+        username: form.username,
+        password: form.password,
+        rol: form.rol
+      }
+      await api.post('/usuarios/', data)
       setAlerta({
         tipo: 'exito',
         titulo: 'Usuario creado',
         mensaje: `El usuario @${form.username} fue creado correctamente.`,
         onConfirmar: () => setAlerta(null)
       })
-      setForm({ nombre: '', username: '', password: '', rol: 'admin' })
+      setForm({ nombre: '', apellido: '', username: '', password: '', rol: 'admin' })
       setMostrarForm(false)
       cargarUsuarios()
     } catch (err) {
@@ -178,15 +184,30 @@ function ModalUsuarios({ onCerrar }) {
   }
 
   const iniciarEdicion = (u) => {
+    const partes = u.nombre.trim().split(/\s+/)
+
     setEditandoId(u.id)
-    setEditForm({ nombre: u.nombre, username: u.username, password: '__sin_cambios__' })
+    setEditForm({
+      nombre: partes[0] || '',
+      apellido: partes.slice(1).join(' ') || '',
+      username: u.username,
+      password: '__sin_cambios__'
+    })
   }
 
   const guardarEdicion = async (id) => {
-    if (!editForm.nombre || !editForm.username) return
+    if (!editForm.nombre || !editForm.apellido || !editForm.username) return
     setGuardandoEdit(true)
     try {
-      await api.put(`/usuarios/${id}`, { ...editForm, rol: usuarios.find(u => u.id === id)?.rol })
+      const data = {
+        nombre: `${editForm.nombre} ${editForm.apellido}`
+          .replace(/\s+/g, ' ')
+          .trim(),
+        username: editForm.username,
+        password: editForm.password,
+        rol: usuarios.find(u => u.id === id)?.rol
+      }
+      await api.put(`/usuarios/${id}`, data)
       setEditandoId(null)
       setAlerta({
         tipo: 'exito',
@@ -269,10 +290,11 @@ function ModalUsuarios({ onCerrar }) {
             {mostrarForm && (
               <form onSubmit={crearUsuario} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
                 <p style={{ margin: '0 0 16px', fontWeight: 600, color: '#111827', fontSize: '14px' }}>Nuevo administrador</p>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '12px' }}>
+
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
                   {[
-                    { name: 'nombre', label: 'Nombre completo', ph: 'Carlos Pérez' },
-                    { name: 'username', label: 'Usuario', ph: 'cperez' },
+                    { name: 'nombre', label: 'Nombre', ph: 'Carlos' },
+                    { name: 'apellido', label: 'Apellido', ph: 'Pérez' },
                   ].map(f => (
                     <div key={f.name}>
                       <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>{f.label}</label>
@@ -283,19 +305,30 @@ function ModalUsuarios({ onCerrar }) {
                       />
                     </div>
                   ))}
-                </div>
 
-                <div style={{ marginBottom: '16px' }}>
-                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Contraseña</label>
-                  <div style={{ position: 'relative' }}>
-                    <input type={verPass ? 'text' : 'password'} name="password" value={form.password} onChange={change} placeholder="••••••••"
-                      style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 40px 10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
+                  {/* Usuario */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Usuario</label>
+                    <input type="text" name="username" value={form.username} onChange={change} placeholder="cperez"
+                      style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
                       onFocus={e => e.target.style.borderColor = '#4f46e5'}
                       onBlur={e => e.target.style.borderColor = '#e5e7eb'}
                     />
-                    <button type="button" onClick={() => setVerPass(!verPass)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}>
-                      {verPass ? <EyeOff size={16} color="#9ca3af" /> : <Eye size={16} color="#9ca3af" />}
-                    </button>
+                  </div>
+
+                  {/* Contraseña — ahora en el mismo grid */}
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Contraseña</label>
+                    <div style={{ position: 'relative' }}>
+                      <input type={verPass ? 'text' : 'password'} name="password" value={form.password} onChange={change} placeholder="••••••••"
+                        style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 40px 10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
+                        onFocus={e => e.target.style.borderColor = '#4f46e5'}
+                        onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                      />
+                      <button type="button" onClick={() => setVerPass(!verPass)} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer' }}>
+                        {verPass ? <EyeOff size={16} color="#9ca3af" /> : <Eye size={16} color="#9ca3af" />}
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -335,16 +368,18 @@ function ModalUsuarios({ onCerrar }) {
                               placeholder="Nombre"
                               style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
                             />
+                            <input value={editForm.apellido} onChange={e => setEditForm({ ...editForm, apellido: e.target.value })}
+                              placeholder="Apellido"
+                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                            />
                             <input value={editForm.username} onChange={e => setEditForm({ ...editForm, username: e.target.value })}
                               placeholder="Username"
                               style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
                             />
+                            <input type="password" value="__sin_cambios__" disabled placeholder="••••••••"
+                              style={{ border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', width: '100%', boxSizing: 'border-box', cursor: 'not-allowed', outline: 'none' }}
+                            />
                           </div>
-                          <input type="password" value="__sin_cambios__" disabled placeholder="••••••••" style={{
-                            border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', width: '100%', boxSizing: 'border-box',
-                            cursor: 'not-allowed', outline: 'none'
-                          }}
-                          />
                         </div>
                         <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
                           <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit} style={{ background: '#4f46e5', border: 'none', borderRadius: '7px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>

@@ -400,7 +400,7 @@ export default function Balance() {
                       { key: 'estado', label: 'Estado' }
                     ]
                   )}
-                  style={{marginBottom:" 8px 16px"}}
+                  style={{padding:" 8px 16px"}}
                   className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
                 >
                   <Download size={16} />
@@ -418,7 +418,7 @@ export default function Balance() {
                       { key: 'estado', label: 'Estado' }
                     ]
                   )}
-                  style={{marginBottom:" 8px 16px"}}
+                  style={{padding:" 8px 16px"}}
                   className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
                 >
                   <Download size={16} />

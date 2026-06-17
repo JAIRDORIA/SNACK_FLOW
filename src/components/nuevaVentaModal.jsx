@@ -25,6 +25,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [itemsFiltrados, setItemsFiltrados] = useState([]);
   const [itemSeleccionado, setItemSeleccionado] = useState(null);
   const [cantidadItem, setCantidadItem] = useState(1);
+  const [textoBusquedaCliente, setTextoBusquedaCliente] = useState('')
+const [clientesFiltrados, setClientesFiltrados] = useState([])
 
  const todosLosItems = useMemo(() => {
     const prods = productos.map(p => ({ ...p, tipo: 'producto' }))
@@ -101,7 +103,17 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     }
   }
 
-  
+  useEffect(() => {
+  if (!textoBusquedaCliente.trim()) {
+    setClientesFiltrados([])
+    return
+  }
+  const q = textoBusquedaCliente.toLowerCase()
+  const filtrados = clientes.filter(c =>
+    c.Cli_Nombre?.toLowerCase().includes(q)
+  )
+  setClientesFiltrados(filtrados)
+}, [textoBusquedaCliente, clientes])
  
 if (!open) return null
   return (
@@ -133,20 +145,54 @@ if (!open) return null
             <h3 style={{ marginBottom: "12px" }} className="text-sm font-semibold text-slate-600 mb-3">Datos generales</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Cliente *</label>
-                <select
-                  value={clienteId}
-                  onChange={e => setClienteId(e.target.value)}
-                  style={{ padding: "8px" }}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
-                  disabled={cargandoDatos}
-                >
-                  <option value="">Seleccionar cliente...</option>
-                  {clientes.map(c => (
-                    <option key={c.ID_Cliente} value={c.ID_Cliente}>{c.Cli_Nombre}</option>
-                  ))}
-                </select>
-              </div>
+  <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Cliente *</label>
+  
+  {/* Input de búsqueda (reemplaza al select) */}
+  <div className="relative">
+    <input
+      type="text"
+      placeholder="Buscar cliente..."
+      value={textoBusquedaCliente}
+      onChange={(e) => setTextoBusquedaCliente(e.target.value)}
+      style={{ padding: "8px" }}
+      className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+      disabled={cargandoDatos}
+    />
+    
+    {/* Lista desplegable de coincidencias */}
+    {textoBusquedaCliente && clientesFiltrados.length > 0 && (
+      <ul className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg">
+        {clientesFiltrados.map(c => (
+          <li
+            key={c.ID_Cliente}
+            onClick={() => {
+              setClienteId(c.ID_Cliente)
+              setTextoBusquedaCliente(c.Cli_Nombre)  // ← muestra el nombre seleccionado
+              setClientesFiltrados([])               // ← cierra la lista
+            }}
+            className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm"
+          >
+            {c.Cli_Nombre}
+          </li>
+        ))}
+      </ul>
+    )}
+    
+    {/* Mensaje si no hay coincidencias */}
+    {textoBusquedaCliente && clientesFiltrados.length === 0 && (
+      <div className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 px-3 py-2 text-sm text-slate-400 w-full shadow-lg">
+        No se encontraron clientes
+      </div>
+    )}
+  </div>
+  
+  {/* Cliente seleccionado */}
+  {clienteId && (
+    <p className="text-xs text-indigo-600 mt-1">
+      Cliente seleccionado: {clientes.find(c => c.ID_Cliente == clienteId)?.Cli_Nombre}
+    </p>
+  )}
+</div>
               <div>
                 <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Corte *</label>
                 <select

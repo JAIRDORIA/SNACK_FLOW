@@ -417,150 +417,150 @@ export default function Ventas() {
 
       {/* ═══ KPI CARDS (Estilo Dashboard) ═══ */}
       <div
-        style={{ marginBottom: "32px" }}
-        className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8"
+  style={{ marginBottom: "32px" }}
+  className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-8"
+>
+  {/* Monto Total (sin anuladas) */}
+  <div
+    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "scale(1.05)";
+      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.boxShadow = "none";
+    }}
+  >
+    <div
+      style={{ margin: "12px 0px 12px 12px" }}
+      className="bg-[#13152280] ring-2 ring-orange-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+    >
+      <DollarSign size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" color="#fb923c" />
+    </div>
+    <div className="min-w-0">
+      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
+        ${totalMonto.toLocaleString("es-CO")}
+      </p>
+      <p
+        style={{ marginTop: "2px" }}
+        className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
       >
-        {/* Monto Total (sin anuladas) */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4 hover:scale-[1.02] transition-all"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-            style={{ margin: "20px 0px 20px 20px" }}
-            className="bg-[#13152280] ring-2 ring-orange-400/40 w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          >
-            <DollarSign size={22} color="#fb923c" />
-          </div>
-          <div>
-            <p className="text-2xl text-white">
-              ${totalMonto.toLocaleString("es-CO")}
-            </p>
-            <p
-              style={{ marginTop: "2px" }}
-              className="text-xs text-white/50 mt-0.5"
-            >
-              Ingresos totales
-            </p>
-          </div>
-        </div>
+        Ingresos totales
+      </p>
+    </div>
+  </div>
 
-        {/* Total Ventas (activas) */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4 hover:scale-[1.02] transition-all"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-            style={{ margin: "20px 0px 20px 20px" }}
-            className="bg-[#13152280] ring-2 ring-indigo-500/40 w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          >
-            <ShoppingBag className="w-6 h-6 text-indigo-300" />
-          </div>
-          <div>
-            <p className="text-3xl text-white">{ventasActivas.length}</p>
-            <p
-              style={{ marginTop: "2px" }}
-              className="text-xs text-white/50 mt-0.5"
-            >
-              Total Ventas
-            </p>
-          </div>
-        </div>
+  {/* Total Ventas (activas) */}
+  <div
+    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "scale(1.05)";
+      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.boxShadow = "none";
+    }}
+  >
+    <div
+      style={{ margin: "12px 0px 12px 12px" }}
+      className="bg-[#13152280] ring-2 ring-indigo-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+    >
+      <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] lg:w-6 lg:h-6 text-indigo-300" />
+    </div>
+    <div className="min-w-0">
+      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">{ventasActivas.length}</p>
+      <p
+        style={{ marginTop: "2px" }}
+        className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
+      >
+        Total Ventas
+      </p>
+    </div>
+  </div>
 
-        {/* Entregadas */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4 hover:scale-[1.02] transition-all"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-            style={{ margin: "20px 0px 20px 20px" }}
-            className="bg-[#13152280] ring-2 ring-cyan-400/40 w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          >
-            <CheckCheck size={22} color="#22d3ee" />
-          </div>
-          <div>
-            <p className="text-3xl text-white">{entregadas}</p>
-            <p
-              style={{ marginTop: "2px" }}
-              className="text-xs text-white/50 mt-0.5"
-            >
-              Entregadas
-            </p>
-          </div>
-        </div>
+  {/* Entregadas */}
+  <div
+    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "scale(1.05)";
+      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.boxShadow = "none";
+    }}
+  >
+    <div
+      style={{ margin: "12px 0px 12px 12px" }}
+      className="bg-[#13152280] ring-2 ring-cyan-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+    >
+      <CheckCheck size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" color="#22d3ee" />
+    </div>
+    <div className="min-w-0">
+      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">{entregadas}</p>
+      <p
+        style={{ marginTop: "2px" }}
+        className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
+      >
+        Entregadas
+      </p>
+    </div>
+  </div>
 
-        {/* Pendientes */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4 hover:scale-[1.02] transition-all"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-            style={{ margin: "20px 0px 20px 20px" }}
-            className="bg-[#13152280] ring-2 ring-[#e90e0e]/40 w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          >
-            <Clock3 size={22} color="#e90e0e" />
-          </div>
-          <div>
-            <p className="text-3xl text-white">{pendientes}</p>
-            <p style={{ marginTop: "2px" }} className="text-xs text-white/50">
-              por entregar
-            </p>
-          </div>
-        </div>
+  {/* Pendientes */}
+  <div
+    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "scale(1.05)";
+      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.boxShadow = "none";
+    }}
+  >
+    <div
+      style={{ margin: "12px 0px 12px 12px" }}
+      className="bg-[#13152280] ring-2 ring-[#e90e0e]/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+    >
+      <Clock3 size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" color="#e90e0e" />
+    </div>
+    <div className="min-w-0">
+      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">{pendientes}</p>
+      <p style={{ marginTop: "2px" }} className="text-[10px] sm:text-xs text-white/50 truncate">
+        por entregar
+      </p>
+    </div>
+  </div>
 
-        {/* Anuladas (nueva tarjeta) */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4 hover:scale-[1.02] transition-all"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-            style={{ margin: "20px 0px 20px 20px" }}
-            className="bg-[#13152280] ring-2 ring-rose-500/40 w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
-          >
-            <XCircle size={22} color="#f43f5e" />
-          </div>
-          <div>
-            <p className="text-3xl text-white">{anuladas}</p>
-            <p style={{ marginTop: "2px" }} className="text-xs text-white/50">
-              Anuladas
-            </p>
-          </div>
-        </div>
-      </div>
+  {/* Anuladas (nueva tarjeta) */}
+  <div
+    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+    onMouseEnter={(e) => {
+      e.currentTarget.style.transform = "scale(1.05)";
+      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.transform = "scale(1)";
+      e.currentTarget.style.boxShadow = "none";
+    }}
+  >
+    <div
+      style={{ margin: "12px 0px 12px 12px" }}
+      className="bg-[#13152280] ring-2 ring-rose-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+    >
+      <XCircle size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" color="#f43f5e" />
+    </div>
+    <div className="min-w-0">
+      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">{anuladas}</p>
+      <p style={{ marginTop: "2px" }} className="text-[10px] sm:text-xs text-white/50 truncate">
+        Anuladas
+      </p>
+    </div>
+  </div>
+</div>
       {/* ═══ TABLA ═══ */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-visible">
         {/* barra busqueda + filtro */}

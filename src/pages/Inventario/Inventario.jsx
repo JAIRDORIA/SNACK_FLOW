@@ -627,7 +627,7 @@ export default function Inventario() {
                     <td style={{ padding: '4px 6px' }} className="text-slate-500 text-sm">{item.stock_minimo}</td>
                     <td style={{ padding: '4px 6px' }}>
                       <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-medium border"
-                        style={{ background: estadoCfg.bg, color: estadoCfg.color, borderColor: estadoCfg.border }}>
+                        style={{padding:"6px 12px", background: estadoCfg.bg, color: estadoCfg.color, borderColor: estadoCfg.border }}>
                         {estadoCfg.label}
                       </span>
                     </td>

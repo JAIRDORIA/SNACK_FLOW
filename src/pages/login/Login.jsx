@@ -98,7 +98,7 @@ function useIsMobile() {
 
 //Panel izquierdo 
 function PanelIzquierdo({ modo }) {
-  
+
   return (
     <div style={{
       width: '45%', flexShrink: 0, background: DARK,
@@ -139,7 +139,7 @@ function Bienvenida({ onSetupComplete }) {
   const isMobile = useIsMobile()
   const [paso, setPaso] = useState('welcome')
   const [verPass, setVerPass] = useState(false)
-  const [form, setForm] = useState({ nombre: '', username: '', password: '', rol: 'admin' })
+  const [form, setForm] = useState({ nombre: '', apellido: '', username: '', password: '', rol: 'admin' })
   const [error, setError] = useState('')
   const [exito, setExito] = useState('')
   const [guardando, setGuardando] = useState(false)
@@ -148,10 +148,17 @@ function Bienvenida({ onSetupComplete }) {
 
   const submit = async e => {
     e.preventDefault()
-    if (!form.nombre || !form.username || !form.password) { setError('Completa todos los campos.'); return }
+    if (!form.nombre || !form.apellido || !form.username || !form.password) { setError('Completa todos los campos.'); return }
     setGuardando(true)
     try {
-      await api.post('/usuarios/setup', form)
+      const data = {
+      nombre: `${form.nombre} ${form.apellido}`.trim(),
+      username: form.username,
+      password: form.password,
+      rol: form.rol
+    }
+      console.log(data)
+      await api.post('/usuarios/setup', data)
       setExito('Administrador creado. Redirigiendo al login...')
       setTimeout(() => onSetupComplete(), 2000)
     } catch (err) {
@@ -222,7 +229,7 @@ function Bienvenida({ onSetupComplete }) {
     )
   }
 
- return (
+  return (
     <div style={{
       minHeight: '100vh', background: DARK,
       display: 'flex', flexDirection: isMobile ? 'column' : 'row',
@@ -249,7 +256,8 @@ function Bienvenida({ onSetupComplete }) {
           </div>
 
           <form onSubmit={submit}>
-            <Campo label="Nombre completo" name="nombre" placeholder="Carlos Pérez" value={form.nombre} onChange={change} />
+            <Campo label="Nombre" name="nombre" placeholder="Carlos " value={form.nombre} onChange={change} />
+            <Campo label="Apellido" name="apellido" placeholder="Pérez" value={form.apellido} onChange={change} />
             <Campo label="Usuario" name="username" placeholder="cperez" value={form.username} onChange={change} />
             <Campo label="Contraseña" name="password" type={verPass ? 'text' : 'password'} placeholder="Mínimo 8 caracteres" value={form.password} onChange={change}
               extra={
@@ -460,14 +468,14 @@ function LoginScreen({ onRecuperar }) {
       setError(err.response?.status === 401 ? 'Usuario o contraseña incorrectos.' : 'Error al conectar con el servidor.')
     } finally { setCargando(false) }
   }
-  
+
   return (
-  <div style={{
-    minHeight: '100vh', background: DARK,
-    display: 'flex', flexDirection: isMobile ? 'column' : 'row',
-    fontFamily: "'Segoe UI', system-ui, sans-serif",
-    position: 'relative', overflow: 'hidden'
-  }}>
+    <div style={{
+      minHeight: '100vh', background: DARK,
+      display: 'flex', flexDirection: isMobile ? 'column' : 'row',
+      fontFamily: "'Segoe UI', system-ui, sans-serif",
+      position: 'relative', overflow: 'hidden'
+    }}>
       <style>{`
         input::placeholder { color: rgba(255,255,255,0.18); }
         @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }

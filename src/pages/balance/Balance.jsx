@@ -114,10 +114,10 @@ export default function Balance() {
   }
 
   return (
-    <div style={{padding:"16px"}} className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8 overflow-auto">
+    <div style={{ padding: 'clamp(16px, 3vw, 32px)'}} className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8 overflow-auto">
 
       {/* Header */}
-      <div style={{marginBottom:"24px"}}  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 lg:mb-8">
+      <div style={{ marginBottom: 'clamp(24px, 3vw, 32px)'}}  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 lg:mb-8">
         <div>
           <h1 className="text-xl sm:text-2xl lg:text-[28px] font-bold text-[#1B1D2E]">BALANCE</h1>
           <p style={{marginTop:"4px"}} className="text-xs sm:text-sm text-gray-400 mt-1">
@@ -138,11 +138,11 @@ export default function Balance() {
       </div>
 
       {/* KPIs - responsive: 2 columnas en móvil, 4 en escritorio */}
-      <div style={{marginBottom:"24px"}} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 lg:mb-8">
+      <div style={{marginBottom: 'clamp(24px, 3vw, 32px)'}} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 lg:mb-8">
         {kpiCards.map((card) => {
           const Icon = card.icon
           return (
-            <div key={card.label} style={{padding:"12px"}} className="bg-[#1B1D2E] rounded-2xl p-3 sm:p-4 lg:p-5 flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-transform">
+            <div key={card.label} style={{padding: 'clamp(12px, 2vw, 20px)'}} className="bg-[#1B1D2E] rounded-2xl p-3 sm:p-4 lg:p-5 flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-transform">
               <div className={`bg-[#13152280] ring-2 ${card.ring} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0`}>
                 <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${card.iconCol}`} />
               </div>

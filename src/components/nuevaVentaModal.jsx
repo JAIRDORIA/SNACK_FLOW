@@ -105,16 +105,16 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   }
 
   useEffect(() => {
-  if (!textoBusquedaCliente.trim() || seleccionado) {
-    setClientesFiltrados([])
-    return
-  }
-  const q = textoBusquedaCliente.toLowerCase()
-  const filtrados = clientes.filter(c =>
-    c.Cli_Nombre?.toLowerCase().includes(q)
-  )
-  setClientesFiltrados(filtrados)
-}, [textoBusquedaCliente, clientes, seleccionado])
+    if (!textoBusquedaCliente.trim() || seleccionado) {
+      setClientesFiltrados([])
+      return
+    }
+    const q = textoBusquedaCliente.toLowerCase()
+    const filtrados = clientes.filter(c =>
+      c.Cli_Nombre?.toLowerCase().includes(q)
+    )
+    setClientesFiltrados(filtrados)
+  }, [textoBusquedaCliente, clientes, seleccionado])
 
   if (!open) return null
   return (
@@ -148,55 +148,53 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               <div>
                 <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Cliente *</label>
 
-                {/* Input de búsqueda (reemplaza al select) */}
                 <div className="relative">
                   <input
                     type="text"
                     placeholder="Buscar cliente..."
                     value={textoBusquedaCliente}
                     onChange={(e) => {
-        setTextoBusquedaCliente(e.target.value)
-        setSeleccionado(false)
-        if (clienteId) setClienteId('')
-      }}
+                      setTextoBusquedaCliente(e.target.value)
+                      setSeleccionado(false)
+                      if (clienteId) setClienteId('')
+                    }}
                     style={{ padding: "8px" }}
                     className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
                     disabled={cargandoDatos}
                   />
 
-                  {/* Lista desplegable de coincidencias */}
-                  {textoBusquedaCliente && clientesFiltrados.length > 0 && (
-                    <ul style={{ marginBottom: " 4px" }} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg">
-                      {clientesFiltrados.map(c => (
-                        <li
-                          key={c.ID_Cliente}
-                          onClick={() => {
-                            setClienteId(c.ID_Cliente)
-                            setTextoBusquedaCliente(c.Cli_Nombre)
-                            setSeleccionado(true) // ← muestra el nombre seleccionado
-                            setClientesFiltrados([])               // ← cierra la lista
-                            
-                          }}
-                          style={{ padding: " 8px 12px" }}
-                          className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm"
-                        >
-                          {c.Cli_Nombre}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-
-                  {/* Mensaje si no hay coincidencias */}
-                  {textoBusquedaCliente && !seleccionado && clientesFiltrados.length > 0 && (
-                    <div style={{ marginBottom: " 4px", padding: "8px 12px" }} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 px-3 py-2 text-sm text-slate-400 w-full shadow-lg">
-                      No se encontraron clientes
-                    </div>
+                  {/* Resultados de búsqueda - solo uno a la vez */}
+                  {textoBusquedaCliente && !seleccionado && (
+                    <>
+                      {clientesFiltrados.length > 0 ? (
+                        <ul style={{marginTop:"4px"}} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg">
+                          {clientesFiltrados.map(c => (
+                            <li
+                              key={c.ID_Cliente}
+                              onClick={() => {
+                                setClienteId(c.ID_Cliente)
+                                setTextoBusquedaCliente(c.Cli_Nombre)
+                                setSeleccionado(true)
+                                setClientesFiltrados([])
+                              }}
+                              style={{padding:"8px 12px"}}
+                              className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm"
+                            >
+                              {c.Cli_Nombre}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <div style={{padding:"8px 12px",marginTop:"4px"}} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 px-3 py-2 text-sm text-slate-400 w-full shadow-lg">
+                          No se encontraron clientes
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
 
-                {/* Cliente seleccionado */}
                 {clienteId && (
-                  <p style={{ marginBottom: " 4px" }} className="text-xs text-indigo-600 mt-1">
+                  <p className="text-xs text-indigo-600 mt-1">
                     Cliente seleccionado: {clientes.find(c => c.ID_Cliente == clienteId)?.Cli_Nombre}
                   </p>
                 )}

@@ -128,6 +128,7 @@ export default function Balance() {
           <button
             onClick={() => setModalCerrar(true)}
             disabled={cerrandoCorte}
+            style={{padding:"8px 16px"}}
             className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-xl text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50 transition-all whitespace-nowrap"
           >
             {cerrandoCorte && <Loader2 size={16} className="animate-spin" />}

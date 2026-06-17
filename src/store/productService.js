@@ -12,7 +12,7 @@ export const productService = {
  // Agrega este log para depurar
   // RF21: Registrar producto
   create: async (productData) => {
-    const response = await api.post("/productos", productData);
+    const response = await api.post("/productos/", productData);
     return response.data;
   },
 

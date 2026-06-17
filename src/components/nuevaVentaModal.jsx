@@ -27,6 +27,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [cantidadItem, setCantidadItem] = useState(1);
   const [textoBusquedaCliente, setTextoBusquedaCliente] = useState('')
   const [clientesFiltrados, setClientesFiltrados] = useState([])
+  const [seleccionado, setSeleccionado] = useState(false)
 
   const todosLosItems = useMemo(() => {
     const prods = productos.map(p => ({ ...p, tipo: 'producto' }))
@@ -104,16 +105,16 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   }
 
   useEffect(() => {
-    if (!textoBusquedaCliente.trim()) {
-      setClientesFiltrados([])
-      return
-    }
-    const q = textoBusquedaCliente.toLowerCase()
-    const filtrados = clientes.filter(c =>
-      c.Cli_Nombre?.toLowerCase().includes(q)
-    )
-    setClientesFiltrados(filtrados)
-  }, [textoBusquedaCliente, clientes])
+  if (!textoBusquedaCliente.trim() || seleccionado) {
+    setClientesFiltrados([])
+    return
+  }
+  const q = textoBusquedaCliente.toLowerCase()
+  const filtrados = clientes.filter(c =>
+    c.Cli_Nombre?.toLowerCase().includes(q)
+  )
+  setClientesFiltrados(filtrados)
+}, [textoBusquedaCliente, clientes, seleccionado])
 
   if (!open) return null
   return (
@@ -153,7 +154,11 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     type="text"
                     placeholder="Buscar cliente..."
                     value={textoBusquedaCliente}
-                    onChange={(e) => setTextoBusquedaCliente(e.target.value)}
+                    onChange={(e) => {
+        setTextoBusquedaCliente(e.target.value)
+        setSeleccionado(false)
+        if (clienteId) setClienteId('')
+      }}
                     style={{ padding: "8px" }}
                     className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
                     disabled={cargandoDatos}
@@ -167,8 +172,10 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                           key={c.ID_Cliente}
                           onClick={() => {
                             setClienteId(c.ID_Cliente)
-                            setTextoBusquedaCliente(c.Cli_Nombre)  // ← muestra el nombre seleccionado
+                            setTextoBusquedaCliente(c.Cli_Nombre)
+                            setSeleccionado(true) // ← muestra el nombre seleccionado
                             setClientesFiltrados([])               // ← cierra la lista
+                            
                           }}
                           style={{ padding: " 8px 12px" }}
                           className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm"

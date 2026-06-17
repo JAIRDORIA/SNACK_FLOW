@@ -187,7 +187,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   )}
 
                   {/* Mensaje si no hay coincidencias */}
-                  {textoBusquedaCliente && clientesFiltrados.length === 0 && (
+                  {textoBusquedaCliente && !seleccionado && clientesFiltrados.length > 0 && (
                     <div style={{ marginBottom: " 4px", padding: "8px 12px" }} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 px-3 py-2 text-sm text-slate-400 w-full shadow-lg">
                       No se encontraron clientes
                     </div>

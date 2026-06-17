@@ -158,19 +158,19 @@ export default function Balance() {
       </div>
 
       {/* Resumen del próximo corte */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 lg:mb-8 overflow-hidden">
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
+      <div style={{marginBottom:"24px"}} className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 lg:mb-8 overflow-hidden">
+        <div style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
           <h2 className="text-sm sm:text-base font-semibold text-slate-700">
             Resumen del próximo corte
           </h2>
         </div>
 
         {cargandoFuturo ? (
-          <div className="flex justify-center py-8 sm:py-10">
+          <div style={{paddingTop: "32px",paddingBottom:"32px"}} className="flex justify-center py-8 sm:py-10">
             <Loader2 size={24} className="animate-spin text-indigo-500" />
           </div>
         ) : errorFuturo ? (
-          <div className="px-4 sm:px-6 py-8 sm:py-10 text-center text-rose-500 text-sm">
+          <div  style={{padding:" 32px 16px"}} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-rose-500 text-sm">
             {errorFuturo}
           </div>
         ) : resumenFuturo ? (
@@ -178,41 +178,42 @@ export default function Balance() {
             <table className="w-full text-sm border-collapse">
               <thead>
                 <tr className="bg-slate-50">
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Concepto</th>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Detalle</th>
+                  <th  style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Concepto</th>
+                  <th style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Detalle</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-t border-gray-100">
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Corte futuro</td>
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-indigo-600">
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Corte futuro</td>
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-indigo-600">
                     #{resumenFuturo.numero}
                   </td>
                 </tr>
                 <tr className="border-t border-gray-100">
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Total de ventas registradas</td>
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-slate-800">
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Total de ventas registradas</td>
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-slate-800">
                     ${resumenFuturo.total_ventas.toLocaleString('es-CO')}
                   </td>
                 </tr>
                 <tr className="border-t border-gray-100">
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Total pagado</td>
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-emerald-600">
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Total pagado</td>
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-emerald-600">
                     ${(resumenFuturo.total_pagado || 0).toLocaleString('es-CO')}
                   </td>
                 </tr>
                 <tr className="border-t border-gray-100">
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Pendiente de pago</td>
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-amber-600">
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Pendiente de pago</td>
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-amber-600">
                     ${((resumenFuturo.total_ventas || 0) - (resumenFuturo.total_pagado || 0)).toLocaleString('es-CO')}
                   </td>
                 </tr>
                 <tr className="border-t border-gray-100">
-                  <td className="px-4 sm:px-6 py-2 sm:py-3" colSpan={2}>
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3" colSpan={2}>
                     <div className="flex justify-end">
                       <button
                         onClick={() => setMostrarVentasFuturo(true)}
                         disabled={ventasFuturo.length === 0}
+                        style={{padding:" 8px 12px"}}
                         className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium disabled:opacity-50 transition-colors"
                       >
                         <Info size={14} className="sm:w-4 sm:h-4" />
@@ -222,9 +223,9 @@ export default function Balance() {
                   </td>
                 </tr>
                 <tr className="border-t border-gray-100">
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Estado</td>
-                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-right">
-                    <span className="inline-flex items-center gap-1 text-xs px-2 sm:px-3 py-1 rounded-full font-medium bg-blue-50 text-blue-600">
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-slate-700">Estado</td>
+                  <td style={{padding:" 8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-right">
+                    <span style={{padding:" 4px 8px"}} className="inline-flex items-center gap-1 text-xs px-2 sm:px-3 py-1 rounded-full font-medium bg-blue-50 text-blue-600">
                       Futuro
                     </span>
                   </td>
@@ -233,30 +234,30 @@ export default function Balance() {
             </table>
           </div>
         ) : (
-          <div className="px-4 sm:px-6 py-8 sm:py-10 text-center text-slate-400 text-sm">
+          <div style={{padding:" 32px 16px"}} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-slate-400 text-sm">
             No hay un corte futuro configurado.
           </div>
         )}
       </div>
 
       {/* Ventas pendientes de cortes anteriores */}
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 lg:mb-8 overflow-hidden">
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
+      <div style={{marginBottom:" 24px"}} className="bg-white rounded-2xl border border-gray-200 shadow-sm mb-6 lg:mb-8 overflow-hidden">
+        <div style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
           <h2 className="text-sm sm:text-base font-semibold text-slate-700">
             Ventas pendientes de cortes anteriores
           </h2>
         </div>
 
         {cargandoVentasPendientes ? (
-          <div className="flex justify-center py-8 sm:py-10">
+          <div style={{paddingTop: "32px",paddingBottom:"32px"}} className="flex justify-center py-8 sm:py-10">
             <Loader2 size={24} className="animate-spin text-indigo-500" />
           </div>
         ) : errorVentasPendientes ? (
-          <div className="px-4 sm:px-6 py-8 sm:py-10 text-center text-rose-500 text-sm">
+          <div style={{padding:" 32px 16px"}} className="px-4 sm:px-6 py-8 sm:py-10 text-center text-rose-500 text-sm">
             {errorVentasPendientes}
           </div>
         ) : ventasPendientesAnteriores.length === 0 ? (
-          <div className="px-4 sm:px-6 py-8 sm:py-10 text-center text-slate-400 text-sm">
+          <div style={{padding:" 32px 16px"}}  className="px-4 sm:px-6 py-8 sm:py-10 text-center text-slate-400 text-sm">
             No hay ventas pendientes de cortes anteriores.
           </div>
         ) : (
@@ -264,21 +265,21 @@ export default function Balance() {
             <table className="w-full text-sm border-collapse min-w-[500px]">
               <thead>
                 <tr className="bg-slate-50">
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Venta</th>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Cliente</th>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Corte</th>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Total</th>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Pendiente</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Venta</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Cliente</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Corte</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Total</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-right text-xs text-slate-500 uppercase tracking-wider">Pendiente</th>
                 </tr>
               </thead>
               <tbody>
                 {ventasPendientesAnteriores.map((v) => (
                   <tr key={v.id_venta} className="border-t border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-slate-700">{v.nombre_cliente}</td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-slate-500">#{v.corte_id}</td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-slate-800">${v.total.toLocaleString('es-CO')}</td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-amber-600">${v.saldo_pendiente.toLocaleString('es-CO')}</td>
+                    <td style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
+                    <td style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-slate-700">{v.nombre_cliente}</td>
+                    <td style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-slate-500">#{v.corte_id}</td>
+                    <td style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-slate-800">${v.total.toLocaleString('es-CO')}</td>
+                    <td style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-right font-semibold text-amber-600">${v.saldo_pendiente.toLocaleString('es-CO')}</td>
                   </tr>
                 ))}
               </tbody>
@@ -289,11 +290,11 @@ export default function Balance() {
 
       {/* Historial de cortes */}
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-sm">
-        <div className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
+        <div style={{padding:"12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100">
           <h2 className="text-sm sm:text-base font-semibold text-slate-700">Historial de cortes</h2>
         </div>
         {cargandoHistorial ? (
-          <div className="flex justify-center py-8 sm:py-10">
+          <div style={{paddingTop: "32px",paddingBottom:"32px"}} className="flex justify-center py-8 sm:py-10">
             <Loader2 size={24} className="animate-spin text-indigo-500" />
           </div>
         ) : (
@@ -301,25 +302,25 @@ export default function Balance() {
             <table className="w-full text-sm min-w-[500px]">
               <thead className="bg-slate-50">
                 <tr>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Corte #</th>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Inicio</th>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Cierre</th>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-center text-xs text-slate-500 uppercase tracking-wider">Ver</th>
-                  <th className="px-4 sm:px-6 py-2 sm:py-3 text-center text-xs text-slate-500 uppercase tracking-wider">Estado</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Corte #</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Inicio</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase tracking-wider">Cierre</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-center text-xs text-slate-500 uppercase tracking-wider">Ver</th>
+                  <th style={{padding:"8px 16px"}} className="px-4 sm:px-6 py-2 sm:py-3 text-center text-xs text-slate-500 uppercase tracking-wider">Estado</th>
                 </tr>
               </thead>
               <tbody>
                 {historial.length === 0 ? (
                   <tr>
-                    <td className="text-center py-8 sm:py-10 text-gray-400" colSpan={5}>No hay cortes anteriores registrados.</td>
+                    <td style={{paddingTop: "32px",paddingBottom:"32px"}} className="text-center py-8 sm:py-10 text-gray-400" colSpan={5}>No hay cortes anteriores registrados.</td>
                   </tr>
                 ) : (
                   historial.map((corte) => (
                     <tr key={corte.id} className="border-t border-gray-100 hover:bg-gray-50/50 transition-colors">
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-indigo-600">#{corte.numero}</td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm">{corte.fecha_inicio || '—'}</td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm">{corte.fecha_cierre || '—'}</td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-center">
+                      <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-indigo-600">#{corte.numero}</td>
+                      <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm">{corte.fecha_inicio || '—'}</td>
+                      <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm">{corte.fecha_cierre || '—'}</td>
+                      <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-center">
                         {corte.estado === 'cerrado' && (
                           <button
                             onClick={() => fetchDetalleCorte(corte.id)}
@@ -330,7 +331,7 @@ export default function Balance() {
                           </button>
                         )}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-center">
+                      <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-center">
                         <span className={`inline-flex items-center gap-1 text-xs px-2 sm:px-3 py-1 rounded-full font-medium ${
                           corte.estado === 'cerrado'
                             ? 'bg-gray-100 text-gray-600'
@@ -352,9 +353,9 @@ export default function Balance() {
 
       {/* Modal detalle de corte */}
       {detalleCorte && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-indigo-50">
+            <div style={{padding:" 12px 16px"}} className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-indigo-50">
               <h3 className="text-base sm:text-lg font-bold text-slate-800">
                 Detalle del Corte #{detalleCorte.corteId}
               </h3>
@@ -365,22 +366,22 @@ export default function Balance() {
                 <X size={20} color="#64748b" />
               </button>
             </div>
-            <div className="p-4 sm:p-6 overflow-y-auto">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <div className="bg-indigo-50 p-3 sm:p-4 rounded-xl text-center">
-                  <p className="text-xs text-slate-500 mb-1">Total Ventas</p>
+            <div style={{padding:"16px"}} className="p-4 sm:p-6 overflow-y-auto">
+              <div style={{marginBottom:"16px"}} className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                <div style={{padding:" 12px"}} className="bg-indigo-50 p-3 sm:p-4 rounded-xl text-center">
+                  <p style={{marginBottom:" 4px"}} className="text-xs text-slate-500 mb-1">Total Ventas</p>
                   <p className="text-lg sm:text-xl font-bold text-indigo-600">
                     ${detalleCorte.totalVentas.toLocaleString('es-CO')}
                   </p>
                 </div>
-                <div className="bg-rose-50 p-3 sm:p-4 rounded-xl text-center">
-                  <p className="text-xs text-slate-500 mb-1">Total Compras</p>
+                <div style={{padding:" 12px"}} className="bg-rose-50 p-3 sm:p-4 rounded-xl text-center">
+                  <p style={{marginBottom:" 4px"}} className="text-xs text-slate-500 mb-1">Total Compras</p>
                   <p className="text-lg sm:text-xl font-bold text-rose-600">
                     ${detalleCorte.totalCompras.toLocaleString('es-CO')}
                   </p>
                 </div>
-                <div className={`p-3 sm:p-4 rounded-xl text-center ${detalleCorte.utilidad >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
-                  <p className="text-xs text-slate-500 mb-1">Utilidad</p>
+                <div style={{padding:" 12px"}} className={`p-3 sm:p-4 rounded-xl text-center ${detalleCorte.utilidad >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                  <p style={{marginBottom:" 4px"}}  className="text-xs text-slate-500 mb-1">Utilidad</p>
                   <p className={`text-lg sm:text-xl font-bold ${detalleCorte.utilidad >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     ${detalleCorte.utilidad.toLocaleString('es-CO')}
                   </p>
@@ -399,6 +400,7 @@ export default function Balance() {
                       { key: 'estado', label: 'Estado' }
                     ]
                   )}
+                  style={{marginBottom:" 8px 16px"}}
                   className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
                 >
                   <Download size={16} />
@@ -416,6 +418,7 @@ export default function Balance() {
                       { key: 'estado', label: 'Estado' }
                     ]
                   )}
+                  style={{marginBottom:" 8px 16px"}}
                   className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm transition-colors"
                 >
                   <Download size={16} />
@@ -429,13 +432,13 @@ export default function Balance() {
 
       {/* Modal cerrar corte */}
       {modalCerrar && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 sm:p-8 text-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
+        <div  style={{padding:" 16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div  style={{padding:" 24px"}} className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 sm:p-8 text-center">
+            <div style={{marginBottom:" 16px"}} className="w-14 h-14 sm:w-16 sm:h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
               <AlertCircle size={28} className="sm:w-8 sm:h-8 text-rose-500" />
             </div>
-            <p className="font-bold text-lg sm:text-xl text-slate-800 mb-2 sm:mb-3">¿Cerrar corte actual?</p>
-            <p className="text-sm text-slate-500 mb-6 sm:mb-8 leading-relaxed">
+            <p style={{marginBottom:" 8px"}} className="font-bold text-lg sm:text-xl text-slate-800 mb-2 sm:mb-3">¿Cerrar corte actual?</p>
+            <p style={{marginBottom:" 24px"}} className="text-sm text-slate-500 mb-6 sm:mb-8 leading-relaxed">
               Se activará el corte futuro y se creará uno nuevo automáticamente.
               Los abonos pendientes del corte futuro se asignarán como saldo inicial.
             </p>
@@ -443,6 +446,7 @@ export default function Balance() {
               <button
                 onClick={() => setModalCerrar(false)}
                 disabled={cerrandoCorte}
+                style={{paddingTop: "10px",paddingBottom:"10px"}}
                 className="flex-1 py-2.5 sm:py-3 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-all"
               >
                 Cancelar
@@ -450,6 +454,7 @@ export default function Balance() {
               <button
                 onClick={handleCerrarCorte}
                 disabled={cerrandoCorte}
+                style={{paddingTop: "10px",paddingBottom:"10px"}}
                 className="flex-1 py-2.5 sm:py-3 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
               >
                 {cerrandoCorte ? 'Cerrando...' : 'Sí, cerrar'}
@@ -461,7 +466,7 @@ export default function Balance() {
 
       {/* Notificación de éxito */}
       {exitoCierre && (
-        <div className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 bg-emerald-50 border border-emerald-200 rounded-xl p-3 sm:p-4 flex items-center gap-3 shadow-lg z-50 animate-bounce">
+        <div  style={{padding:"12px"}}  className="fixed bottom-4 right-4 sm:bottom-5 sm:right-5 bg-emerald-50 border border-emerald-200 rounded-xl p-3 sm:p-4 flex items-center gap-3 shadow-lg z-50 animate-bounce">
           <CheckCircle2 size={20} className="text-emerald-500" />
           <span className="text-xs sm:text-sm text-emerald-700 font-medium">Corte cerrado correctamente</span>
           <button onClick={resetExitoCierre} className="ml-2 text-emerald-400 hover:text-emerald-600">
@@ -472,9 +477,9 @@ export default function Balance() {
 
       {/* Modal ventas del corte futuro */}
       {mostrarVentasFuturo && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div style={{padding:"16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-indigo-50">
+            <div  style={{padding:" 12px 16px"}}  className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-gray-100 bg-indigo-50">
               <h3 className="text-base sm:text-lg font-bold text-slate-800">
                 Ventas del corte futuro #{resumenFuturo?.numero}
               </h3>
@@ -485,7 +490,7 @@ export default function Balance() {
                 <X size={20} color="#64748b" />
               </button>
             </div>
-            <div className="p-4 sm:p-6 overflow-y-auto">
+            <div  style={{padding:"16px"}}  className="p-4 sm:p-6 overflow-y-auto">
               {ventasFuturo.length === 0 ? (
                 <p className="text-center text-slate-400">No hay ventas registradas aún.</p>
               ) : (
@@ -493,27 +498,27 @@ export default function Balance() {
                   <table className="w-full text-sm border-collapse min-w-[500px]">
                     <thead>
                       <tr className="bg-slate-50">
-                        <th className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">ID</th>
-                        <th className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">Cliente</th>
-                        <th className="px-3 sm:px-4 py-2 text-right text-xs text-slate-500 uppercase">Total</th>
-                        <th className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">Estado</th>
-                        <th className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">Acciones</th>
+                        <th  style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">ID</th>
+                        <th  style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">Cliente</th>
+                        <th style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-right text-xs text-slate-500 uppercase">Total</th>
+                        <th  style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">Estado</th>
+                        <th  style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
                       {ventasFuturo.map((v) => (
                         <tr key={v.id_venta} className="border-t border-gray-100 hover:bg-gray-50">
-                          <td className="px-3 sm:px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
-                          <td className="px-3 sm:px-4 py-2 text-slate-700 text-xs sm:text-sm">{v.nombre_cliente}</td>
-                          <td className="px-3 sm:px-4 py-2 text-right font-semibold text-xs sm:text-sm">${v.total.toLocaleString('es-CO')}</td>
-                          <td className="px-3 sm:px-4 py-2">
+                          <td  style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 font-medium text-indigo-600">#{String(v.id_venta).padStart(3, '0')}</td>
+                          <td  style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-slate-700 text-xs sm:text-sm">{v.nombre_cliente}</td>
+                          <td  style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-right font-semibold text-xs sm:text-sm">${v.total.toLocaleString('es-CO')}</td>
+                          <td  style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2">
                             <span className={`text-xs px-2 py-0.5 rounded-full ${
                               v.estado === 'pendiente' ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'
                             }`}>
                               {v.estado}
                             </span>
                           </td>
-                          <td className="px-3 sm:px-4 py-2">
+                          <td  style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2">
                             <div className="flex gap-1">
                               <button
                                 title="Ver detalle"
@@ -538,9 +543,10 @@ export default function Balance() {
                 </div>
               )}
             </div>
-            <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
+            <div  style={{padding:" 12px 16px"}}  className="px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
               <button
                 onClick={() => setMostrarVentasFuturo(false)}
+                 style={{padding:" 8px 12px"}} 
                 className="px-3 sm:px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
               >
                 Cerrar
@@ -552,15 +558,15 @@ export default function Balance() {
 
       {/* Modal detalle venta futuro */}
       {detalleVentaFuturo && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div  style={{padding:" 16px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 border-b border-gray-100">
+            <div  style={{padding:" 12px 16px"}}  className="flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3 sm:py-4 lg:py-6 border-b border-gray-100">
               <div>
                 <p className="font-bold text-lg sm:text-xl text-gray-800">
                   Detalle de Venta{' '}
                   <span className="text-indigo-600">#{String(detalleVentaFuturo.id).padStart(3, '0')}</span>
                 </p>
-                <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                <p style={{marginBottom:" 4px"}} className="text-xs sm:text-sm text-gray-500 mt-1">
                   Cliente: <strong className="text-gray-700">{detalleVentaFuturo.nombre_cliente}</strong>
                 </p>
               </div>
@@ -571,39 +577,39 @@ export default function Balance() {
                 <X size={18} className="sm:w-5 sm:h-5" color="#64748b" />
               </button>
             </div>
-            <div className="p-4 sm:p-6 lg:p-8 overflow-y-auto">
+            <div  style={{padding:" 16px"}}  className="p-4 sm:p-6 lg:p-8 overflow-y-auto">
               <div className="overflow-x-auto mb-6">
                 <table className="w-full border-collapse min-w-[400px]">
                   <thead className="bg-slate-200">
                     <tr>
-                      <th className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
-                      <th className="px-3 sm:px-4 py-2 text-center text-xs text-slate-500 uppercase">Cantidad</th>
-                      <th className="px-3 sm:px-4 py-2 text-right text-xs text-slate-500 uppercase">Precio unit.</th>
-                      <th className="px-3 sm:px-4 py-2 text-right text-xs text-slate-500 uppercase">Subtotal</th>
+                      <th style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
+                      <th style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-center text-xs text-slate-500 uppercase">Cantidad</th>
+                      <th style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-right text-xs text-slate-500 uppercase">Precio unit.</th>
+                      <th  style={{padding:" 8px 12px"}} className="px-3 sm:px-4 py-2 text-right text-xs text-slate-500 uppercase">Subtotal</th>
                     </tr>
                   </thead>
                   <tbody>
                     {detalleVentaFuturo.detalle?.map((d, i) => (
                       <tr key={i} className="border-t border-gray-100 hover:bg-gray-50">
-                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-slate-700">{d.nombre_producto}</td>
-                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-center text-slate-600">{d.cantidad}</td>
-                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right text-slate-600">${d.precio_unitario.toLocaleString('es-CO')}</td>
-                        <td className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-slate-700">${d.subtotal.toLocaleString('es-CO')}</td>
+                        <td style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-slate-700">{d.nombre_producto}</td>
+                        <td style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-center text-slate-600">{d.cantidad}</td>
+                        <td style={{padding:" 8px 12px"}}  className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right text-slate-600">${d.precio_unitario.toLocaleString('es-CO')}</td>
+                        <td style={{padding:" 8px 12px"}} className="px-3 sm:px-4 py-2 text-xs sm:text-sm text-right font-medium text-slate-700">${d.subtotal.toLocaleString('es-CO')}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-                <div className="bg-indigo-50 p-3 sm:p-4 rounded-xl text-center">
+                <div  style={{padding:" 12px"}} className="bg-indigo-50 p-3 sm:p-4 rounded-xl text-center">
                   <p className="text-xs text-slate-500">Total</p>
                   <p className="text-lg sm:text-xl font-bold text-indigo-600">${detalleVentaFuturo.total?.toLocaleString('es-CO')}</p>
                 </div>
-                <div className="bg-emerald-50 p-3 sm:p-4 rounded-xl text-center">
+                <div  style={{padding:" 12px"}} className="bg-emerald-50 p-3 sm:p-4 rounded-xl text-center">
                   <p className="text-xs text-slate-500">Abonado</p>
                   <p className="text-lg sm:text-xl font-bold text-emerald-600">${detalleVentaFuturo.total_abonado?.toLocaleString('es-CO')}</p>
                 </div>
-                <div className={`p-3 sm:p-4 rounded-xl text-center ${detalleVentaFuturo.saldo_pendiente > 0 ? 'bg-amber-50' : 'bg-emerald-50'}`}>
+                <div  style={{padding:" 12px"}} className={`p-3 sm:p-4 rounded-xl text-center ${detalleVentaFuturo.saldo_pendiente > 0 ? 'bg-amber-50' : 'bg-emerald-50'}`}>
                   <p className="text-xs text-slate-500">Saldo pendiente</p>
                   <p className={`text-lg sm:text-xl font-bold ${detalleVentaFuturo.saldo_pendiente > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
                     ${detalleVentaFuturo.saldo_pendiente?.toLocaleString('es-CO')}
@@ -611,9 +617,10 @@ export default function Balance() {
                 </div>
               </div>
             </div>
-            <div className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
+            <div  style={{padding:" 12px 16px"}} className="px-4 sm:px-6 lg:px-8 py-3 sm:py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end">
               <button
                 onClick={() => setDetalleVentaFuturo(null)}
+                 style={{padding:" 8px 12px"}}
                 className="px-3 sm:px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
               >
                 Cerrar
@@ -625,13 +632,13 @@ export default function Balance() {
 
       {/* Modal confirmar anular venta futuro */}
       {ventaAnularId && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 sm:p-8 text-center">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
+        <div  style={{padding:" 24px"}} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div style={{padding:" 24px"}} className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 sm:p-8 text-center">
+            <div style={{marginBottom:" 16px"}} className="w-14 h-14 sm:w-16 sm:h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6">
               <AlertTriangle size={28} className="sm:w-8 sm:h-8 text-rose-500" />
             </div>
-            <p className="font-bold text-lg sm:text-xl text-gray-800 mb-2 sm:mb-3">¿Anular venta?</p>
-            <p className="text-sm text-gray-500 mb-6 sm:mb-8">
+            <p style={{marginBottom:" 8px"}} className="font-bold text-lg sm:text-xl text-gray-800 mb-2 sm:mb-3">¿Anular venta?</p>
+            <p style={{marginBottom:" 24px"}} className="text-sm text-gray-500 mb-6 sm:mb-8">
               La venta <strong>#{String(ventaAnularId).padStart(3, '0')}</strong> del corte futuro será anulada.
               Si tenía pagos, el dinero se revertirá del saldo inicial del corte.
             </p>
@@ -639,6 +646,7 @@ export default function Balance() {
               <button
                 onClick={() => setVentaAnularId(null)}
                 disabled={anulandoVentaFuturo}
+                style={{paddingTop: "10px",paddingBottom:"10px"}}
                 className="flex-1 py-2.5 sm:py-3 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
               >
                 Cancelar
@@ -646,6 +654,7 @@ export default function Balance() {
               <button
                 onClick={handleAnularVentaFuturo}
                 disabled={anulandoVentaFuturo}
+                style={{paddingTop: "10px",paddingBottom:"10px"}}
                 className="flex-1 py-2.5 sm:py-3 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 disabled:opacity-50"
               >
                 {anulandoVentaFuturo ? 'Anulando...' : 'Sí, anular'}

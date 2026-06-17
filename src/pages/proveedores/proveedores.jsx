@@ -348,44 +348,38 @@ export default function Proveedores() {
             <tbody>
               {lista.length === 0 ? (
                 <tr><td colSpan={6} style={{ padding: '60px 0', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>No hay resultados.</td></tr>
-              ) : (
-                lista.map((p, index) => {
-                  const inactivo = esInactivo(p);
-                  return (
-                    <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9', background: inactivo ? '#f8fafc' : '#ffffff', opacity: inactivo ? 0.75 : 1 }}>
-                      <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 600, color: inactivo ? '#94a3b8' : '#5842ff' }}>
-                        #{String(p.id || index + 1).padStart(3, '0')}
-                      </td>
-                      <td style={{ padding: '16px 24px', fontSize: '14px', color: '#111827', fontWeight: 500 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          {p.nombre}
-                          {inactivo && <span style={{ background: '#fee2e2', color: '#ef4444', padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', border: '1px solid #fecaca' }}>INACTIVO</span>}
-                        </div>
-                      </td>
-                      <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>{p.contacto || '—'}</td>
-                      <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>{p.telefono || '—'}</td>
-                      <td style={{ padding: '16px 24px' }}>
-                        {p.email && <div style={{ fontSize: '13px', color: '#475569', marginBottom: '2px' }}>{p.email}</div>}
-                        {p.direccion && <div style={{ fontSize: '12px', color: '#94a3b8' }}>{p.direccion}</div>}
-                        {!p.email && !p.direccion && <span style={{ color: '#cbd5e1' }}>—</span>}
-                      </td>
-                      
-                      <td style={{ padding: '16px 24px' }}>
-                        <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                          
-                          {/* BOTONES DE ACCIÓN */}
-                          {!inactivo ? (
-                            <>
-                              <button onClick={() => abrirEditar(p)} title="Editar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
-                                <Pencil size={18} color="#f59e0b" />
-                              </button>
-                              <button onClick={() => setProveedorEliminar(p)} title="Desactivar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
-                                <Trash2 size={18} color="#ef4444" />
-                              </button>
-                            </>
-                          ) : (
-                            <button onClick={() => setProveedorReactivar(p)} title="Reactivar Proveedor" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
-                              <RefreshCw size={18} color="#10b981" />
+              ) : lista.map((p, index) => {
+                const inactivo = esInactivo(p)
+                return (
+                  <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9', background: inactivo ? '#f8fafc' : '#ffffff', opacity: inactivo ? 0.75 : 1 }}>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 600, color: inactivo ? '#94a3b8' : '#5842ff' }}>
+                      #{String(p.id || index + 1).padStart(3, '0')}
+                    </td>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', color: '#111827', fontWeight: 500 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        {p.nombre}
+                        {inactivo && <span style={{ background: '#fee2e2', color: '#ef4444', padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', border: '1px solid #fecaca' }}>INACTIVO</span>}
+                      </div>
+                    </td>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>{p.contacto || '—'}</td>
+                    <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>{p.telefono || '—'}</td>
+                    <td style={{ padding: '16px 24px' }}>
+                      {p.email && <div style={{ fontSize: '13px', color: '#475569', marginBottom: '2px' }}>{p.email}</div>}
+                      {p.direccion && <div style={{ fontSize: '12px', color: '#94a3b8' }}>{p.direccion}</div>}
+                      {!p.email && !p.direccion && <span style={{ color: '#cbd5e1' }}>—</span>}
+                    </td>
+                    <td style={{ padding: '16px 24px' }}>
+                      <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+                        <button title="Detalles" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+                          <Info size={18} color="#5842ff" />
+                        </button>
+                        {!inactivo ? (
+                          <>
+                            <button onClick={() => abrirEditar(p)} title="Editar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+                              <Pencil size={18} color="#f59e0b" />
+                            </button>
+                            <button title="Validar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+                              <CheckCircle2 size={18} color="#10b981" />
                             </button>
                             <button onClick={() => setProveedorEliminar(p)} title="Desactivar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
                               <Trash2 size={18} color="#ef4444" />

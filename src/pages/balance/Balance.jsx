@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar, Info, AlertTriangle, Download,
-  AlertCircle, CheckCircle2, Loader2, X, Trash2, Search
+  AlertCircle, CheckCircle2, Loader2, X, Trash2, Search,ShoppingCart
 } from 'lucide-react'
 import useBalanceStore from '@/store/useBalanceStore'
 import { getVentaDetalle, anularVenta } from '@/api/ventas_api'

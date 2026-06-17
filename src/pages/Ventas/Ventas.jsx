@@ -439,7 +439,7 @@ export default function Ventas() {
       <DollarSign size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" color="#fb923c" />
     </div>
     <div className="min-w-0">
-      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
+      <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-white truncate">
         ${totalMonto.toLocaleString("es-CO")}
       </p>
       <p

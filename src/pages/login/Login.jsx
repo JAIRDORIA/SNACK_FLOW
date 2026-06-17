@@ -86,8 +86,19 @@ function SubmitBtn({ loading, label }) {
   )
 }
 
-// ── Panel izquierdo ───────────────────────────────────────────────────────────
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768)
+    window.addEventListener('resize', handler)
+    return () => window.removeEventListener('resize', handler)
+  }, [])
+  return isMobile
+}
+
+//Panel izquierdo 
 function PanelIzquierdo({ modo }) {
+  
   return (
     <div style={{
       width: '45%', flexShrink: 0, background: DARK,
@@ -122,8 +133,10 @@ function PanelIzquierdo({ modo }) {
   )
 }
 
-// ── Bienvenida + Setup ────────────────────────────────────────────────────────
+// Bienvenida + Setup 
 function Bienvenida({ onSetupComplete }) {
+  const navigate = useNavigate()
+  const isMobile = useIsMobile()
   const [paso, setPaso] = useState('welcome')
   const [verPass, setVerPass] = useState(false)
   const [form, setForm] = useState({ nombre: '', username: '', password: '', rol: 'admin' })
@@ -209,20 +222,18 @@ function Bienvenida({ onSetupComplete }) {
     )
   }
 
-  return (
+ return (
     <div style={{
       minHeight: '100vh', background: DARK,
-      display: 'flex', fontFamily: "'Segoe UI', system-ui, sans-serif",
-      position: 'relative', overflow: 'hidden'
+      display: 'flex', flexDirection: isMobile ? 'column' : 'row',
+      // ...
     }}>
-      <style>{`input::placeholder { color: rgba(255,255,255,0.18); } @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }`}</style>
-
-      <PanelIzquierdo modo="setup" />
-
+      {!isMobile && <PanelIzquierdo modo="setup" />}
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '48px 60px',
-        background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
+        padding: isMobile ? '40px 24px' : '48px 60px',
+        background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)',
+        minHeight: isMobile ? '100vh' : 'auto'
       }}>
         <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
           <div style={{ marginBottom: '28px' }}>
@@ -268,8 +279,9 @@ function Bienvenida({ onSetupComplete }) {
   )
 }
 
-// ── Recuperar contraseña ──────────────────────────────────────────────────────
+// Recuperar contraseña 
 function RecuperarPassword({ onVolver }) {
+  const isMobile = useIsMobile()
   const [paso, setPaso] = useState(1)
   const [verClave, setVerClave] = useState(false)
   const [verPass, setVerPass] = useState(false)
@@ -318,17 +330,14 @@ function RecuperarPassword({ onVolver }) {
   return (
     <div style={{
       minHeight: '100vh', background: DARK,
-      display: 'flex', fontFamily: "'Segoe UI', system-ui, sans-serif",
-      position: 'relative', overflow: 'hidden'
+      display: 'flex', flexDirection: isMobile ? 'column' : 'row',
     }}>
-      <style>{`input::placeholder { color: rgba(255,255,255,0.18); } @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }`}</style>
-
-      <PanelIzquierdo modo="recuperar" />
-
+      {!isMobile && <PanelIzquierdo modo="recuperar" />}
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '48px 60px',
-        background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
+        padding: isMobile ? '40px 24px' : '48px 60px',
+        background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)',
+        minHeight: isMobile ? '100vh' : 'auto'
       }}>
         <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
 
@@ -340,7 +349,7 @@ function RecuperarPassword({ onVolver }) {
               letterSpacing: '1.5px', textTransform: 'uppercase',
               padding: '5px 14px', borderRadius: '20px', marginBottom: '16px'
             }}>
-              {paso === 1 ? '🔐 Verificación' : '🔑 Nueva contraseña'}
+              {paso === 1 ? ' Verificación' : ' Nueva contraseña'}
             </div>
             <h2 style={{ color: 'white', fontSize: '24px', fontWeight: 700, margin: '0 0 6px' }}>
               {paso === 1 ? 'Recuperar acceso' : 'Crea tu nueva contraseña'}
@@ -427,8 +436,9 @@ function RecuperarPassword({ onVolver }) {
   )
 }
 
-// ── Login normal ──────────────────────────────────────────────────────────────
+// Login normal 
 function LoginScreen({ onRecuperar }) {
+  const isMobile = useIsMobile()
   const navigate = useNavigate()
   const [form, setForm] = useState({ username: '', password: '' })
   const [verPass, setVerPass] = useState(false)
@@ -450,23 +460,24 @@ function LoginScreen({ onRecuperar }) {
       setError(err.response?.status === 401 ? 'Usuario o contraseña incorrectos.' : 'Error al conectar con el servidor.')
     } finally { setCargando(false) }
   }
-
+  
   return (
-    <div style={{
-      minHeight: '100vh', background: DARK,
-      display: 'flex', fontFamily: "'Segoe UI', system-ui, sans-serif",
-      position: 'relative', overflow: 'hidden'
-    }}>
+  <div style={{
+    minHeight: '100vh', background: DARK,
+    display: 'flex', flexDirection: isMobile ? 'column' : 'row',
+    fontFamily: "'Segoe UI', system-ui, sans-serif",
+    position: 'relative', overflow: 'hidden'
+  }}>
       <style>{`
         input::placeholder { color: rgba(255,255,255,0.18); }
         @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
       `}</style>
 
-      <PanelIzquierdo modo="login" />
+      {!isMobile && <PanelIzquierdo modo="login" />}
 
       <div style={{
         flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: '48px 60px',
+        padding: isMobile ? '40px 24px' : '48px 60px',
         background: 'linear-gradient(160deg, #4f46e5 0%, #3730a3 55%, #1e1b6e 100%)'
       }}>
         <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
@@ -514,7 +525,7 @@ function LoginScreen({ onRecuperar }) {
   )
 }
 
-// ── Raíz ──────────────────────────────────────────────────────────────────────
+// Raíz 
 export default function Login() {
   const [modo, setModo] = useState(null)
   const navigate = useNavigate()

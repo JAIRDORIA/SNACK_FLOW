@@ -1,14 +1,33 @@
-import { Outlet } from 'react-router';
-import Sidebar from './sidebar'
-import Header from './header';
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import Sidebar from "./sidebar";
+import Header from "./header";
 
 export default function Layout() {
+  const [sidebarAbierto, setSidebarAbierto] = useState(false);
+
   return (
     <div className="flex h-screen overflow-hidden">
-      <Sidebar />
-      <div className="flex-1 flex flex-col min-h-0">
-        <Header />                      {/* altura fija, nunca crece */}
-        <main className="flex-1 overflow-y-auto">   {/* scroll solo aquí */}
+      
+      {/* Fondo oscuro móvil */}
+      {sidebarAbierto && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setSidebarAbierto(false)}
+        />
+      )}
+
+      <Sidebar
+        sidebarAbierto={sidebarAbierto}
+        setSidebarAbierto={setSidebarAbierto}
+      />
+
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <Header
+          setSidebarAbierto={setSidebarAbierto}
+        />
+
+        <main className="flex-1 overflow-y-auto p-4">
           <Outlet />
         </main>
       </div>

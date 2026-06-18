@@ -59,28 +59,28 @@ function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
         </div>
 
         {/* botones */}
-        <div style={{ padding: '16px 24px', display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
-          {onCancelar && (
-            <button onClick={onCancelar} style={{
-              background: '#f3f4f6', border: 'none', borderRadius: '8px',
-              padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-              cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
-            }}>
-              Cancelar
-            </button>
-          )}
-          <button onClick={onConfirmar} style={{
-            background: c.btn, border: 'none', borderRadius: '8px',
-            padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-            cursor: 'pointer', color: 'white', fontFamily: 'inherit',
-            transition: 'background 0.15s'
-          }}
-            onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
-            onMouseLeave={e => e.currentTarget.style.background = c.btn}
-          >
-            {onCancelar ? 'Confirmar' : 'Entendido'}
-          </button>
-        </div>
+        <div style={{ padding: '16px 24px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+  {onCancelar && (
+    <button onClick={onCancelar} style={{
+      background: '#f3f4f6', border: 'none', borderRadius: '8px',
+      padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+      cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
+    }}>
+      Cancelar
+    </button>
+  )}
+  <button onClick={onConfirmar} style={{
+    background: c.btn, border: 'none', borderRadius: '8px',
+    padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+    cursor: 'pointer', color: 'white', fontFamily: 'inherit',
+    transition: 'background 0.15s'
+  }}
+    onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
+    onMouseLeave={e => e.currentTarget.style.background = c.btn}
+  >
+    {onCancelar ? 'Confirmar' : 'Entendido'}
+  </button>
+</div>
       </div>
     </div>
   )
@@ -364,21 +364,38 @@ function ModalUsuarios({ onCerrar }) {
                         </div>
                         <div style={{ flex: 1, width: '100%', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           <div style={{ width: '100%', display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
-                            <input value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
-                              placeholder="Nombre"
-                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
-                            />
-                            <input value={editForm.apellido} onChange={e => setEditForm({ ...editForm, apellido: e.target.value })}
-                              placeholder="Apellido"
-                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
-                            />
-                            <input value={editForm.username} onChange={e => setEditForm({ ...editForm, username: e.target.value })}
-                              placeholder="Username"
-                              style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
-                            />
-                            <input type="password" value="__sin_cambios__" disabled placeholder="••••••••"
-                              style={{ border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', width: '100%', boxSizing: 'border-box', cursor: 'not-allowed', outline: 'none' }}
-                            />
+
+                            <div>
+                              <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Nombre</label>
+                              <input value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
+                                placeholder="Nombre"
+                                style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                              />
+                            </div>
+
+                            <div>
+                              <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Apellido</label>
+                              <input value={editForm.apellido} onChange={e => setEditForm({ ...editForm, apellido: e.target.value })}
+                                placeholder="Apellido"
+                                style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                              />
+                            </div>
+
+                            <div>
+                              <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Username</label>
+                              <input value={editForm.username} onChange={e => setEditForm({ ...editForm, username: e.target.value })}
+                                placeholder="Username"
+                                style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                              />
+                            </div>
+
+                            <div>
+                              <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Contraseña</label>
+                              <input type="password" value="__sin_cambios__" disabled placeholder="••••••••"
+                                style={{ border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', width: '100%', boxSizing: 'border-box', cursor: 'not-allowed', outline: 'none' }}
+                              />
+                            </div>
+
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>

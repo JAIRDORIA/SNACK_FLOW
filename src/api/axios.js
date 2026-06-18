@@ -4,7 +4,7 @@ const api = axios.create({
     baseURL: "http://192.168.1.2:4000",  // URL de tu backend
     headers: {
         "Content-Type": "application/json"
-    } 
+    }
 });
 
 // Agrega el token automáticamente en cada petición
@@ -22,6 +22,7 @@ api.interceptors.response.use(
     error => {
         if (error.response?.status === 401) {
             localStorage.removeItem("access_token")
+            localStorage.removeItem('usuario')
             window.location.href = "/login"
         }
         return Promise.reject(error)

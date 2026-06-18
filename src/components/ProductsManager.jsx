@@ -53,7 +53,7 @@ export default function ProductosManager() {
       if (editingId) {
         await api.put(`/productos/${editingId}`, payload);
       } else {
-        await api.post('/productos', payload);
+        await api.post('/productos/', payload);
       }
       setFormData(FORM_INICIAL);
       setEditingId(null);

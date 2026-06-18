@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { getBalance, getHistorialCortes, cerrarCorte } from '@/api/balance_api'
 import { getCortes } from '@/api/cortes_api'
 import { getVentas } from '@/api/ventas_api'
+import { getCompras } from '@/api/compras_api'
 import axios from '@/api/axios'
 
 const useBalanceStore = create((set, get) => ({
@@ -23,7 +24,10 @@ const useBalanceStore = create((set, get) => ({
 cargandoVentasFuturo: false,
 cargandoVentasPendientes: false,
 errorVentasPendientes: null,
-
+detalleCorte: null,
+cargandoDetalleCorte: false,
+errorDetalleCorte: null,
+cerrarDetalleCorte: () => set({ detalleCorte: null }),
   // Acciones
   fetchVentasPendientesAnteriores: async () => {
   set({ cargandoVentasPendientes: true, errorVentasPendientes: null })
@@ -52,6 +56,39 @@ errorVentasPendientes: null,
     }
   },
 
+
+fetchDetalleCorte: async (corteId) => {
+  set({ cargandoDetalleCorte: true, errorDetalleCorte: null, detalleCorte: null })
+  
+  try {
+    console.log('🔍 Solicitando ventas y compras para el corte:', corteId)
+    const [ventasRes, comprasRes] = await Promise.all([
+      getVentas(1,100,corteId),
+      getCompras(1,100,corteId)
+    ])
+     console.log('📦 Respuesta ventas:', ventasRes.data)
+    console.log('📦 Respuesta compras:', comprasRes.data)
+    
+    const ventas = ventasRes.data?.datos || []
+    const compras = comprasRes.data?.compras || []
+    const totalVentas = ventas.reduce((sum, v) => sum + (v.total || 0), 0)
+    const totalCompras = compras.reduce((sum, c) => sum + (c.total || 0), 0)
+    
+    set({
+      detalleCorte: {
+        corteId,
+        ventas,
+        compras,
+        totalVentas,
+        totalCompras,
+        utilidad: totalVentas - totalCompras
+      },
+      cargandoDetalleCorte: false
+    })
+  } catch (err) {
+    set({ errorDetalleCorte: 'Error al cargar detalle del corte', cargandoDetalleCorte: false })
+  }
+},
   // Obtener resumen del corte futuro
   fetchResumenFuturo: async () => {
     set({ cargandoFuturo: true, errorFuturo: null })

@@ -51,7 +51,7 @@ export default function Auditoria() {
           placeholder="Buscar por usuario, acción, tabla..."
           value={busqueda}
           onChange={e => setBusqueda(e.target.value)}
-          style={{padding:"8px 16px 0px 36px"}}
+          style={{padding:"8px 16px 8px 36px"}}
           className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all"
         />
       </div>

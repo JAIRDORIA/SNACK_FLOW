@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Search, Loader2, AlertCircle, Eye, Clock, User, FileText, Tag } from 'lucide-react'
 import useAuditoriaStore from '@/store/useAuditoriaStore'
-
+import { formatearFechaColombia } from '@/utils/formatearFecha'
 // Colores según tipo de acción
 const ACCION_CONFIG = {
   INSERT: { bg: 'bg-emerald-50', text: 'text-emerald-600', label: 'Creación' },
@@ -120,7 +120,7 @@ export default function Auditoria() {
                         <td style={{padding:"8px 12px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-gray-500 text-xs sm:text-sm whitespace-nowrap">
                           <div className="flex items-center gap-1">
                             <Clock size={12} className="text-gray-400" />
-                            {registro.fecha}
+                            {formatearFechaColombia(registro.fecha)}
                           </div>
                         </td>
                       </tr>

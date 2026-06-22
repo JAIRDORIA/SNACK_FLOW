@@ -222,6 +222,7 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
 
                   <label className="block text-xs text-slate-500">Medio de pago</label>
                   <select value={medioPago} onChange={e => setMedioPago(e.target.value)}
+                  style={{padding:"8px"}}
                     className="w-full border border-slate-200 rounded-lg p-2 text-sm">
                     <option value="efectivo">Efectivo</option>
                     <option value="transferencia">Transferencia</option>
@@ -233,6 +234,7 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
                     type="text"
                     value={observacion}
                     onChange={e => setObservacion(e.target.value)}
+                    style={{padding:"8px"}}
                     className="w-full border border-slate-200 rounded-lg p-2 text-sm"
                     placeholder="Ej. pago en caja"
                   />
@@ -247,7 +249,7 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
             </div>
           )}
           {exito && (
-            <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 p-3 rounded-lg">
+            <div style={{padding:"12px"}} className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 p-3 rounded-lg">
               <CheckCircle2 size={16} /> Abono registrado correctamente
             </div>
           )}
@@ -259,6 +261,7 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
             Cancelar
           </button>
           <button onClick={handleSubmit} disabled={!ventaSeleccionada || enviando || monto <= 0}
+          style={{padding:"8px 24px"}}
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl text-sm font-semibold shadow-md disabled:opacity-50">
             {enviando ? <Loader2 size={16} className="animate-spin" /> : null}
             Registrar Abono

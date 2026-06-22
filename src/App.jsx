@@ -15,6 +15,7 @@ import CombosManager from './components/combosmanager'
 import PrimerCorte from './pages/pcorte/PrimerCorte'
 import RequireCorte from './components/RequireCortes'
 import useInactivityTimer from './hooks/useInactivityTimer'
+import Auditoria from '@/pages/auditoria/Auditoria'
 
 function RutaProtegida({ children }) {
   const token = localStorage.getItem('access_token')
@@ -57,6 +58,7 @@ function App() {
           <Route path="cortes" element={<Cortes />} />
           <Route path="abonos" element={<Abonos />} />
           <Route path="proveedores" element={<Proveedores />} />
+          <Route path="auditoria" element={<Auditoria />} />
 
         </Route>
 

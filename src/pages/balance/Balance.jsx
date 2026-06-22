@@ -6,7 +6,7 @@ import {
 import useBalanceStore from '@/store/useBalanceStore'
 import { getVentaDetalle, anularVenta } from '@/api/ventas_api'
 import { exportarAExcel } from '@/utils/exportarExcel'
-
+import { formatearFechaColombia } from '@/utils/formatearFecha'
 export default function Balance() {
   const {
     balance, historial,
@@ -121,7 +121,7 @@ export default function Balance() {
         <div>
           <h1 className="text-xl sm:text-2xl lg:text-[28px] font-bold text-[#1B1D2E]">BALANCE</h1>
           <p style={{marginTop:"4px"}} className="text-xs sm:text-sm text-gray-400 mt-1">
-            Corte #{balance?.corte_numero ?? '...'} · Iniciado: {balance?.fecha_inicio ?? '...'}
+            Corte #{balance?.corte_numero ?? '...'} · Iniciado: {formatearFechaColombia(balance?.fecha_inicio) ?? '...'}
           </p>
         </div>
         {balance?.corte_id && (

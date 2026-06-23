@@ -7,7 +7,43 @@ export default function Dashboard() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const carouselRef = useRef(null)
   const autoSlideRef = useRef(null)
-
+const statsCards = [
+    {
+      title: 'Total de Dinero en Caja del corte actual',
+      value: balance?.dinero_caja ?? 0,
+      icon: Wallet,
+      iconColor: '#22d3ee',
+      ringColor: 'rgba(34,211,238,0.4)'
+    },
+    {
+      title: 'Total de Dinero en Venta del corte actual',
+      value: balance?.total_ventas ?? 0,
+      icon: TrendingUp,
+      iconColor: '#34d399',
+      ringColor: 'rgba(52,211,153,0.4)'
+    },
+    {
+      title: 'Total de Dinero en Compras',
+      value: balance?.total_compras ?? 0,
+      icon: ShoppingCart,
+      iconColor: '#e879f9',
+      ringColor: 'rgba(232,121,249,0.4)'
+    },
+    {
+      title: 'Total de Dinero en Efectivo',
+      value: balance?.total_efectivo ?? 0,
+      icon: DollarSign,
+      iconColor: '#fb923c',
+      ringColor: 'rgba(251,146,60,0.4)'
+    },
+    {
+      title: 'Dinero en Transferencia',
+      value: balance?.total_transferencia ?? 0,
+      icon: CreditCard,
+      iconColor: '#fb7185',
+      ringColor: 'rgba(251,113,133,0.4)'
+    }
+  ]
   useEffect(() => {
     fetchDashboard()
   }, [])
@@ -59,43 +95,7 @@ export default function Dashboard() {
     </div>
   )
 
-  const statsCards = [
-    {
-      title: 'Total de Dinero en Caja del corte actual',
-      value: balance?.dinero_caja ?? 0,
-      icon: Wallet,
-      iconColor: '#22d3ee',
-      ringColor: 'rgba(34,211,238,0.4)'
-    },
-    {
-      title: 'Total de Dinero en Venta del corte actual',
-      value: balance?.total_ventas ?? 0,
-      icon: TrendingUp,
-      iconColor: '#34d399',
-      ringColor: 'rgba(52,211,153,0.4)'
-    },
-    {
-      title: 'Total de Dinero en Compras',
-      value: balance?.total_compras ?? 0,
-      icon: ShoppingCart,
-      iconColor: '#e879f9',
-      ringColor: 'rgba(232,121,249,0.4)'
-    },
-    {
-      title: 'Total de Dinero en Efectivo',
-      value: balance?.total_efectivo ?? 0,
-      icon: DollarSign,
-      iconColor: '#fb923c',
-      ringColor: 'rgba(251,146,60,0.4)'
-    },
-    {
-      title: 'Dinero en Transferencia',
-      value: balance?.total_transferencia ?? 0,
-      icon: CreditCard,
-      iconColor: '#fb7185',
-      ringColor: 'rgba(251,113,133,0.4)'
-    }
-  ]
+  
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % statsCards.length)

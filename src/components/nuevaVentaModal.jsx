@@ -154,7 +154,10 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     placeholder="Buscar cliente..."
                     value={textoBusquedaCliente}
                     onChange={(e) => {
-                      setTextoBusquedaCliente(e.target.value)
+                      const valor = e.target.value
+                        .replace(/[0-9]/g, '')       // Elimina números
+                        .slice(0, 30)                // Máximo 30 caracteres
+                      setTextoBusquedaCliente(valor)
                       setSeleccionado(false)
                       if (clienteId) setClienteId('')
                     }}
@@ -167,7 +170,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   {textoBusquedaCliente && !seleccionado && (
                     <>
                       {clientesFiltrados.length > 0 ? (
-                        <ul style={{marginTop:"4px"}} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg">
+                        <ul style={{ marginTop: "4px" }} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg">
                           {clientesFiltrados.map(c => (
                             <li
                               key={c.ID_Cliente}
@@ -177,7 +180,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                                 setSeleccionado(true)
                                 setClientesFiltrados([])
                               }}
-                              style={{padding:"8px 12px"}}
+                              style={{ padding: "8px 12px" }}
                               className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm"
                             >
                               {c.Cli_Nombre}
@@ -185,7 +188,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                           ))}
                         </ul>
                       ) : (
-                        <div style={{padding:"8px 12px",marginTop:"4px"}} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 px-3 py-2 text-sm text-slate-400 w-full shadow-lg">
+                        <div style={{ padding: "8px 12px", marginTop: "4px" }} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 px-3 py-2 text-sm text-slate-400 w-full shadow-lg">
                           No se encontraron clientes
                         </div>
                       )}

@@ -282,6 +282,7 @@ export default function CustomersManager() {
                 nombre: nombreCompleto,
                 telefono: createForm.telefono,
                 direccion: createForm.direccion,
+                identificacion:createForm.identificacion,
                 email: createForm.email,
               })
             }} style={{ padding: "24px" }} className="p-6 flex flex-col gap-4">
@@ -303,7 +304,22 @@ export default function CustomersManager() {
                 />
               </div>
               {/* Identificación */}
+              
               <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase">Apellidos</label>
+                <input
+                  style={{ padding: "8px 12px" }}
+                  type="text"
+                  value={createForm.apellidos}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[0-9]/g, '')
+                      .slice(0, 30)
+                    setCreateForm({ ...createForm, apellidos: valor })
+                  }}
+                  placeholder="Ej: Pérez García"
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />              </div><div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Identificación</label>
                 <input
                   style={{ padding: "8px 12px" }}
@@ -319,21 +335,6 @@ export default function CustomersManager() {
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
                 />
               </div>
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase">Apellidos</label>
-                <input
-                  style={{ padding: "8px 12px" }}
-                  type="text"
-                  value={createForm.apellidos}
-                  onChange={e => {
-                    const valor = e.target.value
-                      .replace(/[0-9]/g, '')
-                      .slice(0, 30)
-                    setCreateForm({ ...createForm, apellidos: valor })
-                  }}
-                  placeholder="Ej: Pérez García"
-                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
-                />              </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Teléfono</label>
                 <input style={{ padding: "8px 12px" }} type="text" value={createForm.telefono} onChange={e => setCreateForm({ ...createForm, telefono: e.target.value })} placeholder="3001234567" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />

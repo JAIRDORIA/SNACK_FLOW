@@ -93,6 +93,18 @@ function ModalProveedor({ proveedor, onClose, onGuardar }) {
     setErrForm(null)
     return
   }
+   // Validaciones para el campo "contacto" (persona de contacto)
+  if (name === 'contacto') {
+    // No permitir números
+    const valorSinNumeros = value.replace(/[0-9]/g, '')
+    
+    // Limitar a 30 caracteres
+    const valorLimitado = valorSinNumeros.slice(0, 30)
+    
+    setForm(prev => ({ ...prev, [name]: valorLimitado }))
+    setErrForm(null)
+    return
+  }
   
   // Para los demás campos (teléfono, dirección, email)
   setForm(prev => ({ ...prev, [name]: value }))

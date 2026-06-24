@@ -16,6 +16,7 @@ export default function CustomersManager() {
   const [createForm, setCreateForm] = useState({
     nombres: '',
     apellidos: '',
+    identificacion: '',
     telefono: '',
     direccion: '',
     email: '',
@@ -48,21 +49,22 @@ export default function CustomersManager() {
 
   // Crear cliente
   const handleCreate = async (payload) => {
-    try {
-      await api.post('/clientes/', {
-        nombre: payload.nombre,
-        telefono: payload.telefono,
-        direccion: payload.direccion,
-        email: payload.email || undefined,
-      })
-      setCreateForm({ nombres: '', apellidos: '', telefono: '', direccion: '', email: '' })
-      setIsCreateModalOpen(false)
-      fetchCustomers()
-    } catch (err) {
-      console.error(err)
-      alert('Error al guardar cliente')
-    }
+  try {
+    await api.post('/clientes/', {
+      nombre: payload.nombre,
+      identificacion: payload.identificacion,  // ← nuevo
+      telefono: payload.telefono,
+      direccion: payload.direccion,
+      email: payload.email || undefined,
+    })
+    setCreateForm({ nombres: '', apellidos: '', identificacion: '', telefono: '', direccion: '', email: '' })
+    setIsCreateModalOpen(false)
+    fetchCustomers()
+  } catch (err) {
+    console.error(err)
+    alert('Error al guardar cliente')
   }
+}
 
   // Abrir modal de edición (dividir nombre completo)
   const openEditModal = (customer) => {
@@ -75,6 +77,7 @@ export default function CustomersManager() {
       id: customer.ID_Cliente,
       nombres: nombres,
       apellidos: apellidos,
+      identificacion: customer.Cli_Identificacion || '', 
       telefono: customer.Cli_Telefono || '',
       direccion: customer.Cli_Direccion || '',
       email: customer.Cli_email || '',
@@ -84,20 +87,21 @@ export default function CustomersManager() {
 
   // Actualizar cliente
   const handleUpdate = async (payload) => {
-    try {
-      await api.put(`/clientes/${payload.id}`, {
-        nombre: payload.nombre,
-        telefono: payload.telefono,
-        direccion: payload.direccion,
-        email: payload.email || undefined,
-      })
-      setIsEditModalOpen(false)
-      fetchCustomers()
-    } catch (err) {
-      console.error(err)
-      alert('Error al actualizar')
-    }
+  try {
+    await api.put(`/clientes/${payload.id}`, {
+      nombre: payload.nombre,
+      identificacion: payload.identificacion,  // ← nuevo
+      telefono: payload.telefono,
+      direccion: payload.direccion,
+      email: payload.email || undefined,
+    })
+    setIsEditModalOpen(false)
+    fetchCustomers()
+  } catch (err) {
+    console.error(err)
+    alert('Error al actualizar')
   }
+}
 
   // Eliminar cliente
   const handleDelete = async () => {
@@ -296,7 +300,25 @@ export default function CustomersManager() {
                   }}
                   placeholder="Ej: Juan Carlos"
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
-                />              </div>
+                />
+              </div>
+              {/* Identificación */}
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase">Identificación</label>
+                <input
+                  style={{ padding: "8px 12px" }}
+                  type="text"
+                  value={createForm.identificacion}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[^0-9]/g, '')  // Solo números
+                      .slice(0, 20)            // Máximo 20 caracteres
+                    setCreateForm({ ...createForm, identificacion: valor })
+                  }}
+                  placeholder="Ej: 1234567890"
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Apellidos</label>
                 <input
@@ -405,6 +427,23 @@ export default function CustomersManager() {
                   placeholder="Ej: Juan Carlos"
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
                 />              </div>
+              {/* Identificación */}
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase">Identificación</label>
+                <input
+                  style={{ padding: "8px 12px" }}
+                  type="text"
+                  value={editingCustomer.identificacion || ''}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[^0-9]/g, '')
+                      .slice(0, 20)
+                    setEditingCustomer({ ...editingCustomer, identificacion: valor })
+                  }}
+                  placeholder="Ej: 1234567890"
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Apellidos</label>
                 <input

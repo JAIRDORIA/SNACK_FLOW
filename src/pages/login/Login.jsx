@@ -583,6 +583,6 @@ export default function Login() {
   )
 
   if (modo === 'recuperar') return <RecuperarPassword onVolver={() => setModo('login')} />
-  if (modo === 'setup') return <Bienvenida onSetupComplete={() => setModo('login')} />
+  if (modo === 'setup') return <Bienvenida onSetupComplete={() => setModo('login')} />   
   return <LoginScreen onRecuperar={() => setModo('recuperar')} />
 }

@@ -46,19 +46,30 @@ function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
           <h3 style={{ margin: '0 0 6px', color: c.titulo, fontSize: '17px', fontWeight: 700 }}>{titulo}</h3>
           <p style={{ margin: 0, color: '#6b7280', fontSize: '13px', lineHeight: 1.6 }}>{mensaje}</p>
         </div>
+
+        {/* botones */}
         <div style={{ padding: '16px 24px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-          {onCancelar && (
-            <button onClick={onCancelar} style={{ background: '#f3f4f6', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: '#374151', fontFamily: 'inherit' }}>
-              Cancelar
-            </button>
-          )}
-          <button onClick={onConfirmar} style={{ background: c.btn, border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: 'white', fontFamily: 'inherit', transition: 'background 0.15s' }}
-            onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
-            onMouseLeave={e => e.currentTarget.style.background = c.btn}
-          >
-            {onCancelar ? 'Confirmar' : 'Entendido'}
-          </button>
-        </div>
+  {onCancelar && (
+    <button onClick={onCancelar} style={{
+      background: '#f3f4f6', border: 'none', borderRadius: '8px',
+      padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+      cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
+    }}>
+      Cancelar
+    </button>
+  )}
+  <button onClick={onConfirmar} style={{
+    background: c.btn, border: 'none', borderRadius: '8px',
+    padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+    cursor: 'pointer', color: 'white', fontFamily: 'inherit',
+    transition: 'background 0.15s'
+  }}
+    onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
+    onMouseLeave={e => e.currentTarget.style.background = c.btn}
+  >
+    {onCancelar ? 'Confirmar' : 'Entendido'}
+  </button>
+</div>
       </div>
     </div>
   )

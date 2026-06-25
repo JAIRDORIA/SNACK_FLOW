@@ -154,7 +154,7 @@ function PanelIzquierdo({ modo }) {
 
 // Bienvenida + Setup 
 function Bienvenida({ onSetupComplete }) {
-  const navigate = useNavigate()
+  //const navigate = useNavigate()
   const isMobile = useIsMobile()
   const [paso, setPaso] = useState('welcome')
   const [verPass, setVerPass] = useState(false)

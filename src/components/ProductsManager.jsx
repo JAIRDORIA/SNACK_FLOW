@@ -114,10 +114,10 @@ export default function ProductosManager() {
   );
 
   return (
-    <div style={{padding:"16px"}} className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div style={{ padding: "16px" }} className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8">
 
       {/* HEADER */}
-      <div style={{marginBottom:"24px"}} className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div style={{ marginBottom: "24px" }} className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <p style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#6366f1', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>
             módulo operativo
@@ -179,11 +179,20 @@ export default function ProductosManager() {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre *</label>
-                <input type="text" name="nombre" placeholder="Ej: Empanada de pipián"
-                  value={formData.nombre} onChange={handleChange} required
+                <input
+                  type="text"
+                  name="nombre"
+                  placeholder="Ej: Empanada de pipián"
+                  value={formData.nombre}
+                  onChange={(e) => {
+                    const valor = e.target.value.slice(0, 40)  // Máximo 40 caracteres
+                    handleChange({ target: { name: 'nombre', value: valor } })
+                  }}
+                  required
                   style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
-                  onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
-                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
+                  onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
+                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }}
+                />
               </div>
 
               <div>

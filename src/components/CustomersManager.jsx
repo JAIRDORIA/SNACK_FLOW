@@ -235,7 +235,7 @@ export default function CustomersManager() {
                 filteredCustomers.map((customer) => (
                   <tr key={customer.ID_Cliente} className="border-t border-gray-100 hover:bg-gray-50">
                     <td style={{ padding: "12px  16px" }} className="px-4 py-3 font-medium text-gray-800">{customer.Cli_Nombre}</td>
-                    <td style={{ padding: "12px  16px" }} className="px-4 py-3 text-gray-600">{customer.Cli_Telefono}</td>
+                    <td style={{ padding: "12px  16px" }} className="px-4 py-3 text-gray-600">{customer.Cli_Telefono || '—'}</td>
                     <td style={{ padding: "12px  16px" }} className="px-4 py-3 text-gray-600">{customer.Cli_Direccion || '—'}</td>
                     <td style={{ padding: "12px  16px" }} className="px-4 py-3">
                       <div className="flex gap-1">

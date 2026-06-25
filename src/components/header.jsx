@@ -32,9 +32,9 @@ function useIsMobile() {
 
 function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
   const colores = {
-    error:   { bg: '#fef2f2', border: '#fecaca', titulo: '#b91c1c', btn: '#ef4444', btnHover: '#dc2626', icono: '🚫' },
-    exito:   { bg: '#f0fdf4', border: '#bbf7d0', titulo: '#15803d', btn: '#22c55e', btnHover: '#16a34a', icono: '✓'  },
-    warning: { bg: '#fffbeb', border: '#fde68a', titulo: '#b45309', btn: '#f59e0b', btnHover: '#d97706', icono: '⚠'  },
+    error: { bg: '#fef2f2', border: '#fecaca', titulo: '#b91c1c', btn: '#ef4444', btnHover: '#dc2626', icono: '🚫' },
+    exito: { bg: '#f0fdf4', border: '#bbf7d0', titulo: '#15803d', btn: '#22c55e', btnHover: '#16a34a', icono: '✓' },
+    warning: { bg: '#fffbeb', border: '#fde68a', titulo: '#b45309', btn: '#f59e0b', btnHover: '#d97706', icono: '⚠' },
   }
   const c = colores[tipo] || colores.warning
   return (
@@ -49,27 +49,27 @@ function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
 
         {/* botones */}
         <div style={{ padding: '16px 24px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-  {onCancelar && (
-    <button onClick={onCancelar} style={{
-      background: '#f3f4f6', border: 'none', borderRadius: '8px',
-      padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-      cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
-    }}>
-      Cancelar
-    </button>
-  )}
-  <button onClick={onConfirmar} style={{
-    background: c.btn, border: 'none', borderRadius: '8px',
-    padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-    cursor: 'pointer', color: 'white', fontFamily: 'inherit',
-    transition: 'background 0.15s'
-  }}
-    onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
-    onMouseLeave={e => e.currentTarget.style.background = c.btn}
-  >
-    {onCancelar ? 'Confirmar' : 'Entendido'}
-  </button>
-</div>
+          {onCancelar && (
+            <button onClick={onCancelar} style={{
+              background: '#f3f4f6', border: 'none', borderRadius: '8px',
+              padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+              cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
+            }}>
+              Cancelar
+            </button>
+          )}
+          <button onClick={onConfirmar} style={{
+            background: c.btn, border: 'none', borderRadius: '8px',
+            padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+            cursor: 'pointer', color: 'white', fontFamily: 'inherit',
+            transition: 'background 0.15s'
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
+            onMouseLeave={e => e.currentTarget.style.background = c.btn}
+          >
+            {onCancelar ? 'Confirmar' : 'Entendido'}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -77,15 +77,15 @@ function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
 
 // Modal cambio de contraseña — 2 pasos
 function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
-  const [paso, setPaso]                   = useState(1)
-  const [passAdmin, setPassAdmin]         = useState('')
-  const [verPassAdmin, setVerPassAdmin]   = useState(false)
-  const [nuevaPass, setNuevaPass]         = useState('')
-  const [confirmar, setConfirmar]         = useState('')
-  const [verNueva, setVerNueva]           = useState(false)
-  const [verConfirmar, setVerConfirmar]   = useState(false)
-  const [cargando, setCargando]           = useState(false)
-  const [error, setError]                 = useState('')
+  const [paso, setPaso] = useState(1)
+  const [passAdmin, setPassAdmin] = useState('')
+  const [verPassAdmin, setVerPassAdmin] = useState(false)
+  const [nuevaPass, setNuevaPass] = useState('')
+  const [confirmar, setConfirmar] = useState('')
+  const [verNueva, setVerNueva] = useState(false)
+  const [verConfirmar, setVerConfirmar] = useState(false)
+  const [cargando, setCargando] = useState(false)
+  const [error, setError] = useState('')
 
   const inputStyle = {
     width: '100%', boxSizing: 'border-box',
@@ -114,7 +114,7 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
     setCargando(true); setError('')
     try {
       await api.post('/auth/recuperar-password', {
-        username:       usuarioTarget.username,
+        username: usuarioTarget.username,
         nueva_password: nuevaPass,
       })
       onExito(`Contraseña de @${usuarioTarget.username} actualizada correctamente.`)
@@ -164,6 +164,7 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
                   value={passAdmin}
                   onChange={e => { setPassAdmin(e.target.value); setError('') }}
                   placeholder="••••••••"
+                  maxLength={30}
                   style={inputStyle}
                   onFocus={e => e.target.style.borderColor = '#4f46e5'}
                   onBlur={e => e.target.style.borderColor = '#e5e7eb'}
@@ -193,6 +194,7 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
                   value={nuevaPass}
                   onChange={e => { setNuevaPass(e.target.value); setError('') }}
                   placeholder="Mínimo 8 caracteres"
+                  maxLength={30}
                   style={inputStyle}
                   onFocus={e => e.target.style.borderColor = '#4f46e5'}
                   onBlur={e => e.target.style.borderColor = '#e5e7eb'}
@@ -212,6 +214,7 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
                   value={confirmar}
                   onChange={e => { setConfirmar(e.target.value); setError('') }}
                   placeholder="Repite la contraseña"
+                  maxLength={30}
                   style={inputStyle}
                   onFocus={e => e.target.style.borderColor = '#4f46e5'}
                   onBlur={e => e.target.style.borderColor = '#e5e7eb'}
@@ -244,22 +247,22 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
 
 // Modal gestión de usuarios
 function ModalUsuarios({ onCerrar }) {
-  const isMobile        = useIsMobile()
-  const usuarioActual   = JSON.parse(localStorage.getItem('usuario'))
+  const isMobile = useIsMobile()
+  const usuarioActual = JSON.parse(localStorage.getItem('usuario'))
   const esAdminPrincipal = usuarioActual?.id === 1
 
-  const [usuarios, setUsuarios]           = useState([])
-  const [cargando, setCargando]           = useState(true)
-  const [mostrarForm, setMostrarForm]     = useState(false)
-  const [verPass, setVerPass]             = useState(false)
-  const [form, setForm]                   = useState({ nombre: '', apellido: '', username: '', password: '', rol: 'admin' })
-  const [error, setError]                 = useState('')
-  const [guardando, setGuardando]         = useState(false)
-  const [alerta, setAlerta]               = useState(null)
-  const [editandoId, setEditandoId]       = useState(null)
-  const [editForm, setEditForm]           = useState({ nombre: '', apellido: '', username: '' })
+  const [usuarios, setUsuarios] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [mostrarForm, setMostrarForm] = useState(false)
+  const [verPass, setVerPass] = useState(false)
+  const [form, setForm] = useState({ nombre: '', apellido: '', username: '', password: '', rol: 'admin' })
+  const [error, setError] = useState('')
+  const [guardando, setGuardando] = useState(false)
+  const [alerta, setAlerta] = useState(null)
+  const [editandoId, setEditandoId] = useState(null)
+  const [editForm, setEditForm] = useState({ nombre: '', apellido: '', username: '' })
   const [guardandoEdit, setGuardandoEdit] = useState(false)
-  const [modalPass, setModalPass]         = useState(null)
+  const [modalPass, setModalPass] = useState(null)
 
   const cargarUsuarios = async () => {
     setCargando(true)
@@ -292,10 +295,10 @@ function ModalUsuarios({ onCerrar }) {
     setGuardando(true)
     try {
       const data = {
-        nombre:   `${form.nombre} ${form.apellido}`.replace(/\s+/g, ' ').trim(),
+        nombre: `${form.nombre} ${form.apellido}`.replace(/\s+/g, ' ').trim(),
         username: form.username,
         password: form.password,
-        rol:      form.rol,
+        rol: form.rol,
       }
       await api.post('/usuarios/', data)
       setAlerta({ tipo: 'exito', titulo: 'Usuario creado', mensaje: `El usuario @${form.username} fue creado correctamente.`, onConfirmar: () => setAlerta(null) })
@@ -316,7 +319,7 @@ function ModalUsuarios({ onCerrar }) {
       tipo: 'warning', titulo: '¿Desactivar usuario?',
       mensaje: `¿Deseas desactivar a ${u.nombre}? El usuario ya no podrá iniciar sesión.`,
       onConfirmar: () => { setAlerta(null); desactivar(u.id) },
-      onCancelar:  () => setAlerta(null),
+      onCancelar: () => setAlerta(null),
     })
   }
 
@@ -341,10 +344,10 @@ function ModalUsuarios({ onCerrar }) {
     setGuardandoEdit(true)
     try {
       const data = {
-        nombre:   `${editForm.nombre} ${editForm.apellido}`.replace(/\s+/g, ' ').trim(),
+        nombre: `${editForm.nombre} ${editForm.apellido}`.replace(/\s+/g, ' ').trim(),
         username: editForm.username,
         password: '__sin_cambios__',
-        rol:      usuarios.find(u => u.id === id)?.rol,
+        rol: usuarios.find(u => u.id === id)?.rol,
       }
       await api.put(`/usuarios/${id}`, data)
       setEditandoId(null)
@@ -455,11 +458,17 @@ function ModalUsuarios({ onCerrar }) {
                   >
                     {editandoId === u.id ? (
                       // Modo edición
-                      <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                        <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '22px' }}>
-                          <Pencil size={14} color="#4f46e5" />
-                        </div>
-                        <div style={{ flex: 1, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
+                      <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'flex-start', gap: '8px', overflow: 'hidden' }}>
+
+                        {/* Ícono lápiz — oculto en móvil */}
+                        {!isMobile && (
+                          <div style={{ width: '32px', height: '32px', background: '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '22px' }}>
+                            <Pencil size={13} color="#4f46e5" />
+                          </div>
+                        )}
+
+                        {/* Grid de campos — ocupa todo el ancho disponible */}
+                        <div style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
                           <div>
                             <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Nombre</label>
                             <input value={editForm.nombre} onChange={e => changeEdit('nombre', e.target.value)} placeholder="Nombre" maxLength={30} style={inputBase} />
@@ -476,9 +485,8 @@ function ModalUsuarios({ onCerrar }) {
                             <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Contraseña</label>
                             <div style={{ display: 'flex', gap: '6px' }}>
                               <input type="password" value="__sin_cambios__" disabled
-                                style={{ flex: 1, border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', boxSizing: 'border-box', cursor: 'not-allowed', outline: 'none' }}
+                                style={{ flex: 1, minWidth: 0, border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', boxSizing: 'border-box', cursor: 'not-allowed', outline: 'none' }}
                               />
-                              {/* Botón candado — solo admin principal sobre otros usuarios */}
                               {esAdminPrincipal && u.id !== 1 && (
                                 <button type="button" onClick={() => setModalPass({ id: u.id, username: u.username })}
                                   title="Cambiar contraseña"
@@ -491,17 +499,35 @@ function ModalUsuarios({ onCerrar }) {
                               )}
                             </div>
                           </div>
+
+                          {/* Botones en móvil — dentro del grid */}
+                          {isMobile && (
+                            <div style={{ display: 'flex', gap: '8px', gridColumn: '1 / -1' }}>
+                              <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit}
+                                style={{ flex: 1, background: '#4f46e5', border: 'none', borderRadius: '7px', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                <Check size={14} color="white" />
+                              </button>
+                              <button onClick={() => setEditandoId(null)}
+                                style={{ flex: 1, background: '#f3f4f6', border: 'none', borderRadius: '7px', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                <X size={14} color="#6b7280" />
+                              </button>
+                            </div>
+                          )}
                         </div>
-                        <div style={{ display: 'flex', gap: '6px', flexShrink: 0, marginTop: '22px' }}>
-                          <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit}
-                            style={{ background: '#4f46e5', border: 'none', borderRadius: '7px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                            <Check size={14} color="white" />
-                          </button>
-                          <button onClick={() => setEditandoId(null)}
-                            style={{ background: '#f3f4f6', border: 'none', borderRadius: '7px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                            <X size={14} color="#6b7280" />
-                          </button>
-                        </div>
+
+                        {/* Botones en desktop — columna aparte pero más pequeña */}
+                        {!isMobile && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0, marginTop: '22px' }}>
+                            <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit}
+                              style={{ background: '#4f46e5', border: 'none', borderRadius: '7px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                              <Check size={13} color="white" />
+                            </button>
+                            <button onClick={() => setEditandoId(null)}
+                              style={{ background: '#f3f4f6', border: 'none', borderRadius: '7px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                              <X size={13} color="#6b7280" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       // Modo normal
@@ -572,12 +598,12 @@ function ModalUsuarios({ onCerrar }) {
 
 // Header principal
 export default function Header({ setSidebarAbierto }) {
-  const isMobile  = useIsMobile()
-  const usuario   = JSON.parse(localStorage.getItem('usuario'))
+  const isMobile = useIsMobile()
+  const usuario = JSON.parse(localStorage.getItem('usuario'))
   const { balance, fetchDashboard } = useDashboardStore()
-  const location  = useLocation()
-  const navigate  = useNavigate()
-  const [dropdown, setDropdown]           = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [dropdown, setDropdown] = useState(false)
   const [modalUsuarios, setModalUsuarios] = useState(false)
   const dropdownRef = useRef(null)
 

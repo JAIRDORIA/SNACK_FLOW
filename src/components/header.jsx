@@ -60,27 +60,27 @@ function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
 
         {/* botones */}
         <div style={{ padding: '16px 24px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-  {onCancelar && (
-    <button onClick={onCancelar} style={{
-      background: '#f3f4f6', border: 'none', borderRadius: '8px',
-      padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-      cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
-    }}>
-      Cancelar
-    </button>
-  )}
-  <button onClick={onConfirmar} style={{
-    background: c.btn, border: 'none', borderRadius: '8px',
-    padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-    cursor: 'pointer', color: 'white', fontFamily: 'inherit',
-    transition: 'background 0.15s'
-  }}
-    onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
-    onMouseLeave={e => e.currentTarget.style.background = c.btn}
-  >
-    {onCancelar ? 'Confirmar' : 'Entendido'}
-  </button>
-</div>
+          {onCancelar && (
+            <button onClick={onCancelar} style={{
+              background: '#f3f4f6', border: 'none', borderRadius: '8px',
+              padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+              cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
+            }}>
+              Cancelar
+            </button>
+          )}
+          <button onClick={onConfirmar} style={{
+            background: c.btn, border: 'none', borderRadius: '8px',
+            padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+            cursor: 'pointer', color: 'white', fontFamily: 'inherit',
+            transition: 'background 0.15s'
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
+            onMouseLeave={e => e.currentTarget.style.background = c.btn}
+          >
+            {onCancelar ? 'Confirmar' : 'Entendido'}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -298,7 +298,7 @@ function ModalUsuarios({ onCerrar }) {
                   ].map(f => (
                     <div key={f.name}>
                       <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>{f.label}</label>
-                      <input type="text" name={f.name} value={form[f.name]} onChange={change} placeholder={f.ph}
+                      <input type="text" name={f.name} value={form[f.name]} onChange={change} placeholder={f.ph} maxlength="30"
                         style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
                         onFocus={e => e.target.style.borderColor = '#4f46e5'}
                         onBlur={e => e.target.style.borderColor = '#e5e7eb'}
@@ -309,7 +309,7 @@ function ModalUsuarios({ onCerrar }) {
                   {/* Usuario */}
                   <div>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Usuario</label>
-                    <input type="text" name="username" value={form.username} onChange={change} placeholder="cperez"
+                    <input type="text" name="username" value={form.username} onChange={change} placeholder="cperez" maxlength="30"
                       style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
                       onFocus={e => e.target.style.borderColor = '#4f46e5'}
                       onBlur={e => e.target.style.borderColor = '#e5e7eb'}
@@ -320,7 +320,7 @@ function ModalUsuarios({ onCerrar }) {
                   <div>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Contraseña</label>
                     <div style={{ position: 'relative' }}>
-                      <input type={verPass ? 'text' : 'password'} name="password" value={form.password} onChange={change} placeholder="••••••••"
+                      <input type={verPass ? 'text' : 'password'} name="password" value={form.password} onChange={change} placeholder="••••••••" maxlength="30"
                         style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 40px 10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
                         onFocus={e => e.target.style.borderColor = '#4f46e5'}
                         onBlur={e => e.target.style.borderColor = '#e5e7eb'}
@@ -370,6 +370,7 @@ function ModalUsuarios({ onCerrar }) {
                               <input value={editForm.nombre} onChange={e => setEditForm({ ...editForm, nombre: e.target.value })}
                                 placeholder="Nombre"
                                 style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                                maxlength="30"
                               />
                             </div>
 
@@ -378,6 +379,7 @@ function ModalUsuarios({ onCerrar }) {
                               <input value={editForm.apellido} onChange={e => setEditForm({ ...editForm, apellido: e.target.value })}
                                 placeholder="Apellido"
                                 style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                                maxlength="30"
                               />
                             </div>
 
@@ -386,6 +388,7 @@ function ModalUsuarios({ onCerrar }) {
                               <input value={editForm.username} onChange={e => setEditForm({ ...editForm, username: e.target.value })}
                                 placeholder="Username"
                                 style={{ border: '1.5px solid #4f46e5', borderRadius: '7px', boxSizing: 'border-box', width: '100%', padding: '8px 10px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', background: '#fafaff' }}
+                                maxlength="30"
                               />
                             </div>
 
@@ -393,6 +396,7 @@ function ModalUsuarios({ onCerrar }) {
                               <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Contraseña</label>
                               <input type="password" value="__sin_cambios__" disabled placeholder="••••••••"
                                 style={{ border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', width: '100%', boxSizing: 'border-box', cursor: 'not-allowed', outline: 'none' }}
+                                maxlength="30"
                               />
                             </div>
 
@@ -478,6 +482,7 @@ function ModalUsuarios({ onCerrar }) {
     </>
   )
 }
+
 
 // Header principal
 export default function Header({ setSidebarAbierto }) {

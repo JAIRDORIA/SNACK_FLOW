@@ -65,6 +65,25 @@ function SuccessMsg({ msg }) {
   )
 }
 
+const change = (e) => {
+  const { name, value } = e.target;
+
+  if (name === "nombre" || name === "apellido") {
+    const soloLetras = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, "");
+
+    setForm({
+      ...form,
+      [name]: soloLetras.slice(0, 30) 
+    });
+    return;
+  }
+
+  setForm({
+    ...form,
+    [name]: value
+  });
+};
+
 function SubmitBtn({ loading, label }) {
   const [hover, setHover] = useState(false)
   return (
@@ -256,10 +275,10 @@ function Bienvenida({ onSetupComplete }) {
           </div>
 
           <form onSubmit={submit}>
-            <Campo label="Nombre" name="nombre" placeholder="Carlos " value={form.nombre} onChange={change} />
-            <Campo label="Apellido" name="apellido" placeholder="Pérez" value={form.apellido} onChange={change} />
-            <Campo label="Usuario" name="username" placeholder="cperez" value={form.username} onChange={change} />
-            <Campo label="Contraseña" name="password" type={verPass ? 'text' : 'password'} placeholder="Mínimo 8 caracteres" value={form.password} onChange={change}
+            <Campo label="Nombre" name="nombre" placeholder="Carlos " value={form.nombre} onChange={change} maxlength="30" />
+            <Campo label="Apellido" name="apellido" placeholder="Pérez" value={form.apellido} onChange={change} maxlength="30" />
+            <Campo label="Usuario" name="username" placeholder="cperez" value={form.username} onChange={change} maxlength="30" />
+            <Campo label="Contraseña" name="password" type={verPass ? 'text' : 'password'} placeholder="Mínimo 8 caracteres" value={form.password} onChange={change} maxlength="30"
               extra={
                 <button type="button" onClick={() => setVerPass(!verPass)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>
                   {verPass ? 'Ocultar' : 'Ver'}
@@ -382,10 +401,10 @@ function RecuperarPassword({ onVolver }) {
           {paso === 1 && (
             <form onSubmit={submitPaso1}>
               <Campo label="Usuario" name="username" placeholder="Ej: admin_01"
-                value={form.username} onChange={change} />
+                value={form.username} onChange={change} maxlength={30} />
               <Campo label="Clave maestra" name="clave"
                 type={verClave ? 'text' : 'password'} placeholder="••••••••"
-                value={form.clave} onChange={change}
+                value={form.clave} onChange={change} maxlength={30}
                 extra={
                   <button type="button" onClick={() => setVerClave(!verClave)}
                     style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>
@@ -402,10 +421,10 @@ function RecuperarPassword({ onVolver }) {
           {paso === 2 && (
             <form onSubmit={submitPaso2}>
               <Campo label="Usuario" name="username" value={form.username}
-                onChange={() => { }} disabled={true} />
+                onChange={() => { }} disabled={true} maxlength={30}/>
               <Campo label="Nueva contraseña" name="nueva_password"
                 type={verPass ? 'text' : 'password'} placeholder="Mínimo 8 caracteres"
-                value={form.nueva_password} onChange={change}
+                value={form.nueva_password} onChange={change} maxlength={30}
                 extra={
                   <button type="button" onClick={() => setVerPass(!verPass)}
                     style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>
@@ -415,7 +434,7 @@ function RecuperarPassword({ onVolver }) {
               />
               <Campo label="Confirmar contraseña" name="confirmar"
                 type={verPass2 ? 'text' : 'password'} placeholder="Repite la contraseña"
-                value={form.confirmar} onChange={change}
+                value={form.confirmar} onChange={change} maxlength={30}
                 extra={
                   <button type="button" onClick={() => setVerPass2(!verPass2)}
                     style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>
@@ -503,9 +522,9 @@ function LoginScreen({ onRecuperar }) {
           </div>
 
           <form onSubmit={submit}>
-            <Campo label="Usuario" name="username" placeholder="Ej: admin_01" value={form.username} onChange={change} />
+            <Campo label="Usuario" name="username" placeholder="Ej: admin_01" value={form.username} onChange={change} maxlength={30} />
             <Campo label="Contraseña" name="password" type={verPass ? 'text' : 'password'} placeholder="••••••••"
-              value={form.password} onChange={change}
+              value={form.password} onChange={change} maxlength={30}
               extra={
                 <button type="button" onClick={() => setVerPass(!verPass)}
                   style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: '12px', fontFamily: 'inherit' }}>

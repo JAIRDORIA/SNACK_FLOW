@@ -94,7 +94,7 @@ export default function CombosManager() {
     try {
       const payload = {
         nombre: formData.nombre,
-       
+
         precio: Number(formData.precio),
         productos: productosSeleccionados.map(p => ({
           producto_id: p.producto_id,
@@ -181,10 +181,10 @@ export default function CombosManager() {
   );
 
   return (
-    <div style={{padding:"16px"}} className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div style={{ padding: "16px" }} className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8">
 
       {/* HEADER */}
-      <div style={{marginBottom:"24px"}} className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div style={{ marginBottom: "24px" }} className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
           <p style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#6366f1', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>
             módulo operativo
@@ -208,7 +208,7 @@ export default function CombosManager() {
         <div className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4"
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)' }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none' }}
-          style={{ transition: 'all 0.2s',padding:"10px" }}>
+          style={{ transition: 'all 0.2s', padding: "10px" }}>
           <div style={{ margin: '12px 0 12px 14px' }} className="bg-[#13152280] ring-2 ring-indigo-500/30 w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
             <Layers size={18} className="text-indigo-300" />
           </div>
@@ -270,11 +270,20 @@ export default function CombosManager() {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre *</label>
-                <input type="text" name="nombre" placeholder="Ej: Combo Tradicional"
-                  value={formData.nombre} onChange={handleChange} required
+                <input
+                  type="text"
+                  name="nombre"
+                  placeholder="Ej: Combo Tradicional"
+                  value={formData.nombre}
+                  onChange={(e) => {
+                    const valor = e.target.value.slice(0, 40)  // Máximo 40 caracteres
+                    handleChange({ target: { name: 'nombre', value: valor } })
+                  }}
+                  required
                   style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
-                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }} />
+                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }}
+                />
               </div>
 
               <div>

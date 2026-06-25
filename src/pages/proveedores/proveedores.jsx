@@ -75,19 +75,82 @@ function ModalProveedor({ proveedor, onClose, onGuardar }) {
   const [guardando, setGuardando] = useState(false)
   const [errForm,   setErrForm]   = useState(null)
 
-  const handleChange = (e) =>
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
-
-  const handleGuardar = async () => {
-    if (!form.nombre.trim()) { setErrForm('El nombre del proveedor es obligatorio.'); return }
-    setGuardando(true); setErrForm(null)
-    try {
-      await onGuardar({ ...form, activo: proveedor ? proveedor.activo : 1 })
-      onClose()
-    } catch (err) {
-      setErrForm(err.response?.data?.mensaje || 'Error al guardar proveedor.')
-    } finally { setGuardando(false) }
+ const handleChange = (e) => {
+  const { name, value } = e.target
+  
+  // Validaciones solo para el campo "nombre"
+  if (name === 'nombre') {
+    // Si el valor son solo números, no actualizar
+    const soloNumeros = /^\d+$/
+    if (value.length > 0 && soloNumeros.test(value)) {
+      return // No permite escribir si todo son números
+    }
+    
+    // Limitar a 30 caracteres
+    const valorLimitado = value.slice(0, 30)
+    
+    setForm(prev => ({ ...prev, [name]: valorLimitado }))
+    setErrForm(null)
+    return
   }
+   // Validaciones para el campo "contacto" (persona de contacto)
+  if (name === 'contacto') {
+    // No permitir números
+    const valorSinNumeros = value.replace(/[0-9]/g, '')
+    
+    // Limitar a 30 caracteres
+    const valorLimitado = valorSinNumeros.slice(0, 30)
+    
+    setForm(prev => ({ ...prev, [name]: valorLimitado }))
+    setErrForm(null)
+    return
+  }
+  
+  // Para los demás campos (teléfono, dirección, email)
+  setForm(prev => ({ ...prev, [name]: value }))
+  setErrForm(null)
+}
+
+  
+const handleGuardar = async () => {
+  const nombre = form.nombre?.trim()
+  
+  // Validación 1: Campo obligatorio
+  if (!nombre) { 
+    setErrForm('El nombre del proveedor es obligatorio.') 
+    return 
+  }
+  
+  // Validación 2: Mínimo 3 caracteres
+  if (nombre.length < 3) {
+    setErrForm('El nombre debe tener al menos 3 caracteres.')
+    return
+  }
+  
+  // Validación 3: Debe contener al menos una letra
+  const tieneLetras = /[a-zA-ZáéíóúÁÉÍÓÚñÑ]/.test(nombre)
+  if (!tieneLetras) {
+    setErrForm('El nombre debe contener al menos una letra, no solo números.')
+    return
+  }
+  
+  // Validación 4: Máximo 30 caracteres
+  if (nombre.length > 30) {
+    setErrForm('El nombre no puede exceder los 30 caracteres.')
+    return
+  }
+  
+  setGuardando(true)
+  setErrForm(null)
+  try {
+    await onGuardar({ ...form, nombre, activo: proveedor ? proveedor.activo : 1 })
+    onClose()
+  } catch (err) {
+    setErrForm(err.response?.data?.mensaje || 'Error al guardar proveedor.')
+  } finally { 
+    setGuardando(false) 
+  }
+}
 
   const campos = [
     { name: 'nombre',    label: 'Nombre del proveedor', req: true,  Icon: Building2, placeholder: 'Ej: Distribuidora Norte S.A.', type: 'text'  },

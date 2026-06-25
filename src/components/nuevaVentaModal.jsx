@@ -65,7 +65,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     }
     const q = textoBusqueda.toLowerCase()
     const filtrados = todosLosItems.filter(item =>
-      item.nombre?.toLowerCase().includes(q)
+      item.nombre?.toLowerCase().includes(q) ||  item.Cli_Identificacion?.includes(q)
     )
     setItemsFiltrados(filtrados)
   }, [textoBusqueda, todosLosItems])
@@ -154,7 +154,10 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     placeholder="Buscar cliente..."
                     value={textoBusquedaCliente}
                     onChange={(e) => {
-                      setTextoBusquedaCliente(e.target.value)
+                      const valor = e.target.value
+                        .replace(/[0-9]/g, '')       // Elimina números
+                        .slice(0, 30)                // Máximo 30 caracteres
+                      setTextoBusquedaCliente(valor)
                       setSeleccionado(false)
                       if (clienteId) setClienteId('')
                     }}
@@ -167,25 +170,27 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   {textoBusquedaCliente && !seleccionado && (
                     <>
                       {clientesFiltrados.length > 0 ? (
-                        <ul style={{marginTop:"4px"}} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg">
+                        <ul style={{ marginTop: "4px" }} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg">
                           {clientesFiltrados.map(c => (
                             <li
                               key={c.ID_Cliente}
                               onClick={() => {
                                 setClienteId(c.ID_Cliente)
-                                setTextoBusquedaCliente(c.Cli_Nombre)
+                                setTextoBusquedaCliente(`${c.Cli_Nombre} - ${c.Cli_Identificacion || 'S/N'}`)
                                 setSeleccionado(true)
                                 setClientesFiltrados([])
                               }}
-                              style={{padding:"8px 12px"}}
+                              style={{ padding: "8px 12px" }}
                               className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm"
                             >
-                              {c.Cli_Nombre}
+                              <span>{c.Cli_Nombre}</span>
+                              <span className="text-xs text-slate-400 ml-2">{c.Cli_Identificacion || 'S/N'}</span>
+
                             </li>
                           ))}
                         </ul>
                       ) : (
-                        <div style={{padding:"8px 12px",marginTop:"4px"}} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 px-3 py-2 text-sm text-slate-400 w-full shadow-lg">
+                        <div style={{ padding: "8px 12px", marginTop: "4px" }} className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 px-3 py-2 text-sm text-slate-400 w-full shadow-lg">
                           No se encontraron clientes
                         </div>
                       )}
@@ -195,8 +200,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
                 {clienteId && (
                   <p className="text-xs text-indigo-600 mt-1">
-                    Cliente seleccionado: {clientes.find(c => c.ID_Cliente == clienteId)?.Cli_Nombre}
-                  </p>
+    Cliente seleccionado: {clientes.find(c => c.ID_Cliente == clienteId)?.Cli_Nombre} 
+    ({clientes.find(c => c.ID_Cliente == clienteId)?.Cli_Identificacion || 'S/N'})
+  </p>
                 )}
               </div>
               <div>

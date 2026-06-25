@@ -49,27 +49,27 @@ function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
 
         {/* botones */}
         <div style={{ padding: '16px 24px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
-  {onCancelar && (
-    <button onClick={onCancelar} style={{
-      background: '#f3f4f6', border: 'none', borderRadius: '8px',
-      padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-      cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
-    }}>
-      Cancelar
-    </button>
-  )}
-  <button onClick={onConfirmar} style={{
-    background: c.btn, border: 'none', borderRadius: '8px',
-    padding: '10px 20px', fontSize: '13px', fontWeight: 600,
-    cursor: 'pointer', color: 'white', fontFamily: 'inherit',
-    transition: 'background 0.15s'
-  }}
-    onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
-    onMouseLeave={e => e.currentTarget.style.background = c.btn}
-  >
-    {onCancelar ? 'Confirmar' : 'Entendido'}
-  </button>
-</div>
+          {onCancelar && (
+            <button onClick={onCancelar} style={{
+              background: '#f3f4f6', border: 'none', borderRadius: '8px',
+              padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+              cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
+            }}>
+              Cancelar
+            </button>
+          )}
+          <button onClick={onConfirmar} style={{
+            background: c.btn, border: 'none', borderRadius: '8px',
+            padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+            cursor: 'pointer', color: 'white', fontFamily: 'inherit',
+            transition: 'background 0.15s'
+          }}
+            onMouseEnter={e => e.currentTarget.style.background = c.btnHover}
+            onMouseLeave={e => e.currentTarget.style.background = c.btn}
+          >
+            {onCancelar ? 'Confirmar' : 'Entendido'}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -458,12 +458,12 @@ function ModalUsuarios({ onCerrar }) {
                   >
                     {editandoId === u.id ? (
                       // Modo edición
-                      <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'flex-start', gap: '8px', overflow: 'hidden' }}>
 
-                        {/* Ícono lápiz — oculto en móvil para ganar espacio */}
+                        {/* Ícono lápiz — oculto en móvil */}
                         {!isMobile && (
-                          <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '22px' }}>
-                            <Pencil size={14} color="#4f46e5" />
+                          <div style={{ width: '32px', height: '32px', background: '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '22px' }}>
+                            <Pencil size={13} color="#4f46e5" />
                           </div>
                         )}
 
@@ -500,7 +500,7 @@ function ModalUsuarios({ onCerrar }) {
                             </div>
                           </div>
 
-                          {/* Botones guardar/cancelar — en móvil van abajo del grid */}
+                          {/* Botones en móvil — dentro del grid */}
                           {isMobile && (
                             <div style={{ display: 'flex', gap: '8px', gridColumn: '1 / -1' }}>
                               <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit}
@@ -515,16 +515,16 @@ function ModalUsuarios({ onCerrar }) {
                           )}
                         </div>
 
-                        {/* Botones guardar/cancelar — en desktop van a la derecha */}
+                        {/* Botones en desktop — columna aparte pero más pequeña */}
                         {!isMobile && (
-                          <div style={{ display: 'flex', gap: '6px', flexShrink: 0, marginTop: '22px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0, marginTop: '22px' }}>
                             <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit}
-                              style={{ background: '#4f46e5', border: 'none', borderRadius: '7px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                              <Check size={14} color="white" />
+                              style={{ background: '#4f46e5', border: 'none', borderRadius: '7px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                              <Check size={13} color="white" />
                             </button>
                             <button onClick={() => setEditandoId(null)}
-                              style={{ background: '#f3f4f6', border: 'none', borderRadius: '7px', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-                              <X size={14} color="#6b7280" />
+                              style={{ background: '#f3f4f6', border: 'none', borderRadius: '7px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                              <X size={13} color="#6b7280" />
                             </button>
                           </div>
                         )}

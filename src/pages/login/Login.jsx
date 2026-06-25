@@ -16,7 +16,7 @@ const inputStyle = {
   boxShadow: '0 4px 12px rgba(0,0,0,0.12)'
 }
 
-function Campo({ label, name, type = 'text', placeholder, value, onChange, extra, disabled }) {
+function Campo({ label, name, type = 'text', placeholder, value, onChange, extra, disabled, maxLength }) {
   return (
     <div style={{ marginBottom: '16px' }}>
       <label style={{
@@ -28,7 +28,7 @@ function Campo({ label, name, type = 'text', placeholder, value, onChange, extra
         <input
           type={type} name={name} value={value}
           onChange={onChange} placeholder={placeholder}
-          disabled={disabled}
+          disabled={disabled} maxLength={maxLength}
           autoComplete={type === 'password' ? 'current-password' : name}
           style={{
             ...inputStyle,

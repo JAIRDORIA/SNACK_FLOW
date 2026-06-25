@@ -426,25 +426,11 @@ export default function CustomersManager() {
                     setEditingCustomer({ ...editingCustomer, nombres: valor })
                   }}
                   placeholder="Ej: Juan Carlos"
+                  style={{padding:"8px 12px"}}
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
                 />              </div>
               {/* Identificación */}
-              <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase">Identificación</label>
-                <input
-                  style={{ padding: "8px 12px" }}
-                  type="text"
-                  value={editingCustomer.identificacion || ''}
-                  onChange={e => {
-                    const valor = e.target.value
-                      .replace(/[^0-9]/g, '')
-                      .slice(0, 20)
-                    setEditingCustomer({ ...editingCustomer, identificacion: valor })
-                  }}
-                  placeholder="Ej: 1234567890"
-                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
-                />
-              </div>
+             
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Apellidos</label>
                 <input
@@ -457,19 +443,37 @@ export default function CustomersManager() {
                     setEditingCustomer({ ...editingCustomer, apellidos: valor })
                   }}
                   placeholder="Ej: Pérez García"
+                  style={{padding:"8px 12px"}}
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
                 />              </div>
+                 <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase">Identificación</label>
+                <input
+                  style={{ padding: "8px 12px" }}
+                  type="text"
+                  value={editingCustomer.identificacion || ''}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[^0-9]/g, '')
+                      .slice(0, 20)
+                    setEditingCustomer({ ...editingCustomer, identificacion: valor })
+                  }}
+                  placeholder="Ej: 1234567890"
+                  
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Teléfono</label>
-                <input type="text" value={editingCustomer.telefono} onChange={e => setEditingCustomer({ ...editingCustomer, telefono: e.target.value })} placeholder="3001234567" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
+                <input type="text" value={editingCustomer.telefono} onChange={e => setEditingCustomer({ ...editingCustomer, telefono: e.target.value })} placeholder="3001234567" style={{padding:"8px 12px"}} className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Dirección</label>
-                <input type="text" value={editingCustomer.direccion} onChange={e => setEditingCustomer({ ...editingCustomer, direccion: e.target.value })} placeholder="Calle 123" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
+                <input type="text" value={editingCustomer.direccion} onChange={e => setEditingCustomer({ ...editingCustomer, direccion: e.target.value })} placeholder="Calle 123" style={{padding:"8px 12px"}} className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Email (opcional)</label>
-                <input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({ ...editingCustomer, email: e.target.value })} placeholder="correo@ejemplo.com" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
+                <input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({ ...editingCustomer, email: e.target.value })} placeholder="correo@ejemplo.com" style={{padding:"8px 12px"}} className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div style={{ marginTop: "8px" }} className="flex gap-3 mt-2">
                 <button style={{ padding: "10px 0px" }} type="button" onClick={() => setIsEditModalOpen(false)} className="flex-1 py-2.5 border rounded-xl text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200">Cancelar</button>

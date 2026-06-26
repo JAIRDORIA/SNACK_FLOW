@@ -65,7 +65,7 @@ export default function CustomersManager() {
       fetchCustomers()
       setToast({ mensaje: 'Cliente creado correctamente', tipo: 'success' })
     } catch (err) {
-      const mensaje = err.response?.data?.error || 'Error al guardar cliente'
+      const mensaje = err.response?.data?.mensaje || 'Error al guardar cliente'
       setToast({ mensaje, tipo: 'error' })
     }
   }

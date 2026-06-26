@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 
 import RutaAdminPrincipal from '@/components/RutaAdminPrincipal'
+import Auditoria from '@/pages/auditoria/Auditoria'
 
 <Route path="/auditoria" element={
   <RutaAdminPrincipal>

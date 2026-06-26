@@ -65,7 +65,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     }
     const q = textoBusqueda.toLowerCase()
     const filtrados = todosLosItems.filter(item =>
-      item.nombre?.toLowerCase().includes(q) ||  item.Cli_Identificacion?.includes(q)
+      item.nombre?.toLowerCase().includes(q) ||  item.Cli_identificacion?.includes(q)
     )
     setItemsFiltrados(filtrados)
   }, [textoBusqueda, todosLosItems])
@@ -176,7 +176,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               key={c.ID_Cliente}
                               onClick={() => {
                                 setClienteId(c.ID_Cliente)
-                                setTextoBusquedaCliente(`${c.Cli_Nombre} - ${c.Cli_Identificacion || 'S/N'}`)
+                                setTextoBusquedaCliente(`${c.Cli_Nombre} - ${c.Cli_identificacion || 'S/N'}`)
                                 setSeleccionado(true)
                                 setClientesFiltrados([])
                               }}
@@ -184,7 +184,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm"
                             >
                               <span>{c.Cli_Nombre}</span>
-                              <span className="text-xs text-slate-400 ml-2">{c.Cli_Identificacion || 'S/N'}</span>
+                              <span className="text-xs text-slate-400 ml-2">{c.Cli_identificacion || 'S/N'}</span>
 
                             </li>
                           ))}
@@ -201,7 +201,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 {clienteId && (
                   <p className="text-xs text-indigo-600 mt-1">
     Cliente seleccionado: {clientes.find(c => c.ID_Cliente == clienteId)?.Cli_Nombre} 
-    ({clientes.find(c => c.ID_Cliente == clienteId)?.Cli_Identificacion || 'S/N'})
+    ({clientes.find(c => c.ID_Cliente == clienteId)?.Cli_identificacion || 'S/N'})
   </p>
                 )}
               </div>

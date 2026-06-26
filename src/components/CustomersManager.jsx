@@ -360,7 +360,7 @@ export default function CustomersManager() {
                 <input style={{ padding: "8px 12px" }} type="text" value={createForm.direccion} onChange={e => setCreateForm({ ...createForm, direccion: e.target.value })} placeholder="Calle 123" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase">Email (opcional)</label>
+                <label className="text-xs font-semibold text-gray-500 uppercase">Email </label>
                 <input style={{ padding: "8px 12px" }} type="email" value={createForm.email} onChange={e => setCreateForm({ ...createForm, email: e.target.value })} placeholder="correo@ejemplo.com" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div style={{ marginTop: "8px" }} className="flex gap-3 mt-2">
@@ -497,7 +497,7 @@ export default function CustomersManager() {
                 <input type="text" value={editingCustomer.direccion} onChange={e => setEditingCustomer({ ...editingCustomer, direccion: e.target.value })} placeholder="Calle 123" style={{ padding: "8px 12px" }} className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase">Email (opcional)</label>
+                <label className="text-xs font-semibold text-gray-500 uppercase">Email </label>
                 <input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({ ...editingCustomer, email: e.target.value })} placeholder="correo@ejemplo.com" style={{ padding: "8px 12px" }} className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div style={{ marginTop: "8px" }} className="flex gap-3 mt-2">

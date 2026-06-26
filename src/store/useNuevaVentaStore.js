@@ -19,16 +19,42 @@ export const useNuevaVentaStore = create((set, get) => ({
   fechaEntrega: '',
   horaEntrega: '',
   detalle: [],
-  conAbono: false,
-  montoAbono: 0,
-  medioPago: 'efectivo',
-  observacionAbono: '',
+  //conAbono: false,
+  //montoAbono: 0,
+  //medioPago: 'efectivo',
+  //observacionAbono: '',
 
   // UI
   enviando: false,
   exito: false,
   errorMsg: '',
 
+
+  abonosIniciales: [],
+
+  agregarAbonoInicial: () => {
+  set((state) => ({
+    abonosIniciales: [
+      ...state.abonosIniciales,
+      { monto: 0, medio_pago: 'efectivo', observacion: '' }
+    ]
+  }))
+},
+eliminarAbonoInicial: (index) => {
+  set((state) => ({
+    abonosIniciales: state.abonosIniciales.filter((_, i) => i !== index)
+  }))
+},
+modificarAbonoInicial: (index, campo, valor) => {
+  set((state) => {
+    const nuevos = [...state.abonosIniciales]
+    nuevos[index] = { ...nuevos[index], [campo]: valor }
+    return { abonosIniciales: nuevos }
+  })
+},
+totalAbonado: () => {
+  return get().abonosIniciales.reduce((sum, a) => sum + (a.monto || 0), 0)
+},
   // Cálculos (getters)
   totalVenta: () => {
     const { detalle } = get()
@@ -36,19 +62,18 @@ export const useNuevaVentaStore = create((set, get) => ({
   },
 
   caso: () => {
-    const { conAbono, montoAbono } = get()
-    const total = get().totalVenta()
-    if (!conAbono || montoAbono === 0) return 'sin_abono'
-    if (montoAbono >= total) return 'pago_completo'
-    return 'abono_parcial'
-  },
+  const total = get().totalVenta()
+  const abonado = get().totalAbonado()
+  if (abonado === 0) return 'sin_abono'
+  if (abonado >= total) return 'pago_completo'
+  return 'abono_parcial'
+},
 
-  saldoPendiente: () => {
-    const total = get().totalVenta()
-    const { montoAbono, conAbono } = get()
-    if (!conAbono) return 0
-    return Math.max(0, total - montoAbono)
-  },
+saldoPendiente: () => {
+  const total = get().totalVenta()
+  const abonado = get().totalAbonado()
+  return Math.max(0, total - abonado)
+},
 
   // Acciones para datos externos
   cargarDatos: async () => {
@@ -98,10 +123,10 @@ export const useNuevaVentaStore = create((set, get) => ({
   setCorteId: (id) => set({ corteId: id }),
   setFechaEntrega: (fecha) => set({ fechaEntrega: fecha }),
   setHoraEntrega: (hora) => set({ horaEntrega: hora }),
-  setConAbono: (val) => set({ conAbono: val }),
-  setMontoAbono: (monto) => set({ montoAbono: monto }),
-  setMedioPago: (medio) => set({ medioPago: medio }),
-  setObservacionAbono: (obs) => set({ observacionAbono: obs }),
+  //setConAbono: (val) => set({ conAbono: val }),
+  //setMontoAbono: (monto) => set({ montoAbono: monto }),
+  //setMedioPago: (medio) => set({ medioPago: medio }),
+  //setObservacionAbono: (obs) => set({ observacionAbono: obs }),
 
 
 agregarItem: (nuevoItem) => {
@@ -159,6 +184,7 @@ agregarItem: (nuevoItem) => {
       fechaEntrega: '',
       horaEntrega: '',
       detalle: [],
+      abonosIniciales: [],
       conAbono: false,
       montoAbono: 0,
       medioPago: 'efectivo',
@@ -209,17 +235,15 @@ agregarItem: (nuevoItem) => {
     }
 
     // Agregar abono inicial si corresponde (caso 2 o 3)
-    if (conAbono && montoAbono > 0) {
-      const abonoInicial = {
-        monto: Number(montoAbono), // asegurar que sea número
-        medio_pago: medioPago,
-      }
-      // Solo agregar observacion si no está vacía
-      if (observacionAbono.trim()) {
-        abonoInicial.observacion = observacionAbono.trim()
-      }
-      payload.abono_inicial = abonoInicial
-    }
+    if (abonosIniciales.length > 0) {
+  payload.abonos_iniciales = abonosIniciales
+    .filter(a => a.monto > 0)
+    .map(a => ({
+      monto: Number(a.monto),
+      medio_pago: a.medio_pago,
+      observacion: a.observacion?.trim() || undefined
+    }))
+}
 
     try {
       await api.post('/ventas/', payload, { headers: { 'Content-Type': 'application/json' } })

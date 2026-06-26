@@ -18,7 +18,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     setConAbono, setMontoAbono, setMedioPago, setObservacionAbono,
     agregarProducto, eliminarProducto, pagarTotal, resetFormulario,
     registrarVenta,
-    totalVenta, caso, saldoPendiente, cargarCombos, combos, agregarItem,
+    totalVenta, caso, saldoPendiente, cargarCombos, combos, agregarItem,abonosIniciales,agregarAbonoInicial,eliminarAbonoInicial,modificarAbonoInicial,totalAbonado
   } = useNuevaVentaStore()
   const { balance, fetchBalance } = useBalanceStore()
   const [localMontoAbono, setLocalMontoAbono] = useState('')

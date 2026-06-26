@@ -11,17 +11,13 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const {
     clientes, cortes, productos,
     clienteId, corteId, fechaEntrega, horaEntrega,
-    detalle, conAbono, montoAbono, medioPago, observacionAbono,
-    enviando, exito, errorMsg, cargandoDatos, errorDatos,
-    cargarDatos,
-    setClienteId, setCorteId, setFechaEntrega, setHoraEntrega,
-    setConAbono, setMontoAbono, setMedioPago, setObservacionAbono,
-    agregarProducto, eliminarProducto, pagarTotal, resetFormulario,
-    registrarVenta,
-    totalVenta, caso, saldoPendiente, cargarCombos, combos, agregarItem,abonosIniciales,agregarAbonoInicial,eliminarAbonoInicial,modificarAbonoInicial,totalAbonado
+    detalle,enviando, exito, errorMsg, cargandoDatos, errorDatos,
+    cargarDatos, setClienteId, setCorteId, setFechaEntrega, setHoraEntrega,
+    agregarProducto, eliminarProducto, pagarTotal, resetFormulario,registrarVenta,
+    totalVenta, caso, saldoPendiente, cargarCombos, combos, agregarItem, abonosIniciales, agregarAbonoInicial, eliminarAbonoInicial, modificarAbonoInicial, totalAbonado
   } = useNuevaVentaStore()
   const { balance, fetchBalance } = useBalanceStore()
-  const [localMontoAbono, setLocalMontoAbono] = useState('')
+
   const selectProductoRef = useRef(null)
   const [textoBusqueda, setTextoBusqueda] = useState('');
   const [itemsFiltrados, setItemsFiltrados] = useState([]);
@@ -47,9 +43,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
     }
   }, [open])
-  useEffect(() => {
-    setLocalMontoAbono(montoAbono.toString())
-  }, [montoAbono])
+
 
   useEffect(() => {
     const productosFiltrados = productos
@@ -382,11 +376,11 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
           {/* Sección 3: Abono inicial */}
           {/* Sección 3: Abonos iniciales */}
           <div>
-            <div style={{marginBottom:"12px"}} className="flex items-center gap-3 mb-3">
+            <div style={{ marginBottom: "12px" }} className="flex items-center gap-3 mb-3">
               <h3 className="text-sm font-semibold text-slate-600">Abonos iniciales</h3>
               <button
                 onClick={agregarAbonoInicial}
-                style={{padding:"6px 12px"}}
+                style={{ padding: "6px 12px" }}
                 className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
               >
                 <Plus size={14} />
@@ -405,25 +399,25 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             </div>
 
             {abonosIniciales.map((abono, index) => (
-              <div key={index} style={{marginBottom:"8px"}} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-2">
+              <div key={index} style={{ marginBottom: "8px" }} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-2">
                 <div>
-                  <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Monto</label>
+                  <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Monto</label>
                   <input
                     type="number"
                     min="0"
                     max={totalVenta()}
                     value={abono.monto}
                     onChange={e => modificarAbonoInicial(index, 'monto', Number(e.target.value))}
-                    style={{padding:"8px"}}
+                    style={{ padding: "8px" }}
                     className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
                   />
                 </div>
                 <div>
-                  <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Medio de pago</label>
+                  <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Medio de pago</label>
                   <select
                     value={abono.medio_pago}
                     onChange={e => modificarAbonoInicial(index, 'medio_pago', e.target.value)}
-                    style={{padding:"8px"}}
+                    style={{ padding: "8px" }}
                     className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
                   >
                     {MEDIOS_PAGO.map(medio => (
@@ -433,19 +427,19 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 </div>
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
-                    <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Observación</label>
+                    <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Observación</label>
                     <input
                       type="text"
                       value={abono.observacion}
                       onChange={e => modificarAbonoInicial(index, 'observacion', e.target.value)}
                       placeholder="Opcional"
-                      style={{padding:"8px"}}
+                      style={{ padding: "8px" }}
                       className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
                     />
                   </div>
                   <button
                     onClick={() => eliminarAbonoInicial(index)}
-                    style={{padding:"8px"}}
+                    style={{ padding: "8px" }}
                     className="text-rose-500 hover:bg-rose-100 p-2 rounded-lg"
                   >
                     <Trash2 size={14} />
@@ -460,21 +454,23 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             <div className="flex justify-between text-sm">
               <span className="text-slate-600">Total venta</span>
               <span className="font-bold text-slate-800">${totalVenta().toLocaleString('es-CO')}</span>
-                <span className="font-medium text-emerald-600">${(totalAbonado() || 0).toLocaleString('es-CO')}</span>
+              <span className="font-medium text-emerald-600">${(totalAbonado() || 0).toLocaleString('es-CO')}</span>
             </div>
-            {conAbono && (
-              <>
-                <div style={{ marginTop: "4px" }} className="flex justify-between text-sm mt-1">
-                  <span className="text-slate-600">Abonado</span>
-                  <span className="font-medium text-emerald-600">${montoAbono.toLocaleString('es-CO')}</span>
-                </div>
-                {saldoPendiente() > 0 && (
-                  <div style={{ marginTop: "4px" }} className="flex justify-between text-sm mt-1">
-                    <span className="text-slate-600">Saldo pendiente</span>
-                    <span className="font-medium text-amber-600">${saldoPendiente().toLocaleString('es-CO')}</span>
-                  </div>
-                )}
-              </>
+            {abonosIniciales.length > 0 && (
+              <div className="flex justify-between text-sm mt-1">
+                <span className="text-slate-600">Total abonado</span>
+                <span className="font-medium text-emerald-600">
+                  ${(totalAbonado() || 0).toLocaleString('es-CO')}
+                </span>
+              </div>
+            )}
+            {saldoPendiente() > 0 && (
+              <div className="flex justify-between text-sm mt-1">
+                <span className="text-slate-600">Saldo pendiente</span>
+                <span className="font-medium text-amber-600">
+                  ${saldoPendiente().toLocaleString('es-CO')}
+                </span>
+              </div>
             )}
           </div>
 

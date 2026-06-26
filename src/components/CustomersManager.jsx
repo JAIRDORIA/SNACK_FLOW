@@ -417,15 +417,13 @@ export default function CustomersManager() {
             </div>
             <form onSubmit={(e) => {
               e.preventDefault()
-              if (!editingCustomer.nombres || !editingCustomer.apellidos || !editingCustomer.telefono) {
-                alert('Nombres, apellidos y teléfono son obligatorios')
-                return
-              }
+            
               const nombreCompleto = `${editingCustomer.nombres.trim()} ${editingCustomer.apellidos.trim()}`
               handleUpdate({
                 id: editingCustomer.id,
                 nombre: nombreCompleto,
                 telefono: editingCustomer.telefono,
+                identificacion: editingCustomer.identificacion,
                 direccion: editingCustomer.direccion,
                 email: editingCustomer.email,
               })

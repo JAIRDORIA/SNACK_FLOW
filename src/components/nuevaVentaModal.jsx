@@ -3,6 +3,7 @@ import {
   X, Plus, Trash2, AlertCircle, Loader2, CheckCircle2
 } from 'lucide-react'
 import useNuevaVentaStore from '@/store/useNuevaVentaStore'
+import useBalanceStore from '@/store/useBalanceStore'
 
 const MEDIOS_PAGO = ['efectivo', 'transferencia', 'otro']
 
@@ -19,6 +20,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     registrarVenta,
     totalVenta, caso, saldoPendiente, cargarCombos, combos, agregarItem,
   } = useNuevaVentaStore()
+  const { balance } = useBalanceStore()
   const [localMontoAbono, setLocalMontoAbono] = useState('')
   const selectProductoRef = useRef(null)
   const [textoBusqueda, setTextoBusqueda] = useState('');
@@ -226,6 +228,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   type="date"
                   value={fechaEntrega}
                   onChange={e => setFechaEntrega(e.target.value)}
+                  min={balance?.fecha_inicio?.split(' ')[0] || ''}
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
                   style={{ padding: "8px" }}
                 />

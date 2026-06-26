@@ -399,7 +399,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             </div>
 
             {abonosIniciales.map((abono, index) => (
-              <div key={index} style={{ marginBottom: "8px" }} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-2">
+              <div key={index} style={{ marginBottom: "8px",padding:"12px" }} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-2">
                 <div>
                   <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Monto</label>
                   <input
@@ -457,7 +457,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               <span className="font-medium text-emerald-600">${(totalAbonado() || 0).toLocaleString('es-CO')}</span>
             </div>
             {abonosIniciales.length > 0 && (
-              <div className="flex justify-between text-sm mt-1">
+              <div style={{marginTop:"4px"}} className="flex justify-between text-sm mt-1">
                 <span className="text-slate-600">Total abonado</span>
                 <span className="font-medium text-emerald-600">
                   ${(totalAbonado() || 0).toLocaleString('es-CO')}
@@ -465,7 +465,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               </div>
             )}
             {saldoPendiente() > 0 && (
-              <div className="flex justify-between text-sm mt-1">
+              <div style={{marginTop:"4px"}} className="flex justify-between text-sm mt-1">
                 <span className="text-slate-600">Saldo pendiente</span>
                 <span className="font-medium text-amber-600">
                   ${saldoPendiente().toLocaleString('es-CO')}

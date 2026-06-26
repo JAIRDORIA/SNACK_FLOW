@@ -81,7 +81,7 @@ export default function CustomersManager() {
       id: customer.ID_Cliente,
       nombres: nombres,
       apellidos: apellidos,
-      identificacion: customer.Cli_Identificacion || '',
+      identificacion: customer.Cli_identificacion || '',
       telefono: customer.Cli_Telefono || '',
       direccion: customer.Cli_Direccion || '',
       email: customer.Cli_email || '',

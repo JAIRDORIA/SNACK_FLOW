@@ -299,7 +299,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     </div>
 
                     {/* Información adicional según el tipo */}
-                    <div className="mt-2 text-sm">
+                    <div style={{marginTop:"8px"}} className="mt-2 text-sm">
                       {itemSeleccionado.tipo === 'producto' ? (
                         <p className="text-slate-600">
                           📦 Unidades por bandeja: <strong>{itemSeleccionado.unidades_por_bandeja ?? 'N/D'}</strong>
@@ -521,9 +521,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       </div>
       {/* Modal info combo */}
 {mostrarInfoCombo && itemSeleccionado && (
-  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6">
-      <div className="flex items-center justify-between mb-4">
+  <div style={{padding:"16px"}} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div style={{padding:"24px"}} className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6">
+      <div style={{marginBottom:"16px"}} className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-bold text-slate-800">{itemSeleccionado.nombre}</h3>
         <button
           onClick={() => setMostrarInfoCombo(false)}
@@ -536,15 +536,15 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
         <table className="w-full text-sm border-collapse">
           <thead>
             <tr className="bg-slate-50">
-              <th className="px-3 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
-              <th className="px-3 py-2 text-center text-xs text-slate-500 uppercase">Cantidad</th>
+              <th style={{padding:"8px 12px"}} className="px-3 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
+              <th style={{padding:"8px 12px"}} className="px-3 py-2 text-center text-xs text-slate-500 uppercase">Cantidad</th>
             </tr>
           </thead>
           <tbody>
             {itemSeleccionado.productos.map((prod, i) => (
               <tr key={i} className="border-t border-gray-100">
-                <td className="px-3 py-2 text-slate-700">{prod.nombre}</td>
-                <td className="px-3 py-2 text-center text-slate-600">{prod.cantidad_unidades}</td>
+                <td style={{padding:"8px 12px"}} className="px-3 py-2 text-slate-700">{prod.nombre}</td>
+                <td style={{padding:"8px 12px"}} className="px-3 py-2 text-center text-slate-600">{prod.cantidad_unidades}</td>
               </tr>
             ))}
           </tbody>
@@ -552,9 +552,10 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       ) : (
         <p className="text-sm text-slate-400">No hay productos detallados.</p>
       )}
-      <div className="mt-4 flex justify-end">
+      <div style={{marginTop:"16px"}} className="mt-4 flex justify-end">
         <button
           onClick={() => setMostrarInfoCombo(false)}
+          style={{padding:"8px 16px"}}
           className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
         >
           Cerrar

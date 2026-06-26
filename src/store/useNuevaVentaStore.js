@@ -102,8 +102,34 @@ export const useNuevaVentaStore = create((set, get) => ({
   setMontoAbono: (monto) => set({ montoAbono: monto }),
   setMedioPago: (medio) => set({ medioPago: medio }),
   setObservacionAbono: (obs) => set({ observacionAbono: obs }),
-agregarItem: (item) => {
-  set((state) => ({ detalle: [...state.detalle, item] }));
+
+
+agregarItem: (nuevoItem) => {
+  set((state) => {
+    // Buscar si ya existe un item del mismo tipo con el mismo id
+    const index = state.detalle.findIndex((item) => {
+      if (nuevoItem.tipo === 'combo' && item.tipo === 'combo') {
+        return item.combo_id === nuevoItem.combo_id
+      }
+      if (nuevoItem.tipo === 'producto' && item.tipo === 'producto') {
+        return item.producto_id === nuevoItem.producto_id
+      }
+      return false
+    })
+
+    if (index !== -1) {
+      // Ya existe: sumamos la cantidad
+      const nuevoDetalle = [...state.detalle]
+      nuevoDetalle[index] = {
+        ...nuevoDetalle[index],
+        cantidad: nuevoDetalle[index].cantidad + nuevoItem.cantidad,
+      }
+      return { detalle: nuevoDetalle }
+    }
+
+    // No existe: se agrega como nuevo
+    return { detalle: [...state.detalle, nuevoItem] }
+  })
 },
   // Manejo del detalle
   agregarProducto: (productoId, nombreProducto, cantidad, precioUnitario) => {

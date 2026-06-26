@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from 'react'
 import {
-  X, Plus, Trash2, AlertCircle, Loader2, CheckCircle2
+  X, Plus, Trash2, AlertCircle, Loader2, CheckCircle2,Info
 } from 'lucide-react'
 import useNuevaVentaStore from '@/store/useNuevaVentaStore'
 import useBalanceStore from '@/store/useBalanceStore'
@@ -20,7 +20,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     registrarVenta,
     totalVenta, caso, saldoPendiente, cargarCombos, combos, agregarItem,
   } = useNuevaVentaStore()
-  const { balance,fetchBalance } = useBalanceStore()
+  const { balance, fetchBalance } = useBalanceStore()
   const [localMontoAbono, setLocalMontoAbono] = useState('')
   const selectProductoRef = useRef(null)
   const [textoBusqueda, setTextoBusqueda] = useState('');
@@ -30,6 +30,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [textoBusquedaCliente, setTextoBusquedaCliente] = useState('')
   const [clientesFiltrados, setClientesFiltrados] = useState([])
   const [seleccionado, setSeleccionado] = useState(false)
+  const [mostrarInfoCombo, setMostrarInfoCombo] = useState(false)
 
   const todosLosItems = useMemo(() => {
     const prods = productos.map(p => ({ ...p, tipo: 'producto' }))
@@ -68,7 +69,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     }
     const q = textoBusqueda.toLowerCase()
     const filtrados = todosLosItems.filter(item =>
-      item.nombre?.toLowerCase().includes(q) ||  item.Cli_identificacion?.includes(q)
+      item.nombre?.toLowerCase().includes(q) || item.Cli_identificacion?.includes(q)
     )
     setItemsFiltrados(filtrados)
   }, [textoBusqueda, todosLosItems])
@@ -203,9 +204,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
                 {clienteId && (
                   <p className="text-xs text-indigo-600 mt-1">
-    Cliente seleccionado: {clientes.find(c => c.ID_Cliente == clienteId)?.Cli_Nombre} 
-    ({clientes.find(c => c.ID_Cliente == clienteId)?.Cli_identificacion || 'S/N'})
-  </p>
+                    Cliente seleccionado: {clientes.find(c => c.ID_Cliente == clienteId)?.Cli_Nombre}
+                    ({clientes.find(c => c.ID_Cliente == clienteId)?.Cli_identificacion || 'S/N'})
+                  </p>
                 )}
               </div>
               <div>
@@ -261,40 +262,58 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm"
                 />
                 {itemSeleccionado && (
-                  <div style={{ marginTop: "12px" }} className="flex items-center gap-2 mt-3">
-                    <span className="text-sm text-slate-600 flex-1">
-                      {itemSeleccionado.nombre} ({itemSeleccionado.tipo})
-                    </span>
-                    <input
-                      type="number"
-                      min="1"
-                      value={cantidadItem}
-                      onChange={e => setCantidadItem(Number(e.target.value))}
-                      style={{ padding: "4px" }}
-                      className="w-20 border border-slate-200 rounded-lg p-1 text-sm"
-                    />
-                    <button
-                      onClick={() => {
-                        if (!itemSeleccionado || cantidadItem < 1) return
-                        const precio = parseFloat(itemSeleccionado.precio_venta || itemSeleccionado.precio)
-                        agregarItem({
-                          tipo: itemSeleccionado.tipo,
-                          producto_id: itemSeleccionado.tipo === 'producto' ? itemSeleccionado.id : null,
-                          combo_id: itemSeleccionado.tipo === 'combo' ? itemSeleccionado.id : null,
-                          nombre_producto: itemSeleccionado.nombre,
-                          cantidad: cantidadItem,
-                          precio_unitario: precio,
-                        })
-                        // limpiar
-                        setTextoBusqueda('')
-                        setItemSeleccionado(null)
-                        setCantidadItem(1)
-                      }}
-                      style={{ padding: "8px 16px" }}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-                    >
-                      Agregar
-                    </button>
+                  <div style={{ marginTop: "12px" }}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-slate-600 flex-1">
+                        {itemSeleccionado.nombre} ({itemSeleccionado.tipo})
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        value={cantidadItem}
+                        onChange={e => setCantidadItem(Number(e.target.value))}
+                        style={{ padding: "4px" }}
+                        className="w-20 border border-slate-200 rounded-lg p-1 text-sm"
+                      />
+                      <button
+                        onClick={() => {
+                          if (!itemSeleccionado || cantidadItem < 1) return
+                          const precio = parseFloat(itemSeleccionado.precio_venta || itemSeleccionado.precio)
+                          agregarItem({
+                            tipo: itemSeleccionado.tipo,
+                            producto_id: itemSeleccionado.tipo === 'producto' ? itemSeleccionado.id : null,
+                            combo_id: itemSeleccionado.tipo === 'combo' ? itemSeleccionado.id : null,
+                            nombre_producto: itemSeleccionado.nombre,
+                            cantidad: cantidadItem,
+                            precio_unitario: precio,
+                          })
+                          setTextoBusqueda('')
+                          setItemSeleccionado(null)
+                          setCantidadItem(1)
+                        }}
+                        style={{ padding: "8px 16px" }}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                      >
+                        Agregar
+                      </button>
+                    </div>
+
+                    {/* Información adicional según el tipo */}
+                    <div className="mt-2 text-sm">
+                      {itemSeleccionado.tipo === 'producto' ? (
+                        <p className="text-slate-600">
+                          📦 Unidades por bandeja: <strong>{itemSeleccionado.unidades_por_bandeja ?? 'N/D'}</strong>
+                        </p>
+                      ) : (
+                        <button
+                          onClick={() => setMostrarInfoCombo(true)}
+                          className="text-indigo-600 hover:underline flex items-center gap-1"
+                        >
+                          <Info size={14} />
+                          Ver productos del combo
+                        </button>
+                      )}
+                    </div>
                   </div>
                 )}
                 {textoBusqueda && itemsFiltrados.length > 0 && (
@@ -500,7 +519,52 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
           </div>
         </div>
       </div>
+      {/* Modal info combo */}
+{mostrarInfoCombo && itemSeleccionado && (
+  <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-slate-800">{itemSeleccionado.nombre}</h3>
+        <button
+          onClick={() => setMostrarInfoCombo(false)}
+          className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center"
+        >
+          <X size={18} color="#64748b" />
+        </button>
+      </div>
+      {itemSeleccionado.productos && itemSeleccionado.productos.length > 0 ? (
+        <table className="w-full text-sm border-collapse">
+          <thead>
+            <tr className="bg-slate-50">
+              <th className="px-3 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
+              <th className="px-3 py-2 text-center text-xs text-slate-500 uppercase">Cantidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            {itemSeleccionado.productos.map((prod, i) => (
+              <tr key={i} className="border-t border-gray-100">
+                <td className="px-3 py-2 text-slate-700">{prod.nombre}</td>
+                <td className="px-3 py-2 text-center text-slate-600">{prod.cantidad_unidades}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="text-sm text-slate-400">No hay productos detallados.</p>
+      )}
+      <div className="mt-4 flex justify-end">
+        <button
+          onClick={() => setMostrarInfoCombo(false)}
+          className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
+        >
+          Cerrar
+        </button>
+      </div>
     </div>
+  </div>
+)}
+    </div>
+    
   )
 }
 

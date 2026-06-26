@@ -460,6 +460,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             <div className="flex justify-between text-sm">
               <span className="text-slate-600">Total venta</span>
               <span className="font-bold text-slate-800">${totalVenta().toLocaleString('es-CO')}</span>
+                <span className="font-medium text-emerald-600">${(totalAbonado() || 0).toLocaleString('es-CO')}</span>
             </div>
             {conAbono && (
               <>

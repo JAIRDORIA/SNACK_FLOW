@@ -33,28 +33,28 @@ export const useNuevaVentaStore = create((set, get) => ({
   abonosIniciales: [],
 
   agregarAbonoInicial: () => {
-  set((state) => ({
-    abonosIniciales: [
-      ...state.abonosIniciales,
-      { monto: 0, medio_pago: 'efectivo', observacion: '' }
-    ]
-  }))
-},
-eliminarAbonoInicial: (index) => {
-  set((state) => ({
-    abonosIniciales: state.abonosIniciales.filter((_, i) => i !== index)
-  }))
-},
-modificarAbonoInicial: (index, campo, valor) => {
-  set((state) => {
-    const nuevos = [...state.abonosIniciales]
-    nuevos[index] = { ...nuevos[index], [campo]: valor }
-    return { abonosIniciales: nuevos }
-  })
-},
-totalAbonado: () => {
-  return get().abonosIniciales.reduce((sum, a) => sum + (a.monto || 0), 0)
-},
+    set((state) => ({
+      abonosIniciales: [
+        ...state.abonosIniciales,
+        { monto: 0, medio_pago: 'efectivo', observacion: '' }
+      ]
+    }))
+  },
+  eliminarAbonoInicial: (index) => {
+    set((state) => ({
+      abonosIniciales: state.abonosIniciales.filter((_, i) => i !== index)
+    }))
+  },
+  modificarAbonoInicial: (index, campo, valor) => {
+    set((state) => {
+      const nuevos = [...state.abonosIniciales]
+      nuevos[index] = { ...nuevos[index], [campo]: valor }
+      return { abonosIniciales: nuevos }
+    })
+  },
+  totalAbonado: () => {
+    return get().abonosIniciales.reduce((sum, a) => sum + (a.monto || 0), 0)
+  },
   // Cálculos (getters)
   totalVenta: () => {
     const { detalle } = get()
@@ -62,18 +62,18 @@ totalAbonado: () => {
   },
 
   caso: () => {
-  const total = get().totalVenta()
-  const abonado = get().totalAbonado()
-  if (abonado === 0) return 'sin_abono'
-  if (abonado >= total) return 'pago_completo'
-  return 'abono_parcial'
-},
+    const total = get().totalVenta()
+    const abonado = get().totalAbonado()
+    if (abonado === 0) return 'sin_abono'
+    if (abonado >= total) return 'pago_completo'
+    return 'abono_parcial'
+  },
 
-saldoPendiente: () => {
-  const total = get().totalVenta()
-  const abonado = get().totalAbonado()
-  return Math.max(0, total - abonado)
-},
+  saldoPendiente: () => {
+    const total = get().totalVenta()
+    const abonado = get().totalAbonado()
+    return Math.max(0, total - abonado)
+  },
 
   // Acciones para datos externos
   cargarDatos: async () => {
@@ -107,16 +107,16 @@ saldoPendiente: () => {
     }
   },
   cargarCombos: async () => {
-  try {
-    const res = await api.get('/combos/', { params: { page: 1, per_page: 50 } });
-    const data = res.data;
-    const combosData = Array.isArray(data) ? data : data.items || data.datos || [];
-    set({ combos: combosData });
-    console.log('Combos cargados:', combosData);
-  } catch (err) {
-    console.error('Error al cargar combos', err);
-  }
-},
+    try {
+      const res = await api.get('/combos/', { params: { page: 1, per_page: 50 } });
+      const data = res.data;
+      const combosData = Array.isArray(data) ? data : data.items || data.datos || [];
+      set({ combos: combosData });
+      console.log('Combos cargados:', combosData);
+    } catch (err) {
+      console.error('Error al cargar combos', err);
+    }
+  },
 
   // Setters de campos
   setClienteId: (id) => set({ clienteId: id }),
@@ -129,44 +129,44 @@ saldoPendiente: () => {
   //setObservacionAbono: (obs) => set({ observacionAbono: obs }),
 
 
-agregarItem: (nuevoItem) => {
-  set((state) => {
-    // Buscar si ya existe un item del mismo tipo con el mismo id
-    const index = state.detalle.findIndex((item) => {
-      if (nuevoItem.tipo === 'combo' && item.tipo === 'combo') {
-        return item.combo_id === nuevoItem.combo_id
+  agregarItem: (nuevoItem) => {
+    set((state) => {
+      // Buscar si ya existe un item del mismo tipo con el mismo id
+      const index = state.detalle.findIndex((item) => {
+        if (nuevoItem.tipo === 'combo' && item.tipo === 'combo') {
+          return item.combo_id === nuevoItem.combo_id
+        }
+        if (nuevoItem.tipo === 'producto' && item.tipo === 'producto') {
+          return item.producto_id === nuevoItem.producto_id
+        }
+        return false
+      })
+
+      if (index !== -1) {
+        // Ya existe: sumamos la cantidad
+        const nuevoDetalle = [...state.detalle]
+        nuevoDetalle[index] = {
+          ...nuevoDetalle[index],
+          cantidad: nuevoDetalle[index].cantidad + nuevoItem.cantidad,
+        }
+        return { detalle: nuevoDetalle }
       }
-      if (nuevoItem.tipo === 'producto' && item.tipo === 'producto') {
-        return item.producto_id === nuevoItem.producto_id
-      }
-      return false
+
+      // No existe: se agrega como nuevo
+      return { detalle: [...state.detalle, nuevoItem] }
     })
-
-    if (index !== -1) {
-      // Ya existe: sumamos la cantidad
-      const nuevoDetalle = [...state.detalle]
-      nuevoDetalle[index] = {
-        ...nuevoDetalle[index],
-        cantidad: nuevoDetalle[index].cantidad + nuevoItem.cantidad,
-      }
-      return { detalle: nuevoDetalle }
-    }
-
-    // No existe: se agrega como nuevo
-    return { detalle: [...state.detalle, nuevoItem] }
-  })
-},
+  },
   // Manejo del detalle
   agregarProducto: (productoId, nombreProducto, cantidad, precioUnitario) => {
-  get().agregarItem({
-    tipo: 'producto',
-    producto_id: productoId,
-    combo_id: null,
-    nombre_producto: nombreProducto,
-    cantidad: cantidad,
-    precio_unitario: precioUnitario,
-  });
-},
+    get().agregarItem({
+      tipo: 'producto',
+      producto_id: productoId,
+      combo_id: null,
+      nombre_producto: nombreProducto,
+      cantidad: cantidad,
+      precio_unitario: precioUnitario,
+    });
+  },
   eliminarProducto: (index) => {
     set((state) => ({ detalle: state.detalle.filter((_, i) => i !== index) }))
   },
@@ -185,10 +185,6 @@ agregarItem: (nuevoItem) => {
       horaEntrega: '',
       detalle: [],
       abonosIniciales: [],
-      conAbono: false,
-      montoAbono: 0,
-      medioPago: 'efectivo',
-      observacionAbono: '',
       enviando: false,
       exito: false,
       errorMsg: '',
@@ -196,24 +192,24 @@ agregarItem: (nuevoItem) => {
   },
 
   // Enviar venta
-  registrarVenta: async () => {
-    const { clienteId, corteId, fechaEntrega, horaEntrega, detalle, conAbono, montoAbono, medioPago, observacionAbono } = get()
+ registrarVenta: async () => {
+    const { clienteId, corteId, fechaEntrega, horaEntrega, detalle, abonosIniciales } = get()
     const total = get().totalVenta()
     const totalRedondeado = Math.round(total * 100) / 100
+    const totalAbonado = get().totalAbonado()
 
     // Validaciones
     if (!clienteId || !corteId || !fechaEntrega || detalle.length === 0) {
       set({ errorMsg: 'Completa todos los campos requeridos (cliente, corte, fecha, al menos un producto).' })
       return false
     }
-    if (conAbono && montoAbono > total) {
-      set({ errorMsg: 'El monto abonado no puede superar el total de la venta.' })
+    if (totalAbonado > total) {
+      set({ errorMsg: 'La suma de los abonos no puede superar el total de la venta.' })
       return false
     }
 
     set({ enviando: true, errorMsg: '' })
 
-    // Formatear fecha de entrega de YYYY-MM-DD a DD/MM/YYYY
     // Formatear fecha de entrega: YYYY-MM-DD HH:MM:SS
     const horaConSegundos = horaEntrega ? `${horaEntrega}:00` : '00:00:00'
     const fechaFormateada = `${fechaEntrega} ${horaConSegundos}`
@@ -225,25 +221,24 @@ agregarItem: (nuevoItem) => {
       fecha_entrega: fechaFormateada,
       total: totalRedondeado,
       detalle: detalle.map((d) => ({
-        tipo: d.tipo || 'producto', 
+        tipo: d.tipo || 'producto',
         producto_id: d.tipo === 'producto' ? d.producto_id : null,
-        combo_id: d.tipo === 'combo' ? d.combo_id : null,   // ← nuevo
+        combo_id: d.tipo === 'combo' ? d.combo_id : null,
         nombre_producto: d.nombre_producto,
         cantidad: d.cantidad,
         precio_unitario: d.precio_unitario,
       })),
     }
 
-    // Agregar abono inicial si corresponde (caso 2 o 3)
-    if (abonosIniciales.length > 0) {
-  payload.abonos_iniciales = abonosIniciales
-    .filter(a => a.monto > 0)
-    .map(a => ({
-      monto: Number(a.monto),
-      medio_pago: a.medio_pago,
-      observacion: a.observacion?.trim() || undefined
-    }))
-}
+    // Agregar abonos iniciales (múltiples)
+    const abonosValidos = abonosIniciales.filter(a => a.monto > 0)
+    if (abonosValidos.length > 0) {
+      payload.abonos_iniciales = abonosValidos.map(a => ({
+        monto: Number(a.monto),
+        medio_pago: a.medio_pago,
+        observacion: a.observacion?.trim() || undefined
+      }))
+    }
 
     try {
       await api.post('/ventas/', payload, { headers: { 'Content-Type': 'application/json' } })

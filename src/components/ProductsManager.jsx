@@ -207,7 +207,7 @@ export default function ProductosManager() {
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio *</label>
                 <input type="number" name="precio" placeholder="$ 0"
-                  value={formData.precio} onChange={handleChange} required min="0"
+                  value={formData.precio} onChange={handleChange} required min="0" maxLength={10}
                   style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
@@ -216,7 +216,7 @@ export default function ProductosManager() {
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unidades por bandeja *</label>
                 <input type="number" name="unidades_por_bandeja" placeholder="Ej: 30"
-                  value={formData.unidades_por_bandeja} onChange={handleChange} required min="1"
+                  value={formData.unidades_por_bandeja} onChange={handleChange} required min="1" maxLength={5}
                   style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
@@ -242,7 +242,7 @@ export default function ProductosManager() {
 
           <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ position: 'relative', maxWidth: '360px' }}>
-              <input type="text" placeholder="Buscar producto..."
+              <input type="text" placeholder="Buscar producto..." maxLength={50}
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 16px 10px 40px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                 onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}

@@ -20,7 +20,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     registrarVenta,
     totalVenta, caso, saldoPendiente, cargarCombos, combos, agregarItem,
   } = useNuevaVentaStore()
-  const { balance } = useBalanceStore()
+  const { balance,fetchBalance } = useBalanceStore()
   const [localMontoAbono, setLocalMontoAbono] = useState('')
   const selectProductoRef = useRef(null)
   const [textoBusqueda, setTextoBusqueda] = useState('');
@@ -42,6 +42,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       resetFormulario()
       cargarDatos()
       cargarCombos()
+      fetchBalance()
 
     }
   }, [open])

@@ -10,53 +10,78 @@ const useProveedoresStore = create((set, get) => ({
     set({ cargando: true, error: null })
     try {
       const res = await getProveedores()
-      // El backend devuelve un array directo; normalizamos 'id' → 'id_proveedor'
-      const lista = (Array.isArray(res.data) ? res.data : res.data.proveedores ?? [])
+      // El backend devuelve un array directo o en res.data.datos
+      const lista = (Array.isArray(res.data) ? res.data : res.data.datos ?? res.data.proveedores ?? [])
         .map(p => ({ ...p, id_proveedor: p.id_proveedor ?? p.id }))
       set({ proveedores: lista, cargando: false })
     } catch (err) {
-      set({ error: err.response?.data?.error || err.response?.data?.mensaje || 'Error al cargar proveedores', cargando: false })
+      const errorMsg = err.response?.data?.error || err.response?.data?.mensaje || 'Error al cargar proveedores'
+      set({ error: errorMsg, cargando: false })
+      throw new Error(errorMsg)
     }
   },
 
   crearProveedor: async (data) => {
-    // El backend espera: nombre, telefono, direccion, email
-    const payload = {
-      nombre:    data.nombre,
-      telefono:  data.telefono   || '',
-      direccion: data.direccion  || '',
-      email:     data.email      || '',
+    try {
+      // El backend espera: nombre, telefono, direccion, email
+      const payload = {
+        nombre:    data.nombre?.trim() || '',
+        telefono:  data.telefono?.trim() || '',
+        direccion: data.direccion?.trim() || '',
+        email:     data.email?.trim() || '',
+      }
+      const res = await postProveedor(payload)
+      await get().fetchProveedores()
+      return res.data
+    } catch (err) {
+      // El backend retorna error en res.data.error
+      const errorMsg = err.response?.data?.error || err.response?.data?.mensaje || err.message || 'Error al crear proveedor'
+      set({ error: errorMsg })
+      // Re-lanzamos el error para que el modal lo muestre
+      throw new Error(errorMsg)
     }
-    const res = await postProveedor(payload)
-    await get().fetchProveedores()
-    return res.data
   },
 
   editarProveedor: async (id, data) => {
-    // El backend espera: nombre, telefono, direccion, email, activo
-    const payload = {
-      nombre:    data.nombre,
-      telefono:  data.telefono   || '',
-      direccion: data.direccion  || '',
-      email:     data.email      || '',
-      activo:    data.activo !== undefined ? data.activo : 1,
+    try {
+      // El backend espera: nombre, telefono, direccion, email, activo
+      const payload = {
+        nombre:    data.nombre?.trim() || '',
+        telefono:  data.telefono?.trim() || '',
+        direccion: data.direccion?.trim() || '',
+        email:     data.email?.trim() || '',
+        activo:    data.activo !== undefined ? data.activo : 1,
+      }
+      const res = await putProveedor(id, payload)
+      await get().fetchProveedores()
+      return res.data
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || err.response?.data?.mensaje || err.message || 'Error al editar proveedor'
+      set({ error: errorMsg })
+      throw new Error(errorMsg)
     }
-    const res = await putProveedor(id, payload)
-    await get().fetchProveedores()
-    return res.data
   },
 
- eliminarProveedor: async (id) => {
-  // En vez de DELETE, enviamos PUT con activo: 0
-  await putProveedor(id, {
-    activo: 0,
-    nombre:    get().proveedores.find(p => p.id_proveedor === id)?.nombre    || '',
-    telefono:  get().proveedores.find(p => p.id_proveedor === id)?.telefono  || '',
-    direccion: get().proveedores.find(p => p.id_proveedor === id)?.direccion || '',
-    email:     get().proveedores.find(p => p.id_proveedor === id)?.email     || '',
-  })
-  await get().fetchProveedores()
-},
+  eliminarProveedor: async (id) => {
+    try {
+      const proveedor = get().proveedores.find(p => p.id_proveedor === id || p.id === id)
+      if (!proveedor) throw new Error('Proveedor no encontrado')
+      
+      // Enviar PUT con activo: 0 (soft delete)
+      await putProveedor(id, {
+        nombre:    proveedor.nombre || '',
+        telefono:  proveedor.telefono || '',
+        direccion: proveedor.direccion || '',
+        email:     proveedor.email || '',
+        activo:    0,
+      })
+      await get().fetchProveedores()
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || err.response?.data?.mensaje || err.message || 'Error al eliminar proveedor'
+      set({ error: errorMsg })
+      throw new Error(errorMsg)
+    }
+  },
 }))
 
 export default useProveedoresStore

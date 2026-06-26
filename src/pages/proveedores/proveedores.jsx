@@ -3,7 +3,7 @@ import {
   Plus, Search, Pencil, Trash2, X,
   AlertTriangle, Truck, Mail, MapPin, Phone, User, CheckCircle2,
   Building2, SlidersHorizontal, Info, ShieldAlert,
-  RefreshCw
+  RefreshCw, AlertCircle
 } from 'lucide-react'
 import useProveedoresStore from '@/store/useProveedoresStore'
 
@@ -59,10 +59,16 @@ const responsiveStyles = `
   .card-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
   .card-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
   .card-value { font-size: 13px; color: #475569; font-weight: 500; text-align: right; max-width: 65%; word-break: break-word; }
+  
+  /* ── Validación de campo ── */
+  .input-error { border-color: #f43f5e !important; background-color: #fff1f2 !important; }
+  .error-message { display: flex; align-items: flex-start; gap: 10px; padding: 12px 14px; background: #fff1f2; border: 1.5px solid #fecdd3; border-radius: 10px; margin-top: 6px; }
+  .error-message svg { flex-shrink: 0; margin-top: 1px; }
+  .error-message p { margin: 0; font-size: 13px; color: #e11d48; }
 `
 
 // ══════════════════════════════════════════
-// MODAL PROVEEDOR
+// MODAL PROVEEDOR - CON VALIDACIONES
 // ══════════════════════════════════════════
 function ModalProveedor({ proveedor, onClose, onGuardar }) {
   const [form, setForm] = useState({
@@ -73,20 +79,87 @@ function ModalProveedor({ proveedor, onClose, onGuardar }) {
     contacto:  proveedor?.contacto  || '',
   })
   const [guardando, setGuardando] = useState(false)
-  const [errForm,   setErrForm]   = useState(null)
+  const [errores, setErrores] = useState({})
+  const [errGeneral, setErrGeneral] = useState(null)
 
-  const handleChange = (e) =>
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setForm(prev => ({ ...prev, [name]: value }))
+    // Limpiar error del campo cuando el usuario empieza a escribir
+    if (errores[name]) {
+      setErrores(prev => {
+        const newErr = { ...prev }
+        delete newErr[name]
+        return newErr
+      })
+    }
+  }
+
+  // Validaciones básicas del frontend
+  const validarForm = () => {
+    const newErrors = {}
+
+    // Nombre
+    if (!form.nombre.trim()) {
+      newErrors.nombre = 'El nombre del proveedor es obligatorio'
+    } else if (form.nombre.length < 3) {
+      newErrors.nombre = 'El nombre debe tener al menos 3 caracteres'
+    } else if (form.nombre.length > 100) {
+      newErrors.nombre = 'El nombre no puede exceder 100 caracteres'
+    } else if (/\d/.test(form.nombre)) {
+      newErrors.nombre = '❌ El nombre NO puede contener números'
+    }
+
+    // Email (si se proporciona)
+    if (form.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(form.email)) {
+        newErrors.email = 'El email debe tener un formato válido'
+      }
+    }
+
+    // Teléfono (si se proporciona)
+    if (form.telefono.trim()) {
+      const digitos = form.telefono.replace(/\D/g, '')
+      if (digitos.length < 7) {
+        newErrors.telefono = 'El teléfono debe contener al menos 7 dígitos'
+      } else if (form.telefono.length > 20) {
+        newErrors.telefono = 'El teléfono no puede exceder 20 caracteres'
+      }
+    }
+
+    // Dirección (si se proporciona)
+    if (form.direccion.trim()) {
+      if (form.direccion.length < 5) {
+        newErrors.direccion = 'La dirección debe tener al menos 5 caracteres'
+      } else if (form.direccion.length > 200) {
+        newErrors.direccion = 'La dirección no puede exceder 200 caracteres'
+      }
+    }
+
+    setErrores(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleGuardar = async () => {
-    if (!form.nombre.trim()) { setErrForm('El nombre del proveedor es obligatorio.'); return }
-    setGuardando(true); setErrForm(null)
+    // Validar primero en el frontend
+    if (!validarForm()) {
+      setErrGeneral(null)
+      return
+    }
+
+    setGuardando(true)
+    setErrGeneral(null)
     try {
       await onGuardar({ ...form, activo: proveedor ? proveedor.activo : 1 })
       onClose()
     } catch (err) {
-      setErrForm(err.response?.data?.mensaje || 'Error al guardar proveedor.')
-    } finally { setGuardando(false) }
+      // El error viene del backend
+      const mensajeError = err.message || 'Error al guardar proveedor'
+      setErrGeneral(mensajeError)
+    } finally {
+      setGuardando(false)
+    }
   }
 
   const campos = [
@@ -102,8 +175,18 @@ function ModalProveedor({ proveedor, onClose, onGuardar }) {
     paddingTop: '11px', paddingBottom: '11px', border: '1.5px solid #e2e8f0', borderRadius: '10px',
     fontSize: '14px', color: '#0f172a', background: '#fafafa', outline: 'none', transition: 'all 0.15s', fontFamily: 'inherit'
   }
-  const focusIn  = (e) => { e.target.style.border = '1.5px solid #5842ff'; e.target.style.background = '#ffffff' }
-  const focusOut = (e) => { e.target.style.border = '1.5px solid #e2e8f0'; e.target.style.background = '#fafafa' }
+  const focusIn  = (e) => { 
+    if (!errores[e.target.name]) {
+      e.target.style.border = '1.5px solid #5842ff'
+      e.target.style.background = '#ffffff'
+    }
+  }
+  const focusOut = (e) => { 
+    if (!errores[e.target.name]) {
+      e.target.style.border = '1.5px solid #e2e8f0'
+      e.target.style.background = '#fafafa'
+    }
+  }
 
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
@@ -126,27 +209,50 @@ function ModalProveedor({ proveedor, onClose, onGuardar }) {
         </div>
 
         {/* Body */}
-        <div className="modal-body" style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="modal-body" style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '18px', maxHeight: 'calc(80vh - 180px)', overflowY: 'auto' }}>
+          
+          {/* Error general del backend */}
+          {errGeneral && (
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 14px', background: '#fff1f2', border: '1.5px solid #fecdd3', borderRadius: '10px' }}>
+              <AlertTriangle size={15} color="#f43f5e" style={{ flexShrink: 0, marginTop: '1px' }} />
+              <p style={{ margin: 0, fontSize: '13px', color: '#e11d48', lineHeight: 1.4 }}>{errGeneral}</p>
+            </div>
+          )}
+
           {campos.map(({ name, label, req, Icon, placeholder, type }) => (
             <div key={name}>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: errores[name] ? '#f43f5e' : '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 {label}{req && <span style={{ color: '#f43f5e', marginLeft: '3px' }}>*</span>}
               </label>
               <div style={{ position: 'relative' }}>
                 <div style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-                  <Icon size={15} color="#cbd5e1" />
+                  <Icon size={15} color={errores[name] ? '#f43f5e' : '#cbd5e1'} />
                 </div>
-                <input name={name} type={type} value={form[name]} onChange={handleChange} placeholder={placeholder}
-                  style={inputBase} onFocus={focusIn} onBlur={focusOut} />
+                <input 
+                  name={name} 
+                  type={type} 
+                  value={form[name]} 
+                  onChange={handleChange} 
+                  placeholder={placeholder}
+                  className={errores[name] ? 'input-error' : ''}
+                  style={{
+                    ...inputBase,
+                    borderColor: errores[name] ? '#f43f5e' : '#e2e8f0',
+                    background: errores[name] ? '#fff1f2' : '#fafafa',
+                  }} 
+                  onFocus={focusIn} 
+                  onBlur={focusOut} 
+                />
               </div>
+              {/* Mostrar error del campo */}
+              {errores[name] && (
+                <div className="error-message">
+                  <AlertCircle size={15} color="#f43f5e" />
+                  <p>{errores[name]}</p>
+                </div>
+              )}
             </div>
           ))}
-          {errForm && (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 14px', background: '#fff1f2', border: '1.5px solid #fecdd3', borderRadius: '10px' }}>
-              <AlertTriangle size={15} color="#f43f5e" style={{ flexShrink: 0, marginTop: '1px' }} />
-              <p style={{ margin: 0, fontSize: '13px', color: '#e11d48' }}>{errForm}</p>
-            </div>
-          )}
         </div>
 
         {/* Footer */}
@@ -167,11 +273,19 @@ function ModalProveedor({ proveedor, onClose, onGuardar }) {
 // ══════════════════════════════════════════
 function ModalEliminar({ proveedor, onClose, onConfirmar }) {
   const [eliminando, setEliminando] = useState(false)
+  const [errEliminar, setErrEliminar] = useState(null)
 
   const handleConfirmar = async () => {
     setEliminando(true)
-    try { await onConfirmar(); onClose() }
-    finally { setEliminando(false) }
+    setErrEliminar(null)
+    try { 
+      await onConfirmar()
+      onClose() 
+    } catch (err) {
+      setErrEliminar(err.message || 'Error al desactivar proveedor')
+    } finally { 
+      setEliminando(false) 
+    }
   }
 
   return (
@@ -184,6 +298,12 @@ function ModalEliminar({ proveedor, onClose, onConfirmar }) {
         <p style={{ margin: '0 0 28px', fontSize: '14px', color: '#64748b', lineHeight: 1.6 }}>
           El proveedor <strong style={{ color: '#0f172a' }}>{proveedor?.nombre}</strong> pasará a estado inactivo para no afectar el historial de compras.
         </p>
+        {errEliminar && (
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 14px', background: '#fff1f2', border: '1.5px solid #fecdd3', borderRadius: '10px', marginBottom: '20px' }}>
+            <AlertTriangle size={15} color="#f43f5e" style={{ flexShrink: 0, marginTop: '1px' }} />
+            <p style={{ margin: 0, fontSize: '13px', color: '#e11d48' }}>{errEliminar}</p>
+          </div>
+        )}
         <div className="modal-footer" style={{ display: 'flex', gap: '10px' }}>
           <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
           <button onClick={handleConfirmar} disabled={eliminando}
@@ -201,11 +321,19 @@ function ModalEliminar({ proveedor, onClose, onConfirmar }) {
 // ══════════════════════════════════════════
 function ModalReactivar({ proveedor, onClose, onConfirmar }) {
   const [activando, setActivando] = useState(false)
+  const [errActivar, setErrActivar] = useState(null)
 
   const handleConfirmar = async () => {
     setActivando(true)
-    try { await onConfirmar(proveedor); onClose() }
-    finally { setActivando(false) }
+    setErrActivar(null)
+    try { 
+      await onConfirmar(proveedor)
+      onClose() 
+    } catch (err) {
+      setErrActivar(err.message || 'Error al reactivar proveedor')
+    } finally { 
+      setActivando(false) 
+    }
   }
 
   return (
@@ -218,6 +346,12 @@ function ModalReactivar({ proveedor, onClose, onConfirmar }) {
         <p style={{ margin: '0 0 28px', fontSize: '14px', color: '#64748b', lineHeight: 1.6 }}>
           El proveedor <strong style={{ color: '#0f172a' }}>{proveedor?.nombre}</strong> volverá a estar disponible para realizar operaciones.
         </p>
+        {errActivar && (
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 14px', background: '#fff1f2', border: '1.5px solid #fecdd3', borderRadius: '10px', marginBottom: '20px' }}>
+            <AlertTriangle size={15} color="#f43f5e" style={{ flexShrink: 0, marginTop: '1px' }} />
+            <p style={{ margin: 0, fontSize: '13px', color: '#e11d48' }}>{errActivar}</p>
+          </div>
+        )}
         <div className="modal-footer" style={{ display: 'flex', gap: '10px' }}>
           <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>Cancelar</button>
           <button onClick={handleConfirmar} disabled={activando}
@@ -267,12 +401,28 @@ export default function Proveedores() {
   const cerrarForm  = () => { setModalFormOpen(false);  setProveedorEditar(null) }
 
   const handleGuardar = async (data) => {
-    if (proveedorEditar) await editarProveedor(proveedorEditar.id, data)
-    else await crearProveedor(data)
+    try {
+      if (proveedorEditar) await editarProveedor(proveedorEditar.id || proveedorEditar.id_proveedor, data)
+      else await crearProveedor(data)
+    } catch (err) {
+      // El error se maneja en el modal
+      throw err
+    }
   }
 
   const handleReactivar = async (p) => {
-    await editarProveedor(p.id, { nombre: p.nombre || '', telefono: p.telefono || '', direccion: p.direccion || '', email: p.email || '', activo: 1 })
+    try {
+      const idProveedor = p.id || p.id_proveedor
+      await editarProveedor(idProveedor, { 
+        nombre: p.nombre || '', 
+        telefono: p.telefono || '', 
+        direccion: p.direccion || '', 
+        email: p.email || '', 
+        activo: 1 
+      })
+    } catch (err) {
+      throw err
+    }
   }
 
   if (cargando) return (
@@ -297,6 +447,17 @@ export default function Proveedores() {
           <Plus size={18} />Nuevo Proveedor
         </button>
       </div>
+
+      {/* ═══ ALERTA ERROR GENERAL ═══ */}
+      {error && (
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px 16px', background: '#fef2f2', border: '1.5px solid #fecdd3', borderRadius: '12px', marginBottom: '24px' }}>
+          <AlertTriangle size={18} color="#dc2626" style={{ flexShrink: 0, marginTop: '1px' }} />
+          <div>
+            <p style={{ margin: '0 0 4px', fontSize: '14px', fontWeight: 600, color: '#7f1d1d' }}>Error al cargar proveedores</p>
+            <p style={{ margin: 0, fontSize: '13px', color: '#b91c1c' }}>{error}</p>
+          </div>
+        </div>
+      )}
 
       {/* ═══ KPI CARDS ═══ */}
       <div className="grid-kpi">
@@ -351,9 +512,9 @@ export default function Proveedores() {
               ) : lista.map((p, index) => {
                 const inactivo = esInactivo(p)
                 return (
-                  <tr key={p.id} style={{ borderBottom: '1px solid #f1f5f9', background: inactivo ? '#f8fafc' : '#ffffff', opacity: inactivo ? 0.75 : 1 }}>
+                  <tr key={p.id_proveedor || p.id} style={{ borderBottom: '1px solid #f1f5f9', background: inactivo ? '#f8fafc' : '#ffffff', opacity: inactivo ? 0.75 : 1 }}>
                     <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 600, color: inactivo ? '#94a3b8' : '#5842ff' }}>
-                      #{String(p.id || index + 1).padStart(3, '0')}
+                      #{String(p.id_proveedor || p.id || index + 1).padStart(3, '0')}
                     </td>
                     <td style={{ padding: '16px 24px', fontSize: '14px', color: '#111827', fontWeight: 500 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -406,12 +567,12 @@ export default function Proveedores() {
           ) : lista.map((p, index) => {
             const inactivo = esInactivo(p)
             return (
-              <div key={p.id} className={`proveedor-card${inactivo ? ' inactivo' : ''}`}>
+              <div key={p.id_proveedor || p.id} className={`proveedor-card${inactivo ? ' inactivo' : ''}`}>
                 {/* Top row: ID + acciones */}
                 <div className="card-row">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <span style={{ fontSize: '13px', fontWeight: 700, color: inactivo ? '#94a3b8' : '#5842ff' }}>
-                      #{String(p.id || index + 1).padStart(3, '0')}
+                      #{String(p.id_proveedor || p.id || index + 1).padStart(3, '0')}
                     </span>
                     {inactivo && (
                       <span style={{ background: '#fee2e2', color: '#ef4444', padding: '2px 7px', borderRadius: '12px', fontSize: '10px', fontWeight: 'bold', border: '1px solid #fecaca' }}>INACTIVO</span>
@@ -489,7 +650,7 @@ export default function Proveedores() {
         <ModalProveedor proveedor={proveedorEditar} onClose={cerrarForm} onGuardar={handleGuardar} />
       )}
       {proveedorEliminar && (
-        <ModalEliminar proveedor={proveedorEliminar} onClose={() => setProveedorEliminar(null)} onConfirmar={() => eliminarProveedor(proveedorEliminar.id)} />
+        <ModalEliminar proveedor={proveedorEliminar} onClose={() => setProveedorEliminar(null)} onConfirmar={() => eliminarProveedor(proveedorEliminar.id || proveedorEliminar.id_proveedor)} />
       )}
       {proveedorReactivar && (
         <ModalReactivar proveedor={proveedorReactivar} onClose={() => setProveedorReactivar(null)} onConfirmar={handleReactivar} />

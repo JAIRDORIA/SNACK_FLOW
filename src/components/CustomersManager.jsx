@@ -3,6 +3,8 @@ import {
   Plus, Search, Pencil, Trash2, Users, Phone, MapPin, X, AlertTriangle, Mail
 } from 'lucide-react'
 import api from '../api/axios'
+import Toast from '@/components/Toast'
+
 
 export default function CustomersManager() {
   const [customers, setCustomers] = useState([])
@@ -10,12 +12,14 @@ export default function CustomersManager() {
   const [error, setError] = useState(null)
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null, nombre: '' })
   const [deleting, setDeleting] = useState(false)
+  const [toast, setToast] = useState(null)
 
   // Modal de creación
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [createForm, setCreateForm] = useState({
     nombres: '',
     apellidos: '',
+    identificacion: '',
     telefono: '',
     direccion: '',
     email: '',
@@ -51,16 +55,18 @@ export default function CustomersManager() {
     try {
       await api.post('/clientes/', {
         nombre: payload.nombre,
+        identificacion: payload.identificacion,  // ← nuevo
         telefono: payload.telefono,
         direccion: payload.direccion,
         email: payload.email || undefined,
       })
-      setCreateForm({ nombres: '', apellidos: '', telefono: '', direccion: '', email: '' })
+      setCreateForm({ nombres: '', apellidos: '', identificacion: '', telefono: '', direccion: '', email: '' })
       setIsCreateModalOpen(false)
       fetchCustomers()
+      setToast({ mensaje: 'Cliente creado correctamente', tipo: 'success' })
     } catch (err) {
-      console.error(err)
-      alert('Error al guardar cliente')
+      const mensaje = err.response?.data?.mensaje || 'Error al guardar cliente'
+      setToast({ mensaje, tipo: 'error' })
     }
   }
 
@@ -75,6 +81,7 @@ export default function CustomersManager() {
       id: customer.ID_Cliente,
       nombres: nombres,
       apellidos: apellidos,
+      identificacion: customer.Cli_identificacion || '',
       telefono: customer.Cli_Telefono || '',
       direccion: customer.Cli_Direccion || '',
       email: customer.Cli_email || '',
@@ -87,15 +94,17 @@ export default function CustomersManager() {
     try {
       await api.put(`/clientes/${payload.id}`, {
         nombre: payload.nombre,
+        identificacion: payload.identificacion,  // ← nuevo
         telefono: payload.telefono,
         direccion: payload.direccion,
         email: payload.email || undefined,
       })
       setIsEditModalOpen(false)
       fetchCustomers()
+      setToast({ mensaje: 'Cliente actualizado correctamente', tipo: 'success' })
     } catch (err) {
-      console.error(err)
-      alert('Error al actualizar')
+      const mensaje = err.response?.data?.mensaje || 'Error al actualizar'
+      setToast({ mensaje, tipo: 'error' })
     }
   }
 
@@ -231,7 +240,7 @@ export default function CustomersManager() {
                 filteredCustomers.map((customer) => (
                   <tr key={customer.ID_Cliente} className="border-t border-gray-100 hover:bg-gray-50">
                     <td style={{ padding: "12px  16px" }} className="px-4 py-3 font-medium text-gray-800">{customer.Cli_Nombre}</td>
-                    <td style={{ padding: "12px  16px" }} className="px-4 py-3 text-gray-600">{customer.Cli_Telefono}</td>
+                    <td style={{ padding: "12px  16px" }} className="px-4 py-3 text-gray-600">{customer.Cli_Telefono || '—'}</td>
                     <td style={{ padding: "12px  16px" }} className="px-4 py-3 text-gray-600">{customer.Cli_Direccion || '—'}</td>
                     <td style={{ padding: "12px  16px" }} className="px-4 py-3">
                       <div className="flex gap-1">
@@ -278,6 +287,7 @@ export default function CustomersManager() {
                 nombre: nombreCompleto,
                 telefono: createForm.telefono,
                 direccion: createForm.direccion,
+                identificacion: createForm.identificacion,
                 email: createForm.email,
               })
             }} style={{ padding: "24px" }} className="p-6 flex flex-col gap-4">
@@ -296,7 +306,10 @@ export default function CustomersManager() {
                   }}
                   placeholder="Ej: Juan Carlos"
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
-                />              </div>
+                />
+              </div>
+              {/* Identificación */}
+
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Apellidos</label>
                 <input
@@ -311,17 +324,43 @@ export default function CustomersManager() {
                   }}
                   placeholder="Ej: Pérez García"
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
-                />              </div>
+                />              </div><div>
+                <label className="text-xs font-semibold text-gray-500 uppercase">Identificación</label>
+                <input
+                  style={{ padding: "8px 12px" }}
+                  type="text"
+                  value={createForm.identificacion}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[^0-9]/g, '')  // Solo números
+                      .slice(0, 20)            // Máximo 20 caracteres
+                    setCreateForm({ ...createForm, identificacion: valor })
+                  }}
+                  placeholder="Ej: 1234567890"
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />
+              </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Teléfono</label>
-                <input style={{ padding: "8px 12px" }} type="text" value={createForm.telefono} onChange={e => setCreateForm({ ...createForm, telefono: e.target.value })} placeholder="3001234567" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
-              </div>
+                <input
+                  style={{ padding: "8px 12px" }}
+                  type="text"
+                  value={createForm.telefono}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[^0-9+]/g, '')   // Solo permite números y el símbolo '+'
+                      .slice(0, 15)              // Máximo 15 caracteres
+                    setCreateForm({ ...createForm, telefono: valor })
+                  }}
+                  placeholder="3001234567"
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />              </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Dirección</label>
                 <input style={{ padding: "8px 12px" }} type="text" value={createForm.direccion} onChange={e => setCreateForm({ ...createForm, direccion: e.target.value })} placeholder="Calle 123" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase">Email (opcional)</label>
+                <label className="text-xs font-semibold text-gray-500 uppercase">Email </label>
                 <input style={{ padding: "8px 12px" }} type="email" value={createForm.email} onChange={e => setCreateForm({ ...createForm, email: e.target.value })} placeholder="correo@ejemplo.com" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div style={{ marginTop: "8px" }} className="flex gap-3 mt-2">
@@ -378,15 +417,13 @@ export default function CustomersManager() {
             </div>
             <form onSubmit={(e) => {
               e.preventDefault()
-              if (!editingCustomer.nombres || !editingCustomer.apellidos || !editingCustomer.telefono) {
-                alert('Nombres, apellidos y teléfono son obligatorios')
-                return
-              }
+            
               const nombreCompleto = `${editingCustomer.nombres.trim()} ${editingCustomer.apellidos.trim()}`
               handleUpdate({
                 id: editingCustomer.id,
                 nombre: nombreCompleto,
                 telefono: editingCustomer.telefono,
+                identificacion: editingCustomer.identificacion,
                 direccion: editingCustomer.direccion,
                 email: editingCustomer.email,
               })
@@ -403,8 +440,11 @@ export default function CustomersManager() {
                     setEditingCustomer({ ...editingCustomer, nombres: valor })
                   }}
                   placeholder="Ej: Juan Carlos"
+                  style={{ padding: "8px 12px" }}
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
                 />              </div>
+              {/* Identificación */}
+
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Apellidos</label>
                 <input
@@ -417,19 +457,48 @@ export default function CustomersManager() {
                     setEditingCustomer({ ...editingCustomer, apellidos: valor })
                   }}
                   placeholder="Ej: Pérez García"
+                  style={{ padding: "8px 12px" }}
                   className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
                 />              </div>
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase">Teléfono</label>
-                <input type="text" value={editingCustomer.telefono} onChange={e => setEditingCustomer({ ...editingCustomer, telefono: e.target.value })} placeholder="3001234567" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
+                <label className="text-xs font-semibold text-gray-500 uppercase">Identificación</label>
+                <input
+                  style={{ padding: "8px 12px" }}
+                  type="text"
+                  value={editingCustomer.identificacion || ''}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[^0-9]/g, '')
+                      .slice(0, 20)
+                    setEditingCustomer({ ...editingCustomer, identificacion: valor })
+                  }}
+                  placeholder="Ej: 1234567890"
+
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />
               </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-500 uppercase">Teléfono</label>
+                <input
+                  type="text"
+                  value={editingCustomer.telefono}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[^0-9+]/g, '')
+                      .slice(0, 15)
+                    setEditingCustomer({ ...editingCustomer, telefono: valor })
+                  }}
+                  placeholder="3001234567"
+                  style={{ padding: "8px 12px" }}
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />              </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Dirección</label>
-                <input type="text" value={editingCustomer.direccion} onChange={e => setEditingCustomer({ ...editingCustomer, direccion: e.target.value })} placeholder="Calle 123" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
+                <input type="text" value={editingCustomer.direccion} onChange={e => setEditingCustomer({ ...editingCustomer, direccion: e.target.value })} placeholder="Calle 123" style={{ padding: "8px 12px" }} className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div>
-                <label className="text-xs font-semibold text-gray-500 uppercase">Email (opcional)</label>
-                <input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({ ...editingCustomer, email: e.target.value })} placeholder="correo@ejemplo.com" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
+                <label className="text-xs font-semibold text-gray-500 uppercase">Email </label>
+                <input type="email" value={editingCustomer.email} onChange={e => setEditingCustomer({ ...editingCustomer, email: e.target.value })} placeholder="correo@ejemplo.com" style={{ padding: "8px 12px" }} className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
               </div>
               <div style={{ marginTop: "8px" }} className="flex gap-3 mt-2">
                 <button style={{ padding: "10px 0px" }} type="button" onClick={() => setIsEditModalOpen(false)} className="flex-1 py-2.5 border rounded-xl text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200">Cancelar</button>
@@ -438,7 +507,15 @@ export default function CustomersManager() {
             </form>
           </div>
         </div>
+      )}{toast && (
+        <Toast
+          mensaje={toast.mensaje}
+          tipo={toast.tipo}
+          onClose={() => setToast(null)}
+        />
       )}
     </div>
+
+
   )
 }

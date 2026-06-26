@@ -270,11 +270,20 @@ export default function CombosManager() {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre *</label>
-                <input type="text" name="nombre" placeholder="Ej: Combo Tradicional"
-                  value={formData.nombre} onChange={handleChange} required
+                <input
+                  type="text"
+                  name="nombre"
+                  placeholder="Ej: Combo Tradicional"
+                  value={formData.nombre}
+                  onChange={(e) => {
+                    const valor = e.target.value.slice(0, 40)  // Máximo 40 caracteres
+                    handleChange({ target: { name: 'nombre', value: valor } })
+                  }}
+                  required
                   style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
-                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }} />
+                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }}
+                />
               </div>
 
               <div>
@@ -285,17 +294,11 @@ export default function CombosManager() {
                   <div style={{ position: 'relative' }}>
                     <input
                       type="text"
-                      name="nombre"
-                      placeholder="Ej: Combo Tradicional"
-                      value={formData.nombre}
-                      onChange={(e) => {
-                        const valor = e.target.value.slice(0, 40)  // Máximo 40 caracteres
-                        handleChange({ target: { name: 'nombre', value: valor } })
-                      }}
-                      required
-                      style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
-                      onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
-                      onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }}
+                      placeholder="Buscar y agregar producto..."
+                      value={buscarProducto}
+                      onChange={e => { setBuscarProducto(e.target.value); setShowProductoPicker(true); }}
+                      onFocus={() => setShowProductoPicker(true)}
+                      style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px 10px 38px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                     />
                     <Search size={14} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
                   </div>

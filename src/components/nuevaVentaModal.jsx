@@ -183,7 +183,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               style={{ padding: "8px 12px" }}
                               className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm"
                             >
-                              <span>{c.Cli_Nombre}</span>
+                              <span>{c.Cli_Nombre} -</span>
                               <span className="text-xs text-slate-400 ml-2">{c.Cli_identificacion || 'S/N'}</span>
 
                             </li>

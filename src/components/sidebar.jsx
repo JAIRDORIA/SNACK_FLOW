@@ -18,6 +18,14 @@ import {
   FileText,
 } from 'lucide-react'
 
+import RutaAdminPrincipal from '@/components/RutaAdminPrincipal'
+
+<Route path="/auditoria" element={
+  <RutaAdminPrincipal>
+    <Auditoria />
+  </RutaAdminPrincipal>
+} />
+
 const menuPrincipal = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
   { id: 'ventas', label: 'Ventas', icon: ShoppingCart, path: '/ventas' },
@@ -26,7 +34,7 @@ const menuPrincipal = [
   { id: 'proveedores', label: 'Proveedores', icon: Truck, path: '/proveedores' },
   { id: 'balance', label: 'Balance', icon: Scale, path: '/balance' },
   { id: 'abonos', label: 'Abonos', icon: DollarSign, path: '/abonos' },
-  {id:'auditoria',label: 'Auditoría', icon: FileText, path: '/auditoria'},
+  { id: 'auditoria', label: 'Auditoría', icon: FileText, path: '/auditoria', soloAdmin: true },
 ]
 
 const inventarioSubMenu = [
@@ -35,10 +43,9 @@ const inventarioSubMenu = [
   { id: 'inventario-combos', label: 'Combos', icon: Layers, path: '/inventario/combos' },
 ]
 
-export default function Sidebar({
-  sidebarAbierto,
-  setSidebarAbierto
-}) {
+export default function Sidebar({ sidebarAbierto, setSidebarAbierto }) {
+  const usuario = JSON.parse(localStorage.getItem('usuario') || '{}')
+  const esAdminPrincipal = usuario?.id === 1
   const location = useLocation()
 
   const inventarioActivo = location.pathname.startsWith('/inventario')
@@ -221,7 +228,7 @@ export default function Sidebar({
         </div>
 
         {/* Resto del menú */}
-        {menuPrincipal.slice(2).map((item) => {
+        {menuPrincipal.slice(2).filter(item => !item.soloAdmin || esAdminPrincipal).map((item) => {
           const Icon = item.icon
           return (
             <NavLink

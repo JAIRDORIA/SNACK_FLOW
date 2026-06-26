@@ -65,8 +65,8 @@ export default function CustomersManager() {
       fetchCustomers()
       setToast({ mensaje: 'Cliente creado correctamente', tipo: 'success' })
     } catch (err) {
-      console.error(err)
-      alert('Error al guardar cliente')
+      const mensaje = err.response?.data?.mensaje || 'Error al guardar cliente'
+      setToast({ mensaje, tipo: 'error' })
     }
   }
 
@@ -103,8 +103,8 @@ export default function CustomersManager() {
       fetchCustomers()
       setToast({ mensaje: 'Cliente actualizado correctamente', tipo: 'success' })
     } catch (err) {
-      console.error(err)
-      alert('Error al actualizar')
+      const mensaje = err.response?.data?.mensaje || 'Error al actualizar'
+      setToast({ mensaje, tipo: 'error' })
     }
   }
 
@@ -342,8 +342,19 @@ export default function CustomersManager() {
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Teléfono</label>
-                <input style={{ padding: "8px 12px" }} type="text" value={createForm.telefono} onChange={e => setCreateForm({ ...createForm, telefono: e.target.value })} placeholder="3001234567" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
-              </div>
+                <input
+                  style={{ padding: "8px 12px" }}
+                  type="text"
+                  value={createForm.telefono}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[^0-9+]/g, '')   // Solo permite números y el símbolo '+'
+                      .slice(0, 15)              // Máximo 15 caracteres
+                    setCreateForm({ ...createForm, telefono: valor })
+                  }}
+                  placeholder="3001234567"
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />              </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Dirección</label>
                 <input style={{ padding: "8px 12px" }} type="text" value={createForm.direccion} onChange={e => setCreateForm({ ...createForm, direccion: e.target.value })} placeholder="Calle 123" className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
@@ -470,8 +481,19 @@ export default function CustomersManager() {
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Teléfono</label>
-                <input type="text" value={editingCustomer.telefono} onChange={e => setEditingCustomer({ ...editingCustomer, telefono: e.target.value })} placeholder="3001234567" style={{ padding: "8px 12px" }} className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />
-              </div>
+                <input
+                  type="text"
+                  value={editingCustomer.telefono}
+                  onChange={e => {
+                    const valor = e.target.value
+                      .replace(/[^0-9+]/g, '')
+                      .slice(0, 15)
+                    setEditingCustomer({ ...editingCustomer, telefono: valor })
+                  }}
+                  placeholder="3001234567"
+                  style={{ padding: "8px 12px" }}
+                  className="w-full mt-1 border rounded-lg px-3 py-2 text-sm"
+                />              </div>
               <div>
                 <label className="text-xs font-semibold text-gray-500 uppercase">Dirección</label>
                 <input type="text" value={editingCustomer.direccion} onChange={e => setEditingCustomer({ ...editingCustomer, direccion: e.target.value })} placeholder="Calle 123" style={{ padding: "8px 12px" }} className="w-full mt-1 border rounded-lg px-3 py-2 text-sm" />

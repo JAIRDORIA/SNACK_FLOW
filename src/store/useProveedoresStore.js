@@ -11,8 +11,10 @@ const useProveedoresStore = create((set, get) => ({
     try {
       const res = await getProveedores()
       // El backend devuelve un array directo; normalizamos 'id' → 'id_proveedor'
-      const lista = (Array.isArray(res.data) ? res.data : res.data.proveedores ?? [])
-        .map(p => ({ ...p, id_proveedor: p.id_proveedor ?? p.id }))
+      const lista = (res.data?.datos || []).map(p => ({
+  ...p,
+  id_proveedor: p.id_proveedor ?? p.id   // normalización
+}))
       set({ proveedores: lista, cargando: false })
     } catch (err) {
       set({ error: err.response?.data?.error || err.response?.data?.mensaje || 'Error al cargar proveedores', cargando: false })

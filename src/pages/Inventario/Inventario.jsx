@@ -234,7 +234,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
                 Cantidad (bandejas)
               </label>
               <input type="number" name="cantidad" value={form.cantidad} onChange={change}
-                min="1" placeholder="Ej: 10"
+                min="1" placeholder="Ej: 10" maxLength={5}
                 style={inputCss}
                 onFocus={e => e.target.style.borderColor = '#4f46e5'}
                 onBlur={e => e.target.style.borderColor = '#e2e8f0'}
@@ -245,7 +245,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
                 Unidades sueltas
               </label>
               <input type="number" name="unidades_sueltas" value={form.unidades_sueltas} onChange={change}
-                min="0" placeholder="Ej: 5"
+                min="0" placeholder="Ej: 5" maxLength={5}
                 style={inputCss}
                 onFocus={e => e.target.style.borderColor = '#4f46e5'}
                 onBlur={e => e.target.style.borderColor = '#e2e8f0'}
@@ -278,7 +278,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
               Observación <span style={{ color: '#94a3b8', fontWeight: 400 }}>(opcional)</span>
             </label>
             <textarea name="observacion" value={form.observacion} onChange={change}
-              placeholder="Ej: Producción del lunes..."
+              placeholder="Ej: Producción del lunes..." maxLength={100}
               rows={3}
               style={{ ...inputCss, resize: 'vertical', lineHeight: '1.5' }}
               onFocus={e => e.target.style.borderColor = '#4f46e5'}
@@ -572,7 +572,7 @@ export default function Inventario() {
         <div className="border-b border-slate-100 flex gap-4 items-center flex-wrap" style={{ padding: '12px' }}>
           <div className="relative flex-1 max-w-md" style={{ minWidth: isMobile ? '100%' : '280px' }}>
             <input type="text" placeholder="Buscar por ID o producto..."
-              value={busqueda} onChange={e => setBusqueda(e.target.value)}
+              value={busqueda} onChange={e => setBusqueda(e.target.value)} maxLength={50}
               style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
               className="w-full border border-slate-200 rounded-xl text-sm outline-none text-slate-700 bg-white focus:border-indigo-400 focus:ring-3 focus:ring-indigo-50 transition-all placeholder:text-slate-400"
             />

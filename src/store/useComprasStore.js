@@ -58,6 +58,7 @@ const useComprasStore = create((set, get) => ({
       proveedor_id: data.id_proveedor,
       total:        data.costo_total,
       fecha:        data.fecha_compra,
+      medio_pago:   data.medio_pago || 'efectivo',
       descripcion:  data.descripcion || '',
       usuario_id,
     }

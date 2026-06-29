@@ -3,7 +3,7 @@ import {
   Plus, Search, Pencil, Trash2, X,
   AlertTriangle, ShoppingBag, DollarSign,
   Calendar, Truck, SlidersHorizontal, ChevronDown,
-  TrendingDown, BarChart3, CheckCircle2, FileText, Info
+  TrendingDown, BarChart3, CheckCircle2, FileText, Info,CreditCard
 } from 'lucide-react'
 import useComprasStore from '@/store/useComprasStore'
 import useProveedoresStore from '@/store/useProveedoresStore'
@@ -71,14 +71,15 @@ const responsiveStyles = `
 function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
   const [form, setForm] = useState({
     id_proveedor: compra?.id_proveedor || '',
-    descripcion:  compra?.descripcion  || '',
-    costo_total:  compra?.costo_total  || '',
+    descripcion: compra?.descripcion || '',
+    costo_total: compra?.costo_total || '',
     fecha_compra: compra?.fecha_compra
       ? compra.fecha_compra.slice(0, 10)
       : new Date().toISOString().slice(0, 10),
+    medio_pago: compra?.medio_pago || 'efectivo'
   })
   const [guardando, setGuardando] = useState(false)
-  const [errForm,   setErrForm]   = useState(null)
+  const [errForm, setErrForm] = useState(null)
 
   const handleChange = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -102,7 +103,7 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
     border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px',
     color: '#0f172a', background: '#fafafa', outline: 'none', transition: 'all 0.15s', fontFamily: 'inherit'
   }
-  const focusIn  = (e) => { e.target.style.border = '1.5px solid #5842ff'; e.target.style.background = '#ffffff' }
+  const focusIn = (e) => { e.target.style.border = '1.5px solid #5842ff'; e.target.style.background = '#ffffff' }
   const focusOut = (e) => { e.target.style.border = '1.5px solid #e2e8f0'; e.target.style.background = '#fafafa' }
 
   return (
@@ -188,6 +189,24 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
               </div>
             </div>
           </div>
+          {/* Medio de pago */}
+          <div>
+            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              Medio de pago <span style={{ color: '#f43f5e' }}>*</span>
+            </label>
+            <div style={{ position: 'relative' }}>
+              <CreditCard size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <ChevronDown size={14} color="#cbd5e1" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
+              <select name="medio_pago" value={form.medio_pago} onChange={handleChange}
+                style={{ ...inputBase, appearance: 'none', cursor: 'pointer', paddingRight: '36px' }}
+                onFocus={focusIn} onBlur={focusOut}>
+                <option value="efectivo">Efectivo</option>
+                <option value="transferencia">Transferencia</option>
+                <option value="otro">Otro</option>
+              </select>
+            </div>
+          </div>
+
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '10px' }}>
             <Info size={15} color="#94a3b8" style={{ flexShrink: 0 }} />
@@ -268,11 +287,11 @@ export default function Compras() {
   const { proveedores, fetchProveedores } = useProveedoresStore()
   const { balance } = useDashboardStore()
 
-  const [busqueda,        setBusqueda]        = useState('')
-  const [modalFormOpen,   setModalFormOpen]   = useState(false)
-  const [compraEditar,    setCompraEditar]    = useState(null)
-  const [compraEliminar,  setCompraEliminar]  = useState(null)
-  const [panelFiltro,     setPanelFiltro]     = useState(false)
+  const [busqueda, setBusqueda] = useState('')
+  const [modalFormOpen, setModalFormOpen] = useState(false)
+  const [compraEditar, setCompraEditar] = useState(null)
+  const [compraEliminar, setCompraEliminar] = useState(null)
+  const [panelFiltro, setPanelFiltro] = useState(false)
   const [filtroProveedor, setFiltroProveedor] = useState('')
   const filtroRef = useRef(null)
 
@@ -292,23 +311,23 @@ export default function Compras() {
     return () => document.removeEventListener('mousedown', fn)
   }, [])
 
-  const fmt      = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v)
+  const fmt = (v) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v)
   const fmtFecha = (f) => f ? new Date(f).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
   const lista = compras.filter(c => {
-    const q      = busqueda.toLowerCase()
+    const q = busqueda.toLowerCase()
     const matchQ = c.nombre_proveedor?.toLowerCase().includes(q) || c.descripcion?.toLowerCase().includes(q) || String(c.costo_total).includes(q)
     const matchP = !filtroProveedor || c.id_proveedor === Number(filtroProveedor)
     return matchQ && matchP
   })
 
   const totalCompras = lista.reduce((acc, c) => acc + (c.costo_total || 0), 0)
-  const promedio     = lista.length ? totalCompras / lista.length : 0
-  const nFiltros     = filtroProveedor ? 1 : 0
+  const promedio = lista.length ? totalCompras / lista.length : 0
+  const nFiltros = filtroProveedor ? 1 : 0
 
-  const abrirCrear    = () => { setCompraEditar(null); setModalFormOpen(true) }
-  const abrirEditar   = (c) => { setCompraEditar(c); setModalFormOpen(true) }
-  const cerrarForm    = () => { setModalFormOpen(false); setCompraEditar(null) }
+  const abrirCrear = () => { setCompraEditar(null); setModalFormOpen(true) }
+  const abrirEditar = (c) => { setCompraEditar(c); setModalFormOpen(true) }
+  const cerrarForm = () => { setModalFormOpen(false); setCompraEditar(null) }
   const handleGuardar = async (data) => {
     if (compraEditar) await editarCompra(compraEditar.id_compra, data)
     else await crearCompra(data)
@@ -341,9 +360,9 @@ export default function Compras() {
       {/* ═══ KPI CARDS ═══ */}
       <div className="grid-kpi">
         {[
-          { icon: <ShoppingBag size={20} color="#8b5cf6" />, borderColor: '#8b5cf6', value: lista.length,  label: 'Total Compras',     isMoney: false },
-          { icon: <TrendingDown size={20} color="#f43f5e" />, borderColor: '#f43f5e', value: totalCompras, label: 'Total Egresado',    isMoney: true  },
-          { icon: <BarChart3 size={20} color="#f59e0b" />,    borderColor: '#f59e0b', value: promedio,     label: 'Promedio x Compra', isMoney: true  },
+          { icon: <ShoppingBag size={20} color="#8b5cf6" />, borderColor: '#8b5cf6', value: lista.length, label: 'Total Compras', isMoney: false },
+          { icon: <TrendingDown size={20} color="#f43f5e" />, borderColor: '#f43f5e', value: totalCompras, label: 'Total Egresado', isMoney: true },
+          { icon: <BarChart3 size={20} color="#f59e0b" />, borderColor: '#f59e0b', value: promedio, label: 'Promedio x Compra', isMoney: true },
         ].map((card, i) => (
           <div key={i} style={{ background: '#1a1b26', borderRadius: '16px', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: '12px', border: `1.5px solid ${card.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

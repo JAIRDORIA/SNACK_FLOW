@@ -11,9 +11,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const {
     clientes, cortes, productos,
     clienteId, corteId, fechaEntrega, horaEntrega,
-    detalle,enviando, exito, errorMsg, cargandoDatos, errorDatos,
+    detalle, enviando, exito, errorMsg, cargandoDatos, errorDatos,
     cargarDatos, setClienteId, setCorteId, setFechaEntrega, setHoraEntrega,
-    agregarProducto, eliminarProducto, pagarTotal, resetFormulario,registrarVenta,
+    agregarProducto, eliminarProducto, pagarTotal, resetFormulario, registrarVenta,
     totalVenta, caso, saldoPendiente, cargarCombos, combos, agregarItem, abonosIniciales, agregarAbonoInicial, eliminarAbonoInicial, modificarAbonoInicial, totalAbonado
   } = useNuevaVentaStore()
   const { balance, fetchBalance } = useBalanceStore()
@@ -27,6 +27,10 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [clientesFiltrados, setClientesFiltrados] = useState([])
   const [seleccionado, setSeleccionado] = useState(false)
   const [mostrarInfoCombo, setMostrarInfoCombo] = useState(false)
+  const [montosLocales, setMontosLocales] = useState([])
+  useEffect(() => {
+    setMontosLocales(abonosIniciales.map(a => a.monto?.toString() || ''))
+  }, [abonosIniciales])
 
   const todosLosItems = useMemo(() => {
     const prods = productos.map(p => ({ ...p, tipo: 'producto' }))
@@ -399,15 +403,24 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             </div>
 
             {abonosIniciales.map((abono, index) => (
-              <div key={index} style={{ marginBottom: "8px",padding:"12px" }} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-2">
+              <div key={index} style={{ marginBottom: "8px", padding: "12px" }} className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-2">
                 <div>
                   <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Monto</label>
                   <input
                     type="number"
                     min="0"
                     max={totalVenta()}
-                    value={abono.monto}
-                    onChange={e => modificarAbonoInicial(index, 'monto', Number(e.target.value))}
+                    value={montosLocales[index] ?? ''}
+                    onChange={(e) => {
+                      const nuevos = [...montosLocales]
+                      nuevos[index] = e.target.value
+                      setMontosLocales(nuevos)
+                    }}
+                    onBlur={() => {
+                      const val = parseFloat(montosLocales[index]) || 0
+                      const clamped = Math.min(Math.max(val, 0), totalVenta())
+                      modificarAbonoInicial(index, 'monto', clamped)
+                    }}
                     style={{ padding: "8px" }}
                     className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
                   />
@@ -457,7 +470,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               <span className="font-medium text-emerald-600">${(totalAbonado() || 0).toLocaleString('es-CO')}</span>
             </div>
             {abonosIniciales.length > 0 && (
-              <div style={{marginTop:"4px"}} className="flex justify-between text-sm mt-1">
+              <div style={{ marginTop: "4px" }} className="flex justify-between text-sm mt-1">
                 <span className="text-slate-600">Total abonado</span>
                 <span className="font-medium text-emerald-600">
                   ${(totalAbonado() || 0).toLocaleString('es-CO')}
@@ -465,7 +478,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               </div>
             )}
             {saldoPendiente() > 0 && (
-              <div style={{marginTop:"4px"}} className="flex justify-between text-sm mt-1">
+              <div style={{ marginTop: "4px" }} className="flex justify-between text-sm mt-1">
                 <span className="text-slate-600">Saldo pendiente</span>
                 <span className="font-medium text-amber-600">
                   ${saldoPendiente().toLocaleString('es-CO')}

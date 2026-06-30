@@ -627,10 +627,21 @@ export default function Header({ setSidebarAbierto }) {
     <>
       <header style={{ padding: '20px 17px' }} className="bg-white border-b-2 border-gray-300 shadow-sm flex items-center justify-between shrink-0">
         <div className="flex items-center gap-4">
-          <button className="block lg:hidden" onClick={() => setSidebarAbierto(true)}
-            style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Menu size={24} />
-          </button>
+          {isMobile && (
+            <button
+              onClick={() => setSidebarAbierto(true)}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Menu size={24} />
+            </button>
+          )}
           <span className="text-base md:text-lg lg:text-xl text-indigo-600 font-bold">{paginaActual}</span>
           <div className="hidden md:block" style={{ width: '1px', height: '35px', background: '#8e8f94' }} />
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '6px', fontSize: '14px' }}>

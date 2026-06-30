@@ -435,7 +435,7 @@ export default function Compras() {
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
             <thead>
               <tr style={{ background: '#fafbfc', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                {['ID', 'PROVEEDOR', 'DESCRIPCIÓN', 'COSTO TOTAL', 'FECHA', 'ACCIONES'].map(h => (
+                {['ID', 'PROVEEDOR', 'DESCRIPCIÓN', 'COSTO TOTAL', 'FECHA','MEDIO DE PAGO', 'ACCIONES'].map(h => (
                   <th key={h} style={{ padding: '14px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
@@ -463,6 +463,9 @@ export default function Compras() {
                   </td>
                   <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
                     {fmtFecha(c.fecha_compra)}
+                  </td>
+                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
+                    {c.medio_pago || <span style={{ color: '#cbd5e1' }}>—</span>}
                   </td>
                   <td style={{ padding: '16px 24px' }}>
                     <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>

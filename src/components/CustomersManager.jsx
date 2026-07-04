@@ -278,10 +278,7 @@ export default function CustomersManager() {
             </div>
             <form onSubmit={(e) => {
               e.preventDefault()
-              if (!createForm.nombres || !createForm.apellidos || !createForm.telefono) {
-                alert('Nombres, apellidos y teléfono son obligatorios')
-                return
-              }
+              
               const nombreCompleto = `${createForm.nombres.trim()} ${createForm.apellidos.trim()}`
               handleCreate({
                 nombre: nombreCompleto,

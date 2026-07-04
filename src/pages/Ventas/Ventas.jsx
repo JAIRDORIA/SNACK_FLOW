@@ -31,6 +31,7 @@ import useAbonosStore from "@/store/useAbonoStore";
 import useDashboardStore from "@/store/useDashboardStore";
 import useEditarVentaStore from "@/store/useEditarVentaStore";
 import EditarVentaModal from "@/components/EditarVentaModal";
+import { capitalizarNombre } from '@/utils/formatearTexto'
 
 // ══════════════════════════════════════════
 // CONFIGURACION DE ESTILOS
@@ -795,7 +796,7 @@ export default function Ventas() {
                         style={{ padding: "16px 24px" }}
                         className="text-slate-700 font-medium text-sm"
                       >
-                        {v.nombre_cliente}
+                        {capitalizarNombre(v.nombre_cliente)}
                       </td>
                       <td
                         style={{ padding: "16px 24px" }}

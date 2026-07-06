@@ -4,6 +4,7 @@ import {
 } from 'lucide-react'
 import useNuevaVentaStore from '@/store/useNuevaVentaStore'
 import useBalanceStore from '@/store/useBalanceStore'
+import { formatearFechaColombia } from '@/utils/formatearFecha'
 
 const MEDIOS_PAGO = ['efectivo', 'transferencia', 'otro']
 
@@ -117,6 +118,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     )
     setClientesFiltrados(filtrados)
   }, [textoBusquedaCliente, clientes, seleccionado])
+  const fechaMinimaEntrega = balance?.fecha_inicio
+  ? formatearFechaColombia(balance.fecha_inicio, false).split('/').reverse().join('-')
+  : ''
 
   if (!open) return null
   return (
@@ -228,7 +232,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   type="date"
                   value={fechaEntrega}
                   onChange={e => setFechaEntrega(e.target.value)}
-                  min={balance?.fecha_inicio?.split(' ')[0] || ''}
+                  min={fechaMinimaEntrega}
                   className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
                   style={{ padding: "8px" }}
                 />

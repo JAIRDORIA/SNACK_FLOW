@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef,useMemo } from 'react'
 import {
   X, Plus, Trash2, AlertCircle, Loader2, CheckCircle2
 } from 'lucide-react'
@@ -15,12 +15,13 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
   } = useEditarVentaStore()
 
   // Para el selector de productos (usamos el store de nueva venta que ya tiene los productos)
-  const { productos, cargarDatos } = useNuevaVentaStore()
+  const { productos, combos, cargarDatos, cargarCombos } = useNuevaVentaStore()
   const selectProductoRef = useRef(null)
 
   useEffect(() => {
     if (open) {
-      cargarDatos() // para tener productos disponibles
+      cargarDatos() 
+      cargarCombos()// para tener productos disponibles
     }
   }, [open])
 
@@ -33,24 +34,36 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
   }, [open, ventaId])
 
   const handleAgregarProducto = () => {
-    const select = selectProductoRef.current
-    if (!select || !select.value) return
-    const prodId = Number(select.value)
-    const prod = productos.find(p => p.id === prodId)
-    if (!prod) return
-    const cantidad = 1 // cantidad por defecto
-    const precioUnitario = parseFloat(prod.precio_venta)
-     agregarItem({
-    tipo: 'producto',
-    producto_id: prod.id,
-    combo_id: null,
-    nombre_producto: prod.nombre,
+  const select = selectProductoRef.current
+  if (!select || !select.value) return
+  
+  const itemId = Number(select.value)
+  // Buscar en productos y combos combinados
+  const item = todosLosItems.find(i => i.id === itemId && i.tipo === (itemSeleccionado?.tipo || 'producto'))
+  
+  if (!item) {
+    console.error('Item no encontrado con id:', itemId)
+    return
+  }
+  
+  const cantidad = Number(document.getElementById('cantidad-producto').value) || 1
+  const precioUnitario = parseFloat(item.precio_venta || item.precio)
+  
+  // ✅ Usar el tipo real del item (producto o combo)
+  agregarItem({
+    tipo: item.tipo,                           // ← Esto es lo que fallaba
+    producto_id: item.tipo === 'producto' ? item.id : null,
+    combo_id: item.tipo === 'combo' ? item.id : null,  // ← Y esto también
+    nombre_producto: item.nombre,
     cantidad: cantidad,
     precio_unitario: precioUnitario,
   })
-    select.value = ''
-  }
-
+  
+  select.value = ''
+  document.getElementById('cantidad-producto').value = '1'
+  setItemSeleccionado(null)
+  setTextoBusqueda('')
+}
   const handleGuardar = async () => {
     const ok = await guardarCambios()
     if (ok) {
@@ -60,6 +73,12 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
       }, 1000)
     }
   }
+
+  const todosLosItems = useMemo(() => {
+  const prods = productos.map(p => ({ ...p, tipo: 'producto' }))
+  const combs = combos.map(c => ({ ...c, tipo: 'combo', precio_venta: c.precio }))
+  return [...prods, ...combs]
+}, [productos, combos])
 
   if (!open) return null
 
@@ -117,16 +136,15 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
             <div style={{marginBottom:"12px"}} className="flex flex-wrap items-end gap-2 ">
               <div className="flex-1 min-w-[160px]">
                 <label style={{marginBottom:"4px"}} className="block text-xs text-slate-500 mb-1">Producto</label>
-                <select
-                  ref={selectProductoRef}
-                  style={{padding:"8px"}}
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
-                >
-                  <option value="">Seleccionar producto...</option>
-                  {productos.map(p => (
-                    <option key={p.id} value={p.id}>{p.nombre} - ${parseFloat(p.precio_venta).toLocaleString('es-CO')}</option>
-                  ))}
-                </select>
+                <select ref={selectProductoRef} style={{padding:"8px"}}
+                  className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400">
+  <option value="">Seleccionar producto o combo...</option>
+  {todosLosItems.map(item => (
+    <option key={`${item.tipo}-${item.id}`} value={item.id}>
+      {item.nombre} ({item.tipo === 'combo' ? 'Combo' : 'Producto'})
+    </option>
+  ))}
+</select>
               </div>
               <button
                 onClick={handleAgregarProducto}

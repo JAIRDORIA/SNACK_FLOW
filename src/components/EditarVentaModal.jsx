@@ -39,7 +39,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
   
   const itemId = Number(select.value)
   // Buscar en productos y combos combinados
-  const item = todosLosItems.find(i => i.id === itemId && i.tipo === (itemSeleccionado?.tipo || 'producto'))
+  const item = todosLosItems.find(i => i.id === itemId)
   
   if (!item) {
     console.error('Item no encontrado con id:', itemId)

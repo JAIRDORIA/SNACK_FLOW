@@ -730,7 +730,7 @@ export default function Ventas() {
               <tr className="bg-slate-50/80">
                 {[
                   "ID Venta",
-                  "Fecha",
+                  "Fecha de Entrega",
                   "Cliente",
                   "Total",
                   "Pagada",

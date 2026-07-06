@@ -618,10 +618,7 @@ export default function Header({ setSidebarAbierto }) {
 
   const cerrarSesion = () => { localStorage.removeItem('access_token'); navigate('/login') }
 
-  const fechaCorte = balance?.fecha_inicio
-    ? new Date(balance.fecha_inicio).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' })
-    : '...'
-
+  
   const paginaActual = nombresPagina[location.pathname] ?? 'Dashboard'
 
   return (
@@ -639,7 +636,7 @@ export default function Header({ setSidebarAbierto }) {
             <span style={{ color: '#6b7280' }}>Corte</span>
             <span style={{ fontWeight: 600, color: '#111827' }}>#{balance?.corte_numero ?? '...'}</span>
             <span style={{ color: '#6b7280' }}>empezó el</span>
-            <span style={{ fontWeight: 600, color: '#111827' }}> {formatearFechaColombia(fechaCorte)}</span>
+            <span style={{ fontWeight: 600, color: '#111827' }}>  {formatearFechaColombia(balance?.fecha_inicio, false)}</span>
           </div>
         </div>
 

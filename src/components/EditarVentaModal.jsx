@@ -10,8 +10,8 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
     ventaId, fechaEntrega, horaEntrega, detalle,
     cargando, error, exito,
     cargarVenta, setFechaEntrega, setHoraEntrega,
-    modificarProducto, eliminarProducto, agregarProducto,
-    totalActual, guardarCambios, reset,
+    modificarProducto, eliminarProducto, 
+    totalActual, guardarCambios, reset,agregarItem
   } = useEditarVentaStore()
 
   // Para el selector de productos (usamos el store de nueva venta que ya tiene los productos)
@@ -40,7 +40,14 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
     if (!prod) return
     const cantidad = 1 // cantidad por defecto
     const precioUnitario = parseFloat(prod.precio_venta)
-    agregarProducto(prod.id, prod.nombre, cantidad, precioUnitario)
+     agregarItem({
+    tipo: 'producto',
+    producto_id: prod.id,
+    combo_id: null,
+    nombre_producto: prod.nombre,
+    cantidad: cantidad,
+    precio_unitario: precioUnitario,
+  })
     select.value = ''
   }
 

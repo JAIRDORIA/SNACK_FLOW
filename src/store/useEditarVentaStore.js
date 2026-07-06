@@ -32,7 +32,9 @@ const useEditarVentaStore = create((set, get) => ({
         fechaEntrega: fecha || '',
         horaEntrega: hora?.slice(0, 5) || '', // HH:MM
         detalle: (data.detalle || []).map(d => ({
-          producto_id: d.producto_id,
+          tipo: d.tipo || 'producto',
+          producto_id: d.tipo === 'combo' ? null : d.producto_id,
+          combo_id: d.tipo === 'combo' ? d.combo_id : null,
           nombre_producto: d.nombre_producto,
           cantidad: d.cantidad,
           precio_unitario: d.precio_unitario,
@@ -52,16 +54,9 @@ const useEditarVentaStore = create((set, get) => ({
   },
 
   // Agregar nuevo producto
-  agregarProducto: (productoId, nombreProducto, cantidad, precioUnitario) => {
-    set((state) => ({
-      detalle: [...state.detalle, {
-        producto_id: productoId,
-        nombre_producto: nombreProducto,
-        cantidad,
-        precio_unitario: precioUnitario,
-      }],
-    }))
-  },
+  agregarItem: (item) => {
+    set((state) => ({ detalle: [...state.detalle, item] }))
+ },
 
   // Eliminar producto
   eliminarProducto: (index) => {
@@ -100,7 +95,16 @@ const useEditarVentaStore = create((set, get) => ({
 
     try {
       // 1. Actualizar detalle
-      await axios.put(`/ventas/${ventaId}/detalle`, { detalle })
+      await axios.put(`/ventas/${ventaId}/detalle`, {
+        detalle: detalle.map(d => ({
+          tipo: d.tipo || 'producto',
+          producto_id: d.tipo === 'combo' ? null : d.producto_id,
+          combo_id: d.tipo === 'combo' ? d.combo_id : null,
+          nombre_producto: d.nombre_producto,
+          cantidad: d.cantidad,
+          precio_unitario: d.precio_unitario,
+        }))
+      })
 
       // 2. Actualizar fecha si cambió (opcional)
       const horaConSegundos = horaEntrega ? `${horaEntrega}:00` : '00:00:00'

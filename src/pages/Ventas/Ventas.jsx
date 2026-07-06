@@ -992,7 +992,7 @@ export default function Ventas() {
                 onClick={() => setEliminarId(null)}
                 disabled={anulando}
                 className="flex-1 py-3 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-all"
-                style={{ cursor: anulando ? 'not-allowed' : 'pointer' }}
+                style={{ cursor: anulando ? 'not-allowed' : 'pointer',padding:"12px 0px" }}
               >
                 Cancelar
               </button>
@@ -1000,7 +1000,7 @@ export default function Ventas() {
                 onClick={handleAnularVenta}
                 disabled={anulando}
                 className="flex-1 py-3 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
-                style={{ cursor: anulando ? 'not-allowed' : 'pointer' }}
+                style={{ cursor: anulando ? 'not-allowed' : 'pointer' ,padding:"12px 0px" }}
               >
                 {anulando ? 'Anulando...' : 'Sí, anular'}
               </button>

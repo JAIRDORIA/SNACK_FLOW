@@ -32,6 +32,7 @@ import useDashboardStore from "@/store/useDashboardStore";
 import useEditarVentaStore from "@/store/useEditarVentaStore";
 import EditarVentaModal from "@/components/EditarVentaModal";
 import { capitalizarNombre } from '@/utils/formatearTexto'
+import { formatearFechaColombia } from "@/utils/formatearFecha";
 
 // ══════════════════════════════════════════
 // CONFIGURACION DE ESTILOS
@@ -790,7 +791,7 @@ export default function Ventas() {
                         style={{ padding: "16px 24px" }}
                         className=" text-slate-500 text-sm whitespace-nowrap"
                       >
-                        {v.fecha_entrega}
+                        {formatearFechaColombia(v.fecha_entrega) }
                       </td>
                       <td
                         style={{ padding: "16px 24px" }}

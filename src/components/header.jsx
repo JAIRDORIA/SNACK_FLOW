@@ -3,6 +3,7 @@ import { Calendar, LogOut, Users, Plus, X, Eye, EyeOff, Trash2, Shield, Pencil, 
 import { useLocation, useNavigate } from 'react-router-dom'
 import useDashboardStore from '@/store/useDashboardStore'
 import api from '@/api/axios'
+import { formatearFechaColombia } from '@/utils/formatearFecha'
 
 const nombresPagina = {
   '/': 'Dashboard',
@@ -638,7 +639,7 @@ export default function Header({ setSidebarAbierto }) {
             <span style={{ color: '#6b7280' }}>Corte</span>
             <span style={{ fontWeight: 600, color: '#111827' }}>#{balance?.corte_numero ?? '...'}</span>
             <span style={{ color: '#6b7280' }}>empezó el</span>
-            <span style={{ fontWeight: 600, color: '#111827' }}>{fechaCorte}</span>
+            <span style={{ fontWeight: 600, color: '#111827' }}> {formatearFechaColombia(fechaCorte)}</span>
           </div>
         </div>
 

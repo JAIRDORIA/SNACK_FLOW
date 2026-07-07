@@ -19,6 +19,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
   const selectProductoRef = useRef(null)
   const [itemSeleccionadoId, setItemSeleccionadoId] = useState(null)
   const [cantidad, setCantidad] = useState(1)
+  const [selectValue, setSelectValue] = useState('');
 
   useEffect(() => {
     if (open) {
@@ -34,15 +35,17 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
       reset()
     }
   }, [open, ventaId])
+  const handleAgregarProducto = (tipoId) => {
+    if (!tipoId) return;
 
-  const handleAgregarProducto = (id) => {
-    if (!id) return
+    const [tipo, idStr] = tipoId.split('-');
+    const id = Number(idStr);
 
-    const item = todosLosItems.find(i => i.id === id)
-    if (!item) return
+    const item = todosLosItems.find(i => i.tipo === tipo && i.id === id);
+    if (!item) return;
 
-    const cantidadFinal = cantidad || 1
-    const precioUnitario = parseFloat(item.precio_venta || item.precio)
+    const cantidadFinal = cantidad || 1;
+    const precioUnitario = parseFloat(item.precio_venta || item.precio);
 
     agregarItem({
       tipo: item.tipo,
@@ -51,12 +54,11 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
       nombre_producto: item.nombre,
       cantidad: cantidadFinal,
       precio_unitario: precioUnitario,
-    })
+    });
 
-    // Limpiar
-    document.getElementById('cantidad-producto').value = '1'
-    setItemSeleccionadoId(null)
-    if (selectProductoRef.current) selectProductoRef.current.value = ''
+    // Limpiar selección
+    setSelectValue('');
+    setCantidad(1);
   }
   const handleGuardar = async () => {
     const ok = await guardarCambios()
@@ -132,12 +134,16 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
                 <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Producto</label>
                 <select
                   ref={selectProductoRef}
-                  onChange={(e) => setItemSeleccionadoId(Number(e.target.value))}
+                  value={selectValue}
+                  onChange={(e) => {
+                    setSelectValue(e.target.value);
+                    setItemSeleccionadoId(Number(e.target.value));
+                  }}
                   style={{ padding: "8px" }}
                   className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400">
                   <option value="">Seleccionar producto o combo...</option>
                   {todosLosItems.map(item => (
-                    <option key={`${item.tipo}-${item.id}`} value={item.id}>
+                    <option key={`${item.tipo}-${item.id}`} value={`${item.tipo}-${item.id}`}>
                       {item.nombre} ({item.tipo === 'combo' ? 'Combo' : 'Producto'})
                     </option>
                   ))}
@@ -155,7 +161,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
                 />
               </div>
               <button
-                onClick={() => handleAgregarProducto(itemSeleccionadoId)}
+                onClick={() => handleAgregarProducto(selectValue)}
                 disabled={!itemSeleccionadoId}
 
                 style={{ padding: "8px 16px" }}

@@ -73,7 +73,7 @@ export default function ProductosManager() {
       nombre: producto.nombre || '',
       descripcion: producto.descripcion || '',
       precio_detal: producto.precio_detal || '',
-      precio_almayor: producto.precio_almayor || '',
+      precio_almayor: producto.precio_mayor || '',
       unidades_por_bandeja: producto.unidades_por_bandeja || '',
     });
     setShowForm(true);

@@ -32,9 +32,9 @@ const useEditarVentaStore = create((set, get) => ({
         fechaEntrega: fecha || '',
         horaEntrega: hora?.slice(0, 5) || '', // HH:MM
         detalle: (data.detalle || []).map(d => ({
-          tipo: d.es_combo ? 'combo' : 'producto',
-          producto_id: d.es_combo ? null : d.producto_id,
-        combo_id: d.es_combo ? d.combo_id : null,
+          tipo: d.es_combo === 1 ? 'combo' : 'producto',
+          producto_id: d.es_combo === 1 ? null : d.producto_id,
+  combo_id: d.es_combo === 1 ? d.combo_id : null,
           nombre_producto: d.nombre_producto,
           cantidad: d.cantidad,
           precio_unitario: d.precio_unitario,

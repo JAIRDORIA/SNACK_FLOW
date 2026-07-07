@@ -133,7 +133,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
               <div className="flex-1 min-w-[160px]">
                 <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Producto</label>
                 <select
-                  ref={selectProductoRef}
+                  
                   value={selectValue}
                   onChange={(e) => {
                     setSelectValue(e.target.value);
@@ -142,6 +142,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
                   style={{ padding: "8px" }}
                   className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400">
                   <option value="">Seleccionar producto o combo...</option>
+
                   {todosLosItems.map(item => (
                     <option key={`${item.tipo}-${item.id}`} value={`${item.tipo}-${item.id}`}>
                       {item.nombre} ({item.tipo === 'combo' ? 'Combo' : 'Producto'})
@@ -162,7 +163,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
               </div>
               <button
                 onClick={() => handleAgregarProducto(selectValue)}
-                disabled={!itemSeleccionadoId}
+                disabled={!selectValue}
 
                 style={{ padding: "8px 16px" }}
                 className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"

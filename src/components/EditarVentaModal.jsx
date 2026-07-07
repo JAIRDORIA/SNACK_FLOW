@@ -17,7 +17,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
   // Para el selector de productos (usamos el store de nueva venta que ya tiene los productos)
   const { productos, combos, cargarDatos, cargarCombos } = useNuevaVentaStore()
   const selectProductoRef = useRef(null)
-  const [itemSeleccionadoId, setItemSeleccionadoId] = useState(null)
+  const [itemSeleccionado, setItemSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(1)
   const [selectValue, setSelectValue] = useState('');
 
@@ -35,31 +35,26 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
       reset()
     }
   }, [open, ventaId])
-  const handleAgregarProducto = (tipoId) => {
-    if (!tipoId) return;
+  const handleAgregarProducto = (item) => {
+  if (!item) return;
 
-    const [tipo, idStr] = tipoId.split('-');
-    const id = Number(idStr);
+  const cantidadFinal = cantidad || 1;
+  const precioUnitario = parseFloat(item.precio_venta || item.precio);
 
-    const item = todosLosItems.find(i => i.tipo === tipo && i.id === id);
-    if (!item) return;
+  agregarItem({
+    tipo: item.tipo,  // ¡Esto ahora es correcto!
+    producto_id: item.tipo === 'producto' ? item.id : null,
+    combo_id: item.tipo === 'combo' ? item.id : null,
+    nombre_producto: item.nombre,
+    cantidad: cantidadFinal,
+    precio_unitario: precioUnitario,
+  });
 
-    const cantidadFinal = cantidad || 1;
-    const precioUnitario = parseFloat(item.precio_venta || item.precio);
-
-    agregarItem({
-      tipo: item.tipo,
-      producto_id: item.tipo === 'producto' ? item.id : null,
-      combo_id: item.tipo === 'combo' ? item.id : null,
-      nombre_producto: item.nombre,
-      cantidad: cantidadFinal,
-      precio_unitario: precioUnitario,
-    });
-
-    // Limpiar selección
-    setSelectValue('');
-    setCantidad(1);
-  }
+  // Limpiar selección
+  setCantidad(1);
+  setItemSeleccionado(null);
+  if (selectProductoRef.current) selectProductoRef.current.value = '';
+};
   const handleGuardar = async () => {
     const ok = await guardarCambios()
     if (ok) {
@@ -129,20 +124,21 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
             <h3 style={{ marginBottom: "12px" }} className="text-sm font-semibold text-slate-600 mb-3">Productos</h3>
 
             {/* Agregar nuevo producto */}
+            {/* Agregar nuevo producto */}
             <div style={{ marginBottom: "12px" }} className="flex flex-wrap items-end gap-2 ">
               <div className="flex-1 min-w-[160px]">
                 <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Producto</label>
                 <select
-                  
-                  value={selectValue}
+                  ref={selectProductoRef}
                   onChange={(e) => {
-                    setSelectValue(e.target.value);
-                    setItemSeleccionadoId(Number(e.target.value));
+                    const value = e.target.value;
+                    // Buscamos el item completo usando el string compuesto tipo-id
+                    const item = todosLosItems.find(i => `${i.tipo}-${i.id}` === value);
+                    setItemSeleccionado(item);
                   }}
                   style={{ padding: "8px" }}
                   className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400">
                   <option value="">Seleccionar producto o combo...</option>
-
                   {todosLosItems.map(item => (
                     <option key={`${item.tipo}-${item.id}`} value={`${item.tipo}-${item.id}`}>
                       {item.nombre} ({item.tipo === 'combo' ? 'Combo' : 'Producto'})
@@ -150,21 +146,9 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
                   ))}
                 </select>
               </div>
-              <div className="w-20">
-                <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Cantidad</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={cantidad}
-                  onChange={e => setCantidad(Number(e.target.value))}
-                  style={{ padding: "8px" }}
-                  className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
-                />
-              </div>
               <button
-                onClick={() => handleAgregarProducto(selectValue)}
-                disabled={!selectValue}
-
+                onClick={() => handleAgregarProducto(itemSeleccionado)}
+                disabled={!itemSeleccionado}
                 style={{ padding: "8px 16px" }}
                 className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
               >

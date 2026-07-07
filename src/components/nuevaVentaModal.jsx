@@ -35,7 +35,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
   const todosLosItems = useMemo(() => {
     const prods = productos.map(p => ({ ...p, tipo: 'producto', precio_detal: p.precio_detal,
-    precio_almayor: p.precio_almayor }))
+    precio_almayor: p.precio_mayor }))
+    console.log(productos)
+    
     const combs = combos.map(c => ({ ...c, tipo: 'combo', precio_venta: c.precio })) // el backend usa 'precio' en GET /combos
     return [...prods, ...combs]
   }, [productos, combos])
@@ -302,7 +304,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                           </button>
                           <button
                             onClick={() => {
-                              const precio = parseFloat(itemSeleccionado.precio_almayor)
+                              const precio = parseFloat(itemSeleccionado.precio_mayor)
                               agregarItem({
                                 tipo: itemSeleccionado.tipo,
                                 producto_id: itemSeleccionado.id,
@@ -318,7 +320,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                             style={{ padding: "8px 12px" }}
                             className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-lg text-xs font-medium"
                           >
-                            Al mayor (${parseFloat(itemSeleccionado.precio_almayor).toLocaleString('es-CO')})
+                            Al mayor (${parseFloat(itemSeleccionado.precio_mayor).toLocaleString('es-CO')})
                           </button>
                         </>
                       ) : (
@@ -386,7 +388,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                             <>
                               <span className="text-green-600">${parseFloat(item.precio_detal).toLocaleString('es-CO')}</span>
                               <span className="mx-1 text-slate-300">|</span>
-                              <span className="text-orange-600">${parseFloat(item.precio_almayor).toLocaleString('es-CO')}</span>
+                              <span className="text-orange-600">${parseFloat(item.precio_mayor).toLocaleString('es-CO')}</span>
                             </>
                           )}
                           {item.tipo === 'combo' && (

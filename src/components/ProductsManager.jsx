@@ -293,7 +293,7 @@ export default function ProductosManager() {
                     </td>
                   </tr>
                 ) : filteredProductos.map((producto) => (
-                  console.log(producto),
+                  
                   <tr key={producto.id} style={{ borderBottom: '1px solid #f1f5f9' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                     onMouseLeave={e => e.currentTarget.style.background = 'white'}>

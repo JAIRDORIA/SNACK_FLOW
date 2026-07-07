@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo,useState } from 'react'
+import { useEffect, useRef, useMemo, useState } from 'react'
 import {
   X, Plus, Trash2, AlertCircle, Loader2, CheckCircle2
 } from 'lucide-react'
@@ -18,6 +18,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
   const { productos, combos, cargarDatos, cargarCombos } = useNuevaVentaStore()
   const selectProductoRef = useRef(null)
   const [itemSeleccionadoId, setItemSeleccionadoId] = useState(null)
+  const [cantidad, setCantidad] = useState(1)
 
   useEffect(() => {
     if (open) {
@@ -40,7 +41,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
     const item = todosLosItems.find(i => i.id === id)
     if (!item) return
 
-    const cantidad = Number(document.getElementById('cantidad-producto').value) || 1
+    const cantidadFinal = cantidad || 1
     const precioUnitario = parseFloat(item.precio_venta || item.precio)
 
     agregarItem({
@@ -48,7 +49,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
       producto_id: item.tipo === 'producto' ? item.id : null,
       combo_id: item.tipo === 'combo' ? item.id : null,
       nombre_producto: item.nombre,
-      cantidad: cantidad,
+      cantidad: cantidadFinal,
       precio_unitario: precioUnitario,
     })
 
@@ -129,10 +130,10 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
             <div style={{ marginBottom: "12px" }} className="flex flex-wrap items-end gap-2 ">
               <div className="flex-1 min-w-[160px]">
                 <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Producto</label>
-                <select 
-                ref={selectProductoRef} 
-                onChange={(e) => setItemSeleccionadoId(Number(e.target.value))}
-                style={{ padding: "8px" }}
+                <select
+                  ref={selectProductoRef}
+                  onChange={(e) => setItemSeleccionadoId(Number(e.target.value))}
+                  style={{ padding: "8px" }}
                   className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400">
                   <option value="">Seleccionar producto o combo...</option>
                   {todosLosItems.map(item => (
@@ -142,9 +143,20 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
                   ))}
                 </select>
               </div>
+              <div className="w-20">
+                <label style={{ marginBottom: "4px" }} className="block text-xs text-slate-500 mb-1">Cantidad</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={cantidad}
+                  onChange={e => setCantidad(Number(e.target.value))}
+                  style={{ padding: "8px" }}
+                  className="w-full border border-slate-300 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+                />
+              </div>
               <button
-              onClick={() => handleAgregarProducto(itemSeleccionadoId)}
-              disabled={!itemSeleccionadoId}
+                onClick={() => handleAgregarProducto(itemSeleccionadoId)}
+                disabled={!itemSeleccionadoId}
 
                 style={{ padding: "8px 16px" }}
                 className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"

@@ -34,7 +34,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   }, [abonosIniciales])
 
   const todosLosItems = useMemo(() => {
-    const prods = productos.map(p => ({ ...p, tipo: 'producto' }))
+    const prods = productos.map(p => ({ ...p, tipo: 'producto', precio_detal: p.precio_detal,
+    precio_almayor: p.precio_almayor }))
     const combs = combos.map(c => ({ ...c, tipo: 'combo', precio_venta: c.precio })) // el backend usa 'precio' en GET /combos
     return [...prods, ...combs]
   }, [productos, combos])
@@ -119,8 +120,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     setClientesFiltrados(filtrados)
   }, [textoBusquedaCliente, clientes, seleccionado])
   const fechaMinimaEntrega = balance?.fecha_inicio
-  ? formatearFechaColombia(balance.fecha_inicio, false).split('/').reverse().join('-')
-  : ''
+    ? formatearFechaColombia(balance.fecha_inicio, false).split('/').reverse().join('-')
+    : ''
 
   if (!open) return null
   return (
@@ -277,27 +278,71 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                         style={{ padding: "4px" }}
                         className="w-20 border border-slate-200 rounded-lg p-1 text-sm"
                       />
-                      <button
-                        onClick={() => {
-                          if (!itemSeleccionado || cantidadItem < 1) return
-                          const precio = parseFloat(itemSeleccionado.precio_venta || itemSeleccionado.precio)
-                          agregarItem({
-                            tipo: itemSeleccionado.tipo,
-                            producto_id: itemSeleccionado.tipo === 'producto' ? itemSeleccionado.id : null,
-                            combo_id: itemSeleccionado.tipo === 'combo' ? itemSeleccionado.id : null,
-                            nombre_producto: itemSeleccionado.nombre,
-                            cantidad: cantidadItem,
-                            precio_unitario: precio,
-                          })
-                          setTextoBusqueda('')
-                          setItemSeleccionado(null)
-                          setCantidadItem(1)
-                        }}
-                        style={{ padding: "8px 16px" }}
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-                      >
-                        Agregar
-                      </button>
+                      {itemSeleccionado.tipo === 'producto' ? (
+                        <>
+                          <button
+                            onClick={() => {
+                              const precio = parseFloat(itemSeleccionado.precio_detal)
+                              agregarItem({
+                                tipo: itemSeleccionado.tipo,
+                                producto_id: itemSeleccionado.id,
+                                combo_id: null,
+                                nombre_producto: itemSeleccionado.nombre,
+                                cantidad: cantidadItem,
+                                precio_unitario: precio,
+                              })
+                              setTextoBusqueda('')
+                              setItemSeleccionado(null)
+                              setCantidadItem(1)
+                            }}
+                            style={{ padding: "8px 12px" }}
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-medium"
+                          >
+                            Al detal (${parseFloat(itemSeleccionado.precio_detal).toLocaleString('es-CO')})
+                          </button>
+                          <button
+                            onClick={() => {
+                              const precio = parseFloat(itemSeleccionado.precio_almayor)
+                              agregarItem({
+                                tipo: itemSeleccionado.tipo,
+                                producto_id: itemSeleccionado.id,
+                                combo_id: null,
+                                nombre_producto: itemSeleccionado.nombre,
+                                cantidad: cantidadItem,
+                                precio_unitario: precio,
+                              })
+                              setTextoBusqueda('')
+                              setItemSeleccionado(null)
+                              setCantidadItem(1)
+                            }}
+                            style={{ padding: "8px 12px" }}
+                            className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-lg text-xs font-medium"
+                          >
+                            Al mayor (${parseFloat(itemSeleccionado.precio_almayor).toLocaleString('es-CO')})
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            const precio = parseFloat(itemSeleccionado.precio_venta || itemSeleccionado.precio)
+                            agregarItem({
+                              tipo: itemSeleccionado.tipo,
+                              producto_id: null,
+                              combo_id: itemSeleccionado.id,
+                              nombre_producto: itemSeleccionado.nombre,
+                              cantidad: cantidadItem,
+                              precio_unitario: precio,
+                            })
+                            setTextoBusqueda('')
+                            setItemSeleccionado(null)
+                            setCantidadItem(1)
+                          }}
+                          style={{ padding: "8px 16px" }}
+                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
+                        >
+                          Agregar combo
+                        </button>
+                      )}
                     </div>
 
                     {/* Información adicional según el tipo */}
@@ -337,7 +382,16 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                           {item.tipo === 'combo' ? 'Combo' : 'Producto'}
                         </span>
                         <span className="text-xs text-slate-500">
-                          ${parseFloat(item.precio_venta || item.precio).toLocaleString('es-CO')}
+                          {item.tipo === 'producto' && (
+                            <>
+                              <span className="text-green-600">${parseFloat(item.precio_detal).toLocaleString('es-CO')}</span>
+                              <span className="mx-1 text-slate-300">|</span>
+                              <span className="text-orange-600">${parseFloat(item.precio_almayor).toLocaleString('es-CO')}</span>
+                            </>
+                          )}
+                          {item.tipo === 'combo' && (
+                            <span>${parseFloat(item.precio_venta || item.precio).toLocaleString('es-CO')}</span>
+                          )}
                         </span>
                       </li>
                     ))}

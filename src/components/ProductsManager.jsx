@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import api from '../api/axios';
 
-const FORM_INICIAL = { nombre: '', descripcion: '', precio: '', unidades_por_bandeja: '' };
+const FORM_INICIAL = { nombre: '', descripcion: '', precio_detal: '', precio_almayor: '', unidades_por_bandeja: '' };
 
 export default function ProductosManager() {
   const [productos, setProductos] = useState([]);
@@ -47,7 +47,8 @@ export default function ProductosManager() {
       const payload = {
         nombre: formData.nombre,
         descripcion: formData.descripcion,
-        precio_venta: Number(formData.precio),
+        precio_detal: Number(formData.precio_detal),
+        precio_almayor: Number(formData.precio_almayor),
         unidades_por_bandeja: Number(formData.unidades_por_bandeja),
       };
       if (editingId) {
@@ -71,7 +72,8 @@ export default function ProductosManager() {
     setFormData({
       nombre: producto.nombre || '',
       descripcion: producto.descripcion || '',
-      precio: producto.precio_venta || '',
+      precio_detal: producto.precio_detal || '',
+      precio_almayor: producto.precio_almayor || '',
       unidades_por_bandeja: producto.unidades_por_bandeja || '',
     });
     setShowForm(true);
@@ -177,6 +179,7 @@ export default function ProductosManager() {
             </div>
 
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Nombre */}
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre *</label>
                 <input
@@ -185,7 +188,7 @@ export default function ProductosManager() {
                   placeholder="Ej: Empanada de pipián"
                   value={formData.nombre}
                   onChange={(e) => {
-                    const valor = e.target.value.slice(0, 40)  // Máximo 40 caracteres
+                    const valor = e.target.value.slice(0, 40)
                     handleChange({ target: { name: 'nombre', value: valor } })
                   }}
                   required
@@ -195,6 +198,7 @@ export default function ProductosManager() {
                 />
               </div>
 
+              {/* Descripción */}
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción</label>
                 <textarea name="descripcion" placeholder="Descripción opcional"
@@ -204,19 +208,31 @@ export default function ProductosManager() {
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
               </div>
 
+              {/* Precio al detal */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio *</label>
-                <input type="number" name="precio" placeholder="$ 0"
-                  value={formData.precio} onChange={handleChange} required min="0" maxLength={10}
+                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio al detal *</label>
+                <input type="number" name="precio_detal" placeholder="$ 0"
+                  value={formData.precio_detal} onChange={handleChange} required min="0" step="0.01"
                   style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
               </div>
 
+              {/* Precio al por mayor */}
+              <div>
+                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio al por mayor *</label>
+                <input type="number" name="precio_almayor" placeholder="$ 0"
+                  value={formData.precio_almayor} onChange={handleChange} required min="0" step="0.01"
+                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
+                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
+              </div>
+
+              {/* Unidades por bandeja */}
               <div>
                 <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unidades por bandeja *</label>
                 <input type="number" name="unidades_por_bandeja" placeholder="Ej: 30"
-                  value={formData.unidades_por_bandeja} onChange={handleChange} required min="1" maxLength={5}
+                  value={formData.unidades_por_bandeja} onChange={handleChange} required min="1"
                   style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />

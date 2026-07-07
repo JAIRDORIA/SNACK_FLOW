@@ -293,6 +293,7 @@ export default function ProductosManager() {
                     </td>
                   </tr>
                 ) : filteredProductos.map((producto) => (
+                  console.log(producto),
                   <tr key={producto.id} style={{ borderBottom: '1px solid #f1f5f9' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                     onMouseLeave={e => e.currentTarget.style.background = 'white'}>
@@ -313,7 +314,7 @@ export default function ProductosManager() {
                       ${Number(producto.precio_detal || 0).toLocaleString('es-CO')}
                     </td>
                     <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#334155', fontSize: '14px' }}>
-                      ${Number(producto.precio_almayor || 0).toLocaleString('es-CO')}
+                      ${Number(producto.precio_mayor || 0).toLocaleString('es-CO')}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: '4px' }}>

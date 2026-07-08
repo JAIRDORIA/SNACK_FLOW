@@ -10,10 +10,15 @@ import { getProductos } from '@/api/productos_api';
 const FORM_INICIAL = { nombre: '', descripcion: '', precio_detal: '', precio_almayor: '', unidades_por_bandeja: '' };
 
 export default function ProductosManager() {
-  const [productos, setProductos] = useState([]);
+  const [productosData, setProductosData] = useState({
+  datos: [],
+  total: 0,
+  pagina: 1,
+  total_paginas: 0,
+})
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [pagina, setPagina] = useState(1)
   const [formData, setFormData] = useState(FORM_INICIAL);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -25,20 +30,26 @@ export default function ProductosManager() {
     loadProductos();
   }, []);
 
-  const loadProductos = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get('/productos/', { params: { pagina: 1, limite: 15 } });
-      const data = res.data;
-      setProductos(Array.isArray(data) ? data : data.datos || data.items || []);
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      setError('No se pudieron cargar los productos');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const loadProductos = async (pagina = 1) => {
+  try {
+    setLoading(true)
+    const res = await api.get('/productos/', { params: { pagina, limite: 15 } })
+    const data = res.data
+    setProductosData({
+      datos: data.datos || data.items || [],
+      total: data.total || 0,
+      pagina: data.pagina || pagina,
+      total_paginas: data.total_paginas || 0,
+    })
+    setPagina(pagina)
+    setError(null)
+  } catch (err) {
+    console.error(err)
+    setError('No se pudieron cargar los productos')
+  } finally {
+    setLoading(false)
+  }
+}
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
@@ -99,13 +110,13 @@ export default function ProductosManager() {
     setShowForm(false);
   };
 
-  const filteredProductos = productos.filter(
+  const filteredProductos = productosData.datos.filter(
     (p) =>
       p.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       p.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const totalProductos = productos.length;
+  const totalProductos = productosData.total;
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -346,17 +357,17 @@ export default function ProductosManager() {
           <span className="text-sm">
             Mostrando{" "}
             <strong className="text-slate-700 font-semibold">
-              {productos.length}
+              {filteredProductos.length}
             </strong>{" "}
-            de <strong className="text-slate-700 font-semibold">{productos.total}</strong>{" "}
+            de <strong className="text-slate-700 font-semibold">{totalProductos}</strong>{" "}
             ventas
           </span>
 
-          {productos.total_paginas > 1 && (
+          {productosData.total_paginas > 1 && (
             <div className="flex items-center gap-2">
               <button
                 onClick={() => getProductos(pagina - 1)}
-                disabled={productos.pagina === 1}
+                disabled={pagina === 1}
                 className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
                 style={{
                   cursor: pagina === 1 ? "not-allowed" : "pointer",
@@ -369,14 +380,14 @@ export default function ProductosManager() {
                 style={{ paddingLeft: "12px", paddingRight: "12px" }}
                 className="text-sm text-slate-500 px-3 font-medium"
               >
-                {productos.pagina} / {productos.total_paginas}
+                {pagina} / {productosData.total_paginas}
               </span>
               <button
-                onClick={() => getProductos(pagina + 1)}
-                disabled={productos.pagina === productos.total_paginas}
+                onClick={() => loadProductos(pagina + 1)}
+                disabled={pagina === productosData.total_paginas}
                 className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
                 style={{
-                  cursor: productos.pagina === productos.total_paginas ? "not-allowed" : "pointer",
+                  cursor: pagina === productosData.total_paginas ? "not-allowed" : "pointer",
                   padding: "10px 16px ",
                 }}
               >

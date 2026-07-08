@@ -721,25 +721,35 @@ const [precioEditado, setPrecioEditado] = useState(0);
         >
           Cancelar
         </button>
-       <button
+      <button
   onClick={() => {
-    // Agregar cada producto editado al detalle de la venta
-    productosEditados.forEach(prod => {
-      if (!prod.producto_id) return; // Saltar si no seleccionó producto
-      const productoReal = productos.find(p => p.id === prod.producto_id);
-      const precioUnitario = parseFloat(productoReal.precio_detal); // O el precio que prefieras
-      agregarItem({
-        tipo: 'producto',
-        producto_id: prod.producto_id,
-        combo_id: null,
-        nombre_producto: prod.nombre || productoReal.nombre,
-        cantidad: prod.cantidad_unidades,
-        precio_unitario: precioUnitario,
-      });
-    });
-    setMostrarInfoCombo(false);
-    setItemSeleccionado(null); // Limpiar selección del combo
-    setTextoBusqueda('');
+    // Validar que haya al menos un producto seleccionado
+    if (productosEditados.length === 0 || !productosEditados.some(p => p.producto_id)) {
+      alert('Debe seleccionar al menos un producto para el combo')
+      return
+    }
+
+    // Enviar UN SOLO item de tipo combo con la lista de productos personalizados
+    agregarItem({
+      tipo: 'combo',
+      combo_id: null,                     // No usa el combo original
+      producto_id: null,                  // No es un producto simple
+      nombre_producto: itemSeleccionado.nombre, // Mantiene el nombre del combo
+      cantidad: cantidadItem,            // Cuántos combos se venden
+      precio_unitario: precioEditado,    // Precio total del combo (frito o congelado)
+      productos: productosEditados
+        .filter(p => p.producto_id)      // Solo los que tengan producto real seleccionado
+        .map(p => ({
+          producto_id: p.producto_id,
+          cantidad_unidades: p.cantidad_unidades, // Las unidades que lleva este producto en el combo
+        })),
+    })
+
+    // Limpiar estados
+    setMostrarInfoCombo(false)
+    setItemSeleccionado(null)
+    setTextoBusqueda('')
+    setCantidadItem(1)
   }}
   style={{ padding: "8px 16px" }}
   className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700"

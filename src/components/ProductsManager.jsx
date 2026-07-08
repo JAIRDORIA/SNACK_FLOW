@@ -27,7 +27,7 @@ export default function ProductosManager() {
   const loadProductos = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/productos/', { params: { pagina: 1, limite: 100 } });
+      const res = await api.get('/productos/', { params: { pagina: 1, limite: 15 } });
       const data = res.data;
       setProductos(Array.isArray(data) ? data : data.datos || data.items || []);
       setError(null);

@@ -635,6 +635,14 @@ const [precioEditado, setPrecioEditado] = useState(0);
           <X size={18} color="#64748b" />
         </button>
       </div>
+      <button
+  onClick={() => {
+    setProductosEditados([...productosEditados, { producto_id: '', nombre: '', cantidad_unidades: 1 }]);
+  }}
+  className="text-indigo-600 text-sm hover:underline mt-2"
+>
+  + Agregar producto
+</button>
 
       {itemSeleccionado.productos && itemSeleccionado.productos.length > 0 ? (
         <>
@@ -646,36 +654,47 @@ const [precioEditado, setPrecioEditado] = useState(0);
               </tr>
             </thead>
             <tbody>
-              {productosEditados.map((prod, i) => (
-                <tr key={i} className="border-t border-gray-100">
-                  <td style={{ padding: "4px 12px" }}>
-                    <input
-                      type="text"
-                      value={prod.nombre}
-                      onChange={(e) => {
-                        const nuevos = [...productosEditados];
-                        nuevos[i] = { ...nuevos[i], nombre: e.target.value };
-                        setProductosEditados(nuevos);
-                      }}
-                      className="w-full border border-slate-200 rounded p-1.5 text-sm focus:ring-1 focus:ring-indigo-400"
-                    />
-                  </td>
-                  <td style={{ padding: "4px 12px" }}>
-                    <input
-                      type="number"
-                      min="1"
-                      value={prod.cantidad_unidades}
-                      onChange={(e) => {
-                        const nuevos = [...productosEditados];
-                        nuevos[i] = { ...nuevos[i], cantidad_unidades: Number(e.target.value) };
-                        setProductosEditados(nuevos);
-                      }}
-                      className="w-20 text-center border border-slate-200 rounded p-1.5 text-sm focus:ring-1 focus:ring-indigo-400"
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
+  {productosEditados.map((prod, i) => (
+    <tr key={i} className="border-t border-gray-100">
+      <td style={{ padding: "4px 12px" }}>
+        <select
+          value={prod.producto_id || ''}
+          onChange={(e) => {
+            const nuevos = [...productosEditados];
+            const productoSeleccionado = productos.find(p => p.id === Number(e.target.value));
+            nuevos[i] = {
+              ...nuevos[i],
+              producto_id: Number(e.target.value),
+              nombre: productoSeleccionado?.nombre || '',
+              // Opcional: actualizar el precio unitario según el producto seleccionado
+              // precio_unitario: productoSeleccionado?.precio_detal || 0,
+            };
+            setProductosEditados(nuevos);
+          }}
+          className="w-full border border-slate-200 rounded p-1.5 text-sm"
+        >
+          <option value="">Seleccionar producto...</option>
+          {productos.map(p => (
+            <option key={p.id} value={p.id}>{p.nombre}</option>
+          ))}
+        </select>
+      </td>
+      <td style={{ padding: "4px 12px" }}>
+        <input
+          type="number"
+          min="1"
+          value={prod.cantidad_unidades}
+          onChange={(e) => {
+            const nuevos = [...productosEditados];
+            nuevos[i] = { ...nuevos[i], cantidad_unidades: Number(e.target.value) };
+            setProductosEditados(nuevos);
+          }}
+          className="w-20 text-center border border-slate-200 rounded p-1.5 text-sm"
+        />
+      </td>
+    </tr>
+  ))}
+</tbody>
           </table>
 
           <div className="mb-4">
@@ -702,22 +721,31 @@ const [precioEditado, setPrecioEditado] = useState(0);
         >
           Cancelar
         </button>
-        <button
-          onClick={() => {
-            const comboPersonalizado = {
-              ...itemSeleccionado,
-              productos: productosEditados,
-              precio_unitario: precioEditado,
-            };
-            // Aquí puedes guardar el combo personalizado en el store o agregarlo directamente
-            // ...
-            setMostrarInfoCombo(false);
-          }}
-          style={{ padding: "8px 16px" }}
-          className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700"
-        >
-          Confirmar y Agregar
-        </button>
+       <button
+  onClick={() => {
+    // Agregar cada producto editado al detalle de la venta
+    productosEditados.forEach(prod => {
+      if (!prod.producto_id) return; // Saltar si no seleccionó producto
+      const productoReal = productos.find(p => p.id === prod.producto_id);
+      const precioUnitario = parseFloat(productoReal.precio_detal); // O el precio que prefieras
+      agregarItem({
+        tipo: 'producto',
+        producto_id: prod.producto_id,
+        combo_id: null,
+        nombre_producto: prod.nombre || productoReal.nombre,
+        cantidad: prod.cantidad_unidades,
+        precio_unitario: precioUnitario,
+      });
+    });
+    setMostrarInfoCombo(false);
+    setItemSeleccionado(null); // Limpiar selección del combo
+    setTextoBusqueda('');
+  }}
+  style={{ padding: "8px 16px" }}
+  className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700"
+>
+  Confirmar y Agregar
+</button>
       </div>
     </div>
   </div>

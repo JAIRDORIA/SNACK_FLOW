@@ -192,7 +192,7 @@ export const useNuevaVentaStore = create((set, get) => ({
   },
 
   // Enviar venta
- registrarVenta: async () => {
+  registrarVenta: async () => {
     const { clienteId, corteId, fechaEntrega, horaEntrega, detalle, abonosIniciales } = get()
     const total = get().totalVenta()
     const totalRedondeado = Math.round(total * 100) / 100
@@ -220,14 +220,21 @@ export const useNuevaVentaStore = create((set, get) => ({
       usuario_id: 1, // Reemplazar con el ID real del usuario logueado
       fecha_entrega: fechaFormateada,
       total: totalRedondeado,
-      detalle: detalle.map((d) => ({
-        tipo: d.tipo || 'producto',
-        producto_id: d.tipo === 'producto' ? d.producto_id : null,
-        combo_id: d.tipo === 'combo' ? d.combo_id : null,
-        nombre_producto: d.nombre_producto,
-        cantidad: d.cantidad,
-        precio_unitario: d.precio_unitario,
-      })),
+      detalle: detalle.map((d) => {
+        const item = {
+          tipo: d.tipo || 'producto',
+          producto_id: d.tipo === 'combo' ? null : d.producto_id,
+          combo_id: d.tipo === 'combo' ? d.combo_id : null,
+          nombre_producto: d.nombre_producto,
+          cantidad: d.cantidad,
+          precio_unitario: d.precio_unitario,
+        }
+        // Si es combo personalizado, incluir la lista de productos
+        if (d.tipo === 'combo' && d.productos && Array.isArray(d.productos)) {
+          item.productos = d.productos
+        }
+        return item
+      }),
     }
 
     // Agregar abonos iniciales (múltiples)

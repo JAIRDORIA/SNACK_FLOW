@@ -34,11 +34,16 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   }, [abonosIniciales])
 
   const todosLosItems = useMemo(() => {
-    const prods = productos.map(p => ({ ...p, tipo: 'producto', precio_detal: p.precio_detal,
-    precio_almayor: p.precio_mayor }))
+    const prods = productos.map(p => ({
+      ...p, tipo: 'producto', precio_detal: p.precio_detal,
+      precio_almayor: p.precio_mayor
+    }))
     console.log(productos)
-    
-    const combs = combos.map(c => ({ ...c, tipo: 'combo', precio_venta: c.precio })) // el backend usa 'precio' en GET /combos
+
+    const combs = combos.map(c => ({
+      ...c, tipo: 'combo', precio_frito: c.precio_frito,
+      precio_congelado: c.precio_congelado
+    })) // el backend usa 'precio' en GET /combos
     return [...prods, ...combs]
   }, [productos, combos])
   // Cargar datos al abrir
@@ -324,26 +329,48 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                           </button>
                         </>
                       ) : (
-                        <button
-                          onClick={() => {
-                            const precio = parseFloat(itemSeleccionado.precio_venta || itemSeleccionado.precio)
-                            agregarItem({
-                              tipo: itemSeleccionado.tipo,
-                              producto_id: null,
-                              combo_id: itemSeleccionado.id,
-                              nombre_producto: itemSeleccionado.nombre,
-                              cantidad: cantidadItem,
-                              precio_unitario: precio,
-                            })
-                            setTextoBusqueda('')
-                            setItemSeleccionado(null)
-                            setCantidadItem(1)
-                          }}
-                          style={{ padding: "8px 16px" }}
-                          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
-                        >
-                          Agregar combo
-                        </button>
+                        <>
+                          <button
+                            onClick={() => {
+                              const precio = parseFloat(itemSeleccionado.precio_frito)
+                              agregarItem({
+                                tipo: itemSeleccionado.tipo,
+                                producto_id: null,
+                                combo_id: itemSeleccionado.id,
+                                nombre_producto: itemSeleccionado.nombre,
+                                cantidad: cantidadItem,
+                                precio_unitario: precio,
+                              })
+                              setTextoBusqueda('')
+                              setItemSeleccionado(null)
+                              setCantidadItem(1)
+                            }}
+                            style={{ padding: "8px 12px" }}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-medium"
+                          >
+                            Frito (${parseFloat(itemSeleccionado.precio_frito).toLocaleString('es-CO')})
+                          </button>
+                          <button
+                            onClick={() => {
+                              const precio = parseFloat(itemSeleccionado.precio_congelado)
+                              agregarItem({
+                                tipo: itemSeleccionado.tipo,
+                                producto_id: null,
+                                combo_id: itemSeleccionado.id,
+                                nombre_producto: itemSeleccionado.nombre,
+                                cantidad: cantidadItem,
+                                precio_unitario: precio,
+                              })
+                              setTextoBusqueda('')
+                              setItemSeleccionado(null)
+                              setCantidadItem(1)
+                            }}
+                            style={{ padding: "8px 12px" }}
+                            className="bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-2 rounded-lg text-xs font-medium"
+                          >
+                            Congelado (${parseFloat(itemSeleccionado.precio_congelado).toLocaleString('es-CO')})
+                          </button>
+                        </>
                       )}
                     </div>
 
@@ -392,7 +419,12 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                             </>
                           )}
                           {item.tipo === 'combo' && (
-                            <span>${parseFloat(item.precio_venta || item.precio).toLocaleString('es-CO')}</span>
+
+                            <>
+                              <span className="text-blue-600">${parseFloat(item.precio_frito).toLocaleString('es-CO')}</span>
+                              <span style={{ marginLeft: "4px", marginRight: "4px" }} className="mx-1 text-slate-300">|</span>
+                              <span className="text-cyan-600">${parseFloat(item.precio_congelado).toLocaleString('es-CO')}</span>
+                            </>
                           )}
                         </span>
                       </li>

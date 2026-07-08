@@ -405,8 +405,8 @@ export default function CombosManager() {
                   {[
                     { label: 'Combo', align: 'left' },
                     { label: 'Productos', align: 'left' },
-                    { label: 'Precio_frito', align: 'right' },
-                    { label: 'Precio_congelado', align: 'right' },
+                    { label: 'Precio frito', align: 'right' },
+                    { label: 'Precio congelado', align: 'right' },
                     { label: 'Acciones', align: 'center' },
                   ].map(h => (
                     <th key={h.label} style={{ textAlign: h.align, padding: '10px 16px', fontSize: '11px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>

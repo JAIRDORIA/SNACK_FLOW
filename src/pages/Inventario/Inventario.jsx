@@ -8,6 +8,7 @@ import useInventarioStore from '@/store/useInventarioStore'
 import { putInventario } from '@/api/inventario_api'
 import { postProduccion, getProducciones } from '@/api/producciones_api'
 import { getProductos } from '@/api/productos_api'
+import { formatearFechaColombia } from '@/utils/formatearFecha'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
@@ -102,7 +103,7 @@ function ModalEditarStockMinimo({ item, onCerrar, onGuardado }) {
 
 // MODAL REGISTRAR PRODUCCION
 function ModalProduccion({ onCerrar, onGuardado }) {
-  const hoy = new Date().toISOString().split('T')[0]
+  const hoy = formatearFechaColombia(new Date().toISOString(), false).split('/').reverse().join('-')
   const isMobile = useIsMobile()
   const [productos, setProductos] = useState([])
   const [cargandoProd, setCargandoProd] = useState(true)

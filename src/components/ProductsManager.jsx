@@ -360,13 +360,13 @@ export default function ProductosManager() {
               {filteredProductos.length}
             </strong>{" "}
             de <strong className="text-slate-700 font-semibold">{totalProductos}</strong>{" "}
-            ventas
+            productos
           </span>
 
           {productosData.total_paginas > 1 && (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => getProductos(pagina - 1)}
+                onClick={() => loadProductos(pagina - 1)}
                 disabled={pagina === 1}
                 className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
                 style={{

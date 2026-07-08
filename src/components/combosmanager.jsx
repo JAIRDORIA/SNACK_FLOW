@@ -405,7 +405,8 @@ export default function CombosManager() {
                   {[
                     { label: 'Combo', align: 'left' },
                     { label: 'Productos', align: 'left' },
-                    { label: 'Precio', align: 'right' },
+                    { label: 'Precio_frito', align: 'right' },
+                    { label: 'Precio_congelado', align: 'right' },
                     { label: 'Acciones', align: 'center' },
                   ].map(h => (
                     <th key={h.label} style={{ textAlign: h.align, padding: '10px 16px', fontSize: '11px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
@@ -434,7 +435,10 @@ export default function CombosManager() {
                       )}
                     </td>
                     <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#334155', fontSize: '14px', whiteSpace: 'nowrap' }}>
-                      ${Number(combo.precio || 0).toLocaleString('es-CO')}
+                      ${Number(combo.precio_frito || 0).toLocaleString('es-CO')}
+                    </td>
+                    <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#334155', fontSize: '14px', whiteSpace: 'nowrap' }}>
+                      ${Number(combo.precio_congelado || 0).toLocaleString('es-CO')}
                     </td>
                     <td style={{ padding: '12px 16px' }}>
                       <div style={{ display: 'flex', justifyContent: 'center', gap: '4px' }}>

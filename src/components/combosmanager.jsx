@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import api from '../api/axios';
 
-const FORM_INICIAL = { nombre: '', precio: '' };
+const FORM_INICIAL = { nombre: '', precio_frito: '', precio_congelado: '' };
 
 export default function CombosManager() {
   const [combos, setCombos] = useState([]);
@@ -33,7 +33,7 @@ export default function CombosManager() {
   const loadCombos = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/combos/', { params: { page: 1, per_page: 50 } });
+      const res = await api.get('/combos/', { params: { page: 1, per_page: 15 } });
       const data = res.data;
       setCombos(Array.isArray(data) ? data : data.datos || data.items || data.combos || []);
       setError(null);
@@ -95,7 +95,8 @@ export default function CombosManager() {
       const payload = {
         nombre: formData.nombre,
 
-        precio: Number(formData.precio),
+        precio_frito: Number(formData.precio_frito),
+        precio_congelado: Number(formData.precio_congelado),
         productos: productosSeleccionados.map(p => ({
           producto_id: p.producto_id,
           cantidad_unidades: p.cantidad_unidades,
@@ -122,7 +123,8 @@ export default function CombosManager() {
     setEditingId(combo.id);
     setFormData({
       nombre: combo.nombre || '',
-      precio: combo.precio || '',
+      precio_frito: combo.precio_frito || '',
+      precio_congelado: combo.precio_congelado
     });
     if (combo.productos && Array.isArray(combo.productos)) {
       setProductosSeleccionados(combo.productos.map(p => ({
@@ -167,9 +169,9 @@ export default function CombosManager() {
 
   const totalCombos = combos.length;
   const precioPromedio = totalCombos > 0
-    ? Math.round(combos.reduce((acc, c) => acc + Number(c.precio || 0), 0) / totalCombos)
+    ? Math.round(combos.reduce((acc, c) => acc + Number(c.precio_frito || 0), 0) / totalCombos)
     : 0;
-  const valorTotal = combos.reduce((acc, c) => acc + Number(c.precio || 0), 0);
+  const valorTotal = combos.reduce((acc, c) => acc + Number(c.precio_frito || 0), 0);
 
   if (loading) return (
     <div className="flex items-center justify-center h-64">
@@ -350,12 +352,22 @@ export default function CombosManager() {
               </div>
 
               <div>
-                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio *</label>
-                <input type="number" name="precio" placeholder="$ 0"
-                  value={formData.precio} onChange={handleChange} required min="0" maxLength={10}
+                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio Frito *</label>
+                <input type="number" name="precio_frito" placeholder="$ 0"
+                  value={formData.precio_frito} onChange={handleChange} required min="0" step="0.01"
                   style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
-                  onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
-                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }} />
+                  onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
+                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
+              </div>
+
+              {/* Precio Congelado */}
+              <div>
+                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio Congelado *</label>
+                <input type="number" name="precio_congelado" placeholder="$ 0"
+                  value={formData.precio_congelado} onChange={handleChange} required min="0" step="0.01"
+                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
+                  onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
               </div>
 
               <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
@@ -378,7 +390,7 @@ export default function CombosManager() {
           <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ position: 'relative', maxWidth: '360px' }}>
               <input type="text" placeholder="Buscar combo..." maxLength={50}
-                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} 
+                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
                 style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 16px 10px 40px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                 onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
                 onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }} />

@@ -5,6 +5,7 @@ import {
   Package
 } from 'lucide-react';
 import api from '../api/axios';
+import { getProductos } from '@/api/productos_api';
 
 const FORM_INICIAL = { nombre: '', descripcion: '', precio_detal: '', precio_almayor: '', unidades_por_bandeja: '' };
 
@@ -338,14 +339,52 @@ export default function ProductosManager() {
             </table>
           </div>
 
-          {filteredProductos.length > 0 && (
-            <div style={{ padding: '12px 20px', borderTop: '1px solid #f1f5f9', background: '#f8fafc' }}>
-              <span style={{ fontSize: '13px', color: '#64748b' }}>
-                Mostrando <strong style={{ color: '#334155' }}>{filteredProductos.length}</strong> de{' '}
-                <strong style={{ color: '#334155' }}>{totalProductos}</strong> productos
+          <div
+          style={{ padding: "20px 32px" }}
+          className=" border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30"
+        >
+          <span className="text-sm">
+            Mostrando{" "}
+            <strong className="text-slate-700 font-semibold">
+              {productos.length}
+            </strong>{" "}
+            de <strong className="text-slate-700 font-semibold">{productos.total}</strong>{" "}
+            ventas
+          </span>
+
+          {productos.total_paginas > 1 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => getProductos(pagina - 1)}
+                disabled={productos.pagina === 1}
+                className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+                style={{
+                  cursor: pagina === 1 ? "not-allowed" : "pointer",
+                  padding: "10px 16px",
+                }}
+              >
+                ← Anterior
+              </button>
+              <span
+                style={{ paddingLeft: "12px", paddingRight: "12px" }}
+                className="text-sm text-slate-500 px-3 font-medium"
+              >
+                {productos.pagina} / {productos.total_paginas}
               </span>
+              <button
+                onClick={() => getProductos(pagina + 1)}
+                disabled={productos.pagina === productos.total_paginas}
+                className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+                style={{
+                  cursor: productos.pagina === productos.total_paginas ? "not-allowed" : "pointer",
+                  padding: "10px 16px ",
+                }}
+              >
+                Siguiente →
+              </button>
             </div>
           )}
+        </div>
         </div>
       </div>
 

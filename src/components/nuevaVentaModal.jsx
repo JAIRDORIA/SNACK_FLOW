@@ -639,6 +639,7 @@ const [precioEditado, setPrecioEditado] = useState(0);
   onClick={() => {
     setProductosEditados([...productosEditados, { producto_id: '', nombre: '', cantidad_unidades: 1 }]);
   }}
+  style={{marginTop:"8px"}}
   className="text-indigo-600 text-sm hover:underline mt-2"
 >
   + Agregar producto
@@ -646,7 +647,7 @@ const [precioEditado, setPrecioEditado] = useState(0);
 
       {itemSeleccionado.productos && itemSeleccionado.productos.length > 0 ? (
         <>
-          <table className="w-full text-sm border-collapse mb-4">
+          <table style={{marginBottom:"16px"}} className="w-full text-sm border-collapse mb-4">
             <thead>
               <tr className="bg-slate-50">
                 <th style={{ padding: "8px 12px" }} className="px-3 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
@@ -671,6 +672,7 @@ const [precioEditado, setPrecioEditado] = useState(0);
             };
             setProductosEditados(nuevos);
           }}
+          style={{padding:"6px"}}
           className="w-full border border-slate-200 rounded p-1.5 text-sm"
         >
           <option value="">Seleccionar producto...</option>
@@ -689,6 +691,7 @@ const [precioEditado, setPrecioEditado] = useState(0);
             nuevos[i] = { ...nuevos[i], cantidad_unidades: Number(e.target.value) };
             setProductosEditados(nuevos);
           }}
+          style={{padding:"6px"}}
           className="w-20 text-center border border-slate-200 rounded p-1.5 text-sm"
         />
       </td>
@@ -697,14 +700,15 @@ const [precioEditado, setPrecioEditado] = useState(0);
 </tbody>
           </table>
 
-          <div className="mb-4">
-            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Precio del combo</label>
+          <div style={{marginBottom:"16px"}} className="mb-4">
+            <label style={{marginBottom:"4px"}} className="block text-xs font-semibold text-slate-500 uppercase mb-1">Precio del combo</label>
             <input
               type="number"
               min="0"
               step="0.01"
               value={precioEditado}
               onChange={(e) => setPrecioEditado(Number(e.target.value))}
+              style={{padding:"8px"}}
               className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-400"
             />
           </div>

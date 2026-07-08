@@ -29,6 +29,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [seleccionado, setSeleccionado] = useState(false)
   const [mostrarInfoCombo, setMostrarInfoCombo] = useState(false)
   const [montosLocales, setMontosLocales] = useState([])
+  const [productosEditados, setProductosEditados] = useState([]);
+const [precioEditado, setPrecioEditado] = useState(0);
   useEffect(() => {
     setMontosLocales(abonosIniciales.map(a => a.monto?.toString() || ''))
   }, [abonosIniciales])
@@ -382,11 +384,14 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                         </p>
                       ) : (
                         <button
-                          onClick={() => setMostrarInfoCombo(true)}
+                          onClick={() =>{
+                             setProductosEditados(itemSeleccionado.productos.map(p => ({ ...p })));
+    setPrecioEditado(parseFloat(itemSeleccionado.precio_venta || itemSeleccionado.precio));
+                            setMostrarInfoCombo(true)} }
                           className="text-indigo-600 hover:underline flex items-center gap-1"
                         >
                           <Info size={14} />
-                          Ver productos del combo
+                          editar productos del combo
                         </button>
                       )}
                     </div>
@@ -622,49 +627,101 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       </div>
       {/* Modal info combo */}
       {mostrarInfoCombo && itemSeleccionado && (
-        <div style={{ padding: "16px" }} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div style={{ padding: "24px" }} className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6">
-            <div style={{ marginBottom: "16px" }} className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-800">{itemSeleccionado.nombre}</h3>
-              <button
-                onClick={() => setMostrarInfoCombo(false)}
-                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center"
-              >
-                <X size={18} color="#64748b" />
-              </button>
-            </div>
-            {itemSeleccionado.productos && itemSeleccionado.productos.length > 0 ? (
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="bg-slate-50">
-                    <th style={{ padding: "8px 12px" }} className="px-3 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
-                    <th style={{ padding: "8px 12px" }} className="px-3 py-2 text-center text-xs text-slate-500 uppercase">Cantidad</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {itemSeleccionado.productos.map((prod, i) => (
-                    <tr key={i} className="border-t border-gray-100">
-                      <td style={{ padding: "8px 12px" }} className="px-3 py-2 text-slate-700">{prod.nombre}</td>
-                      <td style={{ padding: "8px 12px" }} className="px-3 py-2 text-center text-slate-600">{prod.cantidad_unidades}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="text-sm text-slate-400">No hay productos detallados.</p>
-            )}
-            <div style={{ marginTop: "16px" }} className="mt-4 flex justify-end">
-              <button
-                onClick={() => setMostrarInfoCombo(false)}
-                style={{ padding: "8px 16px" }}
-                className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
-              >
-                Cerrar
-              </button>
-            </div>
+  <div style={{ padding: "16px" }} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div style={{ padding: "24px" }} className="bg-white rounded-2xl w-full max-w-lg shadow-2xl p-6">
+      <div style={{ marginBottom: "16px" }} className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-bold text-slate-800">Editar {itemSeleccionado.nombre}</h3>
+        <button onClick={() => setMostrarInfoCombo(false)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+          <X size={18} color="#64748b" />
+        </button>
+      </div>
+
+      {itemSeleccionado.productos && itemSeleccionado.productos.length > 0 ? (
+        <>
+          <table className="w-full text-sm border-collapse mb-4">
+            <thead>
+              <tr className="bg-slate-50">
+                <th style={{ padding: "8px 12px" }} className="px-3 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
+                <th style={{ padding: "8px 12px" }} className="px-3 py-2 text-center text-xs text-slate-500 uppercase w-24">Cantidad</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productosEditados.map((prod, i) => (
+                <tr key={i} className="border-t border-gray-100">
+                  <td style={{ padding: "4px 12px" }}>
+                    <input
+                      type="text"
+                      value={prod.nombre}
+                      onChange={(e) => {
+                        const nuevos = [...productosEditados];
+                        nuevos[i] = { ...nuevos[i], nombre: e.target.value };
+                        setProductosEditados(nuevos);
+                      }}
+                      className="w-full border border-slate-200 rounded p-1.5 text-sm focus:ring-1 focus:ring-indigo-400"
+                    />
+                  </td>
+                  <td style={{ padding: "4px 12px" }}>
+                    <input
+                      type="number"
+                      min="1"
+                      value={prod.cantidad_unidades}
+                      onChange={(e) => {
+                        const nuevos = [...productosEditados];
+                        nuevos[i] = { ...nuevos[i], cantidad_unidades: Number(e.target.value) };
+                        setProductosEditados(nuevos);
+                      }}
+                      className="w-20 text-center border border-slate-200 rounded p-1.5 text-sm focus:ring-1 focus:ring-indigo-400"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <div className="mb-4">
+            <label className="block text-xs font-semibold text-slate-500 uppercase mb-1">Precio del combo</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={precioEditado}
+              onChange={(e) => setPrecioEditado(Number(e.target.value))}
+              className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-400"
+            />
           </div>
-        </div>
+        </>
+      ) : (
+        <p className="text-sm text-slate-400">No hay productos detallados.</p>
       )}
+
+      <div style={{ marginTop: "16px" }} className="flex gap-2 justify-end">
+        <button
+          onClick={() => setMostrarInfoCombo(false)}
+          style={{ padding: "8px 16px" }}
+          className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
+        >
+          Cancelar
+        </button>
+        <button
+          onClick={() => {
+            const comboPersonalizado = {
+              ...itemSeleccionado,
+              productos: productosEditados,
+              precio_unitario: precioEditado,
+            };
+            // Aquí puedes guardar el combo personalizado en el store o agregarlo directamente
+            // ...
+            setMostrarInfoCombo(false);
+          }}
+          style={{ padding: "8px 16px" }}
+          className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700"
+        >
+          Confirmar y Agregar
+        </button>
+      </div>
+    </div>
+  </div>
+)}
     </div>
 
   )

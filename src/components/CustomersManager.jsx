@@ -39,7 +39,12 @@ const [totalClientes, setTotalClientes] = useState(0)
   const fetchCustomers = async (pagina=1) => {
     setLoading(true)
     try {
-      const response = await api.get('/clientes/')
+      const response = await api.get('/clientes/',{
+        params: { 
+        page: pagina, 
+        per_page: 10 
+      } 
+      })
       const data = response.data
       setCustomers(data.items || [])
       setTotalClientes(data.total || 0)

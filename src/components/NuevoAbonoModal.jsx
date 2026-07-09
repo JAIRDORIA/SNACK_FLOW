@@ -3,6 +3,7 @@ import { X, Search, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react'
 import api from '@/api/axios'
 import useAbonosModuleStore from '@/store/useAbonosModuleStore'
 import useBalanceStore from '@/store/useBalanceStore'
+import { getClientes } from '@/api/clientes_api'
 
 export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
   const [clientes, setClientes] = useState([])
@@ -23,7 +24,7 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
 
   useEffect(() => {
     if (open) {
-      api.get('/clientes/').then(res => setClientes(res.data.items || res.data.datos || []))
+      getClientes.then(res => setClientes(res.data.items || res.data.datos || []))
       if (!balance) fetchBalance()
       if (!resumenFuturo) fetchResumenFuturo()
     } else {

@@ -30,7 +30,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [mostrarInfoCombo, setMostrarInfoCombo] = useState(false)
   const [montosLocales, setMontosLocales] = useState([])
   const [productosEditados, setProductosEditados] = useState([]);
-const [precioEditado, setPrecioEditado] = useState(0);
+  const [precioEditado, setPrecioEditado] = useState(0);
   useEffect(() => {
     setMontosLocales(abonosIniciales.map(a => a.monto?.toString() || ''))
   }, [abonosIniciales])
@@ -384,10 +384,11 @@ const [precioEditado, setPrecioEditado] = useState(0);
                         </p>
                       ) : (
                         <button
-                          onClick={() =>{
-                             setProductosEditados(itemSeleccionado.productos.map(p => ({ ...p })));
-    setPrecioEditado(parseFloat(itemSeleccionado.precio_venta || itemSeleccionado.precio));
-                            setMostrarInfoCombo(true)} }
+                          onClick={() => {
+                            setProductosEditados(itemSeleccionado.productos.map(p => ({ ...p })));
+                            setPrecioEditado(parseFloat(itemSeleccionado.precio_venta || itemSeleccionado.precio));
+                            setMostrarInfoCombo(true)
+                          }}
                           className="text-indigo-600 hover:underline flex items-center gap-1"
                         >
                           <Info size={14} />
@@ -627,143 +628,143 @@ const [precioEditado, setPrecioEditado] = useState(0);
       </div>
       {/* Modal info combo */}
       {mostrarInfoCombo && itemSeleccionado && (
-  <div style={{ padding: "16px" }} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-    <div style={{ padding: "24px" }} className="bg-white rounded-2xl w-full max-w-lg shadow-2xl p-6">
-      <div style={{ marginBottom: "16px" }} className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-bold text-slate-800">Editar {itemSeleccionado.nombre}</h3>
-        <button onClick={() => setMostrarInfoCombo(false)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
-          <X size={18} color="#64748b" />
-        </button>
-      </div>
-      <button
-  onClick={() => {
-    setProductosEditados([...productosEditados, { producto_id: '', nombre: '', cantidad_unidades: 1 }]);
-  }}
-  style={{marginTop:"8px"}}
-  className="text-indigo-600 text-sm hover:underline mt-2"
->
-  + Agregar producto
-</button>
+        <div style={{ padding: "16px" }} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div style={{ padding: "24px" }} className="bg-white rounded-2xl w-full max-w-lg shadow-2xl p-6">
+            <div style={{ marginBottom: "16px" }} className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-800">Editar {itemSeleccionado.nombre}</h3>
+              <button onClick={() => setMostrarInfoCombo(false)} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center">
+                <X size={18} color="#64748b" />
+              </button>
+            </div>
+            <button
+              onClick={() => {
+                setProductosEditados([...productosEditados, { producto_id: '', nombre: '', cantidad_unidades: 1 }]);
+              }}
+              style={{ marginTop: "8px" }}
+              className="text-indigo-600 text-sm hover:underline mt-2"
+            >
+              + Agregar producto
+            </button>
 
-      {itemSeleccionado.productos && itemSeleccionado.productos.length > 0 ? (
-        <>
-          <table style={{marginBottom:"16px"}} className="w-full text-sm border-collapse mb-4">
-            <thead>
-              <tr className="bg-slate-50">
-                <th style={{ padding: "8px 12px" }} className="px-3 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
-                <th style={{ padding: "8px 12px" }} className="px-3 py-2 text-center text-xs text-slate-500 uppercase w-24">Cantidad</th>
-              </tr>
-            </thead>
-            <tbody>
-  {productosEditados.map((prod, i) => (
-    <tr key={i} className="border-t border-gray-100">
-      <td style={{ padding: "4px 12px" }}>
-        <select
-          value={prod.producto_id || ''}
-          onChange={(e) => {
-            const nuevos = [...productosEditados];
-            const productoSeleccionado = productos.find(p => p.id === Number(e.target.value));
-            nuevos[i] = {
-              ...nuevos[i],
-              producto_id: Number(e.target.value),
-              nombre: productoSeleccionado?.nombre || '',
-              // Opcional: actualizar el precio unitario según el producto seleccionado
-              // precio_unitario: productoSeleccionado?.precio_detal || 0,
-            };
-            setProductosEditados(nuevos);
-          }}
-          style={{padding:"6px"}}
-          className="w-full border border-slate-200 rounded p-1.5 text-sm"
-        >
-          <option value="">Seleccionar producto...</option>
-          {productos.map(p => (
-            <option key={p.id} value={p.id}>{p.nombre}</option>
-          ))}
-        </select>
-      </td>
-      <td style={{ padding: "4px 12px" }}>
-        <input
-          type="number"
-          min="1"
-          value={prod.cantidad_unidades}
-          onChange={(e) => {
-            const nuevos = [...productosEditados];
-            nuevos[i] = { ...nuevos[i], cantidad_unidades: Number(e.target.value) };
-            setProductosEditados(nuevos);
-          }}
-          style={{padding:"6px"}}
-          className="w-20 text-center border border-slate-200 rounded p-1.5 text-sm"
-        />
-      </td>
-    </tr>
-  ))}
-</tbody>
-          </table>
+            {itemSeleccionado.productos && itemSeleccionado.productos.length > 0 ? (
+              <>
+                <table style={{ marginBottom: "16px" }} className="w-full text-sm border-collapse mb-4">
+                  <thead>
+                    <tr className="bg-slate-50">
+                      <th style={{ padding: "8px 12px" }} className="px-3 py-2 text-left text-xs text-slate-500 uppercase">Producto</th>
+                      <th style={{ padding: "8px 12px" }} className="px-3 py-2 text-center text-xs text-slate-500 uppercase w-24">Cantidad</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {productosEditados.map((prod, i) => (
+                      <tr key={i} className="border-t border-gray-100">
+                        <td style={{ padding: "4px 12px" }}>
+                          <select
+                            value={prod.producto_id || ''}
+                            onChange={(e) => {
+                              const nuevos = [...productosEditados];
+                              const productoSeleccionado = productos.find(p => p.id === Number(e.target.value));
+                              nuevos[i] = {
+                                ...nuevos[i],
+                                producto_id: Number(e.target.value),
+                                nombre: productoSeleccionado?.nombre || '',
+                                // Opcional: actualizar el precio unitario según el producto seleccionado
+                                // precio_unitario: productoSeleccionado?.precio_detal || 0,
+                              };
+                              setProductosEditados(nuevos);
+                            }}
+                            style={{ padding: "6px" }}
+                            className="w-full border border-slate-200 rounded p-1.5 text-sm"
+                          >
+                            <option value="">Seleccionar producto...</option>
+                            {productos.map(p => (
+                              <option key={p.id} value={p.id}>{p.nombre}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td style={{ padding: "4px 12px" }}>
+                          <input
+                            type="number"
+                            min="1"
+                            value={prod.cantidad_unidades}
+                            onChange={(e) => {
+                              const nuevos = [...productosEditados];
+                              nuevos[i] = { ...nuevos[i], cantidad_unidades: Number(e.target.value) };
+                              setProductosEditados(nuevos);
+                            }}
+                            style={{ padding: "6px" }}
+                            className="w-20 text-center border border-slate-200 rounded p-1.5 text-sm"
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
-          <div style={{marginBottom:"16px"}} className="mb-4">
-            <label style={{marginBottom:"4px"}} className="block text-xs font-semibold text-slate-500 uppercase mb-1">Precio del combo</label>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              value={precioEditado}
-              onChange={(e) => setPrecioEditado(Number(e.target.value))}
-              style={{padding:"8px"}}
-              className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-400"
-            />
+                <div style={{ marginBottom: "16px" }} className="mb-4">
+                  <label style={{ marginBottom: "4px" }} className="block text-xs font-semibold text-slate-500 uppercase mb-1">Precio del combo</label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={precioEditado}
+                    onChange={(e) => setPrecioEditado(Number(e.target.value))}
+                    style={{ padding: "8px" }}
+                    className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-400"
+                  />
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-slate-400">No hay productos detallados.</p>
+            )}
+
+            <div style={{ marginTop: "16px" }} className="flex gap-2 justify-end">
+              <button
+                onClick={() => setMostrarInfoCombo(false)}
+                style={{ padding: "8px 16px" }}
+                className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => {
+                  // Validar que haya al menos un producto seleccionado
+                  if (productosEditados.length === 0 || !productosEditados.some(p => p.producto_id)) {
+                    alert('Debe seleccionar al menos un producto para el combo')
+                    return
+                  }
+
+                  // Enviar UN SOLO item de tipo combo con la lista de productos personalizados
+                  agregarItem({
+                    tipo: 'combo',
+                    combo_id: null,                     // No usa el combo original
+                    producto_id: null,                  // No es un producto simple
+                    nombre_producto: itemSeleccionado.nombre, // Mantiene el nombre del combo
+                    cantidad: cantidadItem,            // Cuántos combos se venden
+                    precio_unitario: precioEditado,    // Precio total del combo (frito o congelado)
+                    productos: productosEditados
+                      .filter(p => p.producto_id)      // Solo los que tengan producto real seleccionado
+                      .map(p => ({
+                        producto_id: p.producto_id,
+                        cantidad_unidades: p.cantidad_unidades, // Las unidades que lleva este producto en el combo
+                      })),
+                  })
+
+                  // Limpiar estados
+                  setMostrarInfoCombo(false)
+                  setItemSeleccionado(null)
+                  setTextoBusqueda('')
+                  setCantidadItem(1)
+                }}
+                style={{ padding: "8px 16px" }}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700"
+              >
+                Confirmar y Agregar
+              </button>
+            </div>
           </div>
-        </>
-      ) : (
-        <p className="text-sm text-slate-400">No hay productos detallados.</p>
+        </div>
       )}
-
-      <div style={{ marginTop: "16px" }} className="flex gap-2 justify-end">
-        <button
-          onClick={() => setMostrarInfoCombo(false)}
-          style={{ padding: "8px 16px" }}
-          className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
-        >
-          Cancelar
-        </button>
-      <button
-  onClick={() => {
-    // Validar que haya al menos un producto seleccionado
-    if (productosEditados.length === 0 || !productosEditados.some(p => p.producto_id)) {
-      alert('Debe seleccionar al menos un producto para el combo')
-      return
-    }
-
-    // Enviar UN SOLO item de tipo combo con la lista de productos personalizados
-    agregarItem({
-      tipo: 'combo',
-      combo_id: null,                     // No usa el combo original
-      producto_id: null,                  // No es un producto simple
-      nombre_producto: itemSeleccionado.nombre, // Mantiene el nombre del combo
-      cantidad: cantidadItem,            // Cuántos combos se venden
-      precio_unitario: precioEditado,    // Precio total del combo (frito o congelado)
-      productos: productosEditados
-        .filter(p => p.producto_id)      // Solo los que tengan producto real seleccionado
-        .map(p => ({
-          producto_id: p.producto_id,
-          cantidad_unidades: p.cantidad_unidades, // Las unidades que lleva este producto en el combo
-        })),
-    })
-
-    // Limpiar estados
-    setMostrarInfoCombo(false)
-    setItemSeleccionado(null)
-    setTextoBusqueda('')
-    setCantidadItem(1)
-  }}
-  style={{ padding: "8px 16px" }}
-  className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700"
->
-  Confirmar y Agregar
-</button>
-      </div>
-    </div>
-  </div>
-)}
     </div>
 
   )

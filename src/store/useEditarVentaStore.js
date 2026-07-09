@@ -34,7 +34,7 @@ const useEditarVentaStore = create((set, get) => ({
         detalle: (data.detalle || []).map(d => ({
           tipo: d.es_combo === 1 ? 'combo' : 'producto',
           producto_id: d.es_combo === 1 ? null : d.producto_id,
-  combo_id: d.es_combo === 1 ? d.combo_id : null,
+          combo_id: d.es_combo === 1 ? d.combo_id : null,
           nombre_producto: d.nombre_producto,
           cantidad: d.cantidad,
           precio_unitario: d.precio_unitario,
@@ -47,17 +47,17 @@ const useEditarVentaStore = create((set, get) => ({
   },
 
   // Modificar un producto del detalle
- modificarProducto: (index, campo, valor) => {
-  set((state) => {
-    const detalle = [...state.detalle]
-    detalle[index] = { ...detalle[index], [campo]: valor }
-    return { detalle }
-  })
-},
+  modificarProducto: (index, campo, valor) => {
+    set((state) => {
+      const detalle = [...state.detalle]
+      detalle[index] = { ...detalle[index], [campo]: valor }
+      return { detalle }
+    })
+  },
   // Agregar nuevo producto
   agregarItem: (item) => {
     set((state) => ({ detalle: [...state.detalle, item] }))
- },
+  },
 
   // Eliminar producto
   eliminarProducto: (index) => {

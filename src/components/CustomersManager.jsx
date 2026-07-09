@@ -36,11 +36,12 @@ const [totalClientes, setTotalClientes] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
 
   // Cargar clientes
-  const fetchCustomers = async () => {
+  const fetchCustomers = async (pagina=1) => {
     setLoading(true)
     try {
       const response = await api.get('/clientes/')
-      setCustomers(response.data?.items || [])
+      const data = response.data
+      setCustomers(data.items || [])
       setTotalClientes(data.total || 0)
       setPagina(data.page || pagina)
       setTotalPaginas(Math.ceil((data.total || 0) / (data.per_page || 10)))

@@ -14,6 +14,9 @@ export default function CustomersManager() {
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null, nombre: '' })
   const [deleting, setDeleting] = useState(false)
   const [toast, setToast] = useState(null)
+  const [pagina, setPagina] = useState(1)
+const [totalPaginas, setTotalPaginas] = useState(0)
+const [totalClientes, setTotalClientes] = useState(0)
 
   // Modal de creación
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -38,6 +41,9 @@ export default function CustomersManager() {
     try {
       const response = await api.get('/clientes/')
       setCustomers(response.data?.items || [])
+      setTotalClientes(data.total || 0)
+      setPagina(data.page || pagina)
+      setTotalPaginas(Math.ceil((data.total || 0) / (data.per_page || 10)))
       setError(null)
     } catch (err) {
       console.error(err)
@@ -264,6 +270,54 @@ export default function CustomersManager() {
               )}
             </tbody>
           </table>
+          {/* Pie de tabla con paginación */}
+<div
+  style={{ padding: "20px 32px" }}
+  className="border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30"
+>
+  <span className="text-sm">
+    Mostrando{" "}
+    <strong className="text-slate-700 font-semibold">
+      {customers.length}
+    </strong>{" "}
+    de{" "}
+    <strong className="text-slate-700 font-semibold">{totalClientes}</strong>{" "}
+    clientes
+  </span>
+
+  {totalPaginas > 1 && (
+    <div className="flex items-center gap-2">
+      <button
+        onClick={() => fetchCustomers(pagina - 1)}
+        disabled={pagina === 1}
+        className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+        style={{
+          cursor: pagina === 1 ? "not-allowed" : "pointer",
+          padding: "10px 16px",
+        }}
+      >
+        ← Anterior
+      </button>
+      <span
+        style={{ paddingLeft: "12px", paddingRight: "12px" }}
+        className="text-sm text-slate-500 px-3 font-medium"
+      >
+        {pagina} / {totalPaginas}
+      </span>
+      <button
+        onClick={() => fetchCustomers(pagina + 1)}
+        disabled={pagina === totalPaginas}
+        className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+        style={{
+          cursor: pagina === totalPaginas ? "not-allowed" : "pointer",
+          padding: "10px 16px",
+        }}
+      >
+        Siguiente →
+      </button>
+    </div>
+  )}
+</div>
         </div>
       </div>
 

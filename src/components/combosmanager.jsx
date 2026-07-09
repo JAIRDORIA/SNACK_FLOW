@@ -18,6 +18,7 @@ export default function CombosManager() {
   const [productosSeleccionados, setProductosSeleccionados] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  
 
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteId, setDeleteId] = useState(null);

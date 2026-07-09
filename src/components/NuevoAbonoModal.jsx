@@ -24,7 +24,7 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
 
   useEffect(() => {
     if (open) {
-      getClientes.then(res => setClientes(res.data.items || res.data.datos || []))
+      getClientes(1,200).then(res => setClientes(res.data.items || res.data.datos || []))
       if (!balance) fetchBalance()
       if (!resumenFuturo) fetchResumenFuturo()
     } else {

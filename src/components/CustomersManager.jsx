@@ -71,7 +71,7 @@ const [totalClientes, setTotalClientes] = useState(0)
         identificacion: payload.identificacion,  // ← nuevo
         telefono: payload.telefono,
         direccion: payload.direccion,
-        email: payload.email || undefined,
+        email: payload.email ,
       })
       setCreateForm({ nombres: '', apellidos: '', identificacion: '', telefono: '', direccion: '', email: '' })
       setIsCreateModalOpen(false)
@@ -110,7 +110,7 @@ const [totalClientes, setTotalClientes] = useState(0)
         identificacion: payload.identificacion,  // ← nuevo
         telefono: payload.telefono,
         direccion: payload.direccion,
-        email: payload.email || undefined,
+        email: payload.email ,
       })
       setIsEditModalOpen(false)
       fetchCustomers()

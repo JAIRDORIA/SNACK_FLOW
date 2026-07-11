@@ -69,7 +69,7 @@ const TIPO_CONFIG = {
   efectivo: { bg: "#f0fdf4", color: "#15803d", label: "Efectivo" },
   transferencia: { bg: "#eff6ff", color: "#1d4ed8", label: "Transferencia" },
   otro: { bg: "#f9fafb", color: "#6b7280", label: "Otro" },
-  Deben: { bg: "#f3f4f6", color: "#9ca3af", label: "Deben" },
+  deben: { bg: "#f3f4f6", color: "#9ca3af", label: "Deben" },
   error: { bg: "#fee2e2", color: "#b91c1c", label: "Error" },
 };
 
@@ -167,8 +167,8 @@ export default function Ventas() {
         </thead>
         <tbody>
           ${(data.detalle || [])
-            .map(
-              (item) => `
+        .map(
+          (item) => `
             <tr>
               <td>${item.nombre_producto}</td>
               <td>${item.cantidad}</td>
@@ -176,8 +176,8 @@ export default function Ventas() {
               <td>$${item.subtotal?.toLocaleString("es-CO")}</td>
             </tr>
           `,
-            )
-            .join("")}
+        )
+        .join("")}
         </tbody>
       </table>
 
@@ -187,30 +187,29 @@ export default function Ventas() {
         </div>
       </div>
 
-      ${
-        data.abonos?.length
-          ? `
+      ${data.abonos?.length
+        ? `
       <div class="abonos">
         <h3>Abonos</h3>
         <table>
           <thead><tr><th>Fecha</th><th>Monto</th><th>Medio</th></tr></thead>
           <tbody>
             ${data.abonos
-              .map(
-                (a) => `
+          .map(
+            (a) => `
               <tr>
                 <td>${a.fecha}</td>
                 <td>$${a.monto?.toLocaleString("es-CO")}</td>
                 <td>${a.medio_pago}</td>
               </tr>
             `,
-              )
-              .join("")}
+          )
+          .join("")}
           </tbody>
         </table>
       </div>
       `
-          : ""
+        : ""
       }
     </body>
     </html>
@@ -305,24 +304,28 @@ export default function Ventas() {
       filtroEstados.length === 0 || filtroEstados.includes(v.estado);
 
     const medioPagoActual = getMedioPago(v.id_venta);
-let matchT = false;
+    let matchT = false;
 
 
-if (filtroTipos.length === 0) {
-  matchT = true;
-} else {
-  
-  if (filtroTipos.includes('sin_pago') && v.saldo_pendiente > 0) {
-    matchT = true;
-  }
-  
-  if (filtroTipos.includes(medioPagoActual)) {
-    matchT = true;
-  }
-}
+     
+    if (filtroTipos.length === 0) {
+      matchT = true; // sin filtros activos → mostrar todo
+    } else {
+      // Si "deben" está marcado, mostrar ventas con saldo pendiente > 0
+      if (filtroTipos.includes('deben') && v.saldo_pendiente > 0) {
+        matchT = true;
+      }
+      // Si el medio de pago real está en los filtros, mostrar
+      const medioPagoActual = getMedioPago(v.id_venta);
+      if (filtroTipos.includes(medioPagoActual)) {
+        matchT = true;
+      }
+    }
 
-return matchQ && matchE && matchT;
+    return matchQ && matchE && matchT;
   });
+  // Debería devolver la nueva función con 'saldo_pendiente > 0'
+
   useEffect(() => {
     if (lista.length > 0) {
       const ids = lista.map((v) => v.id_venta);

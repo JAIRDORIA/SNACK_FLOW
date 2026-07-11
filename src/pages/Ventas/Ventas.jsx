@@ -26,12 +26,16 @@ import {
 } from "lucide-react";
 import useVentasStore from "@/store/useVentasStore";
 import NuevaVentaModal from "@/components/nuevaVentaModal";
-import { getVentaDetalle, getVentaComprobante, anularVenta } from "@/api/ventas_api";
+import {
+  getVentaDetalle,
+  getVentaComprobante,
+  anularVenta,
+} from "@/api/ventas_api";
 import useAbonosStore from "@/store/useAbonoStore";
 import useDashboardStore from "@/store/useDashboardStore";
 import useEditarVentaStore from "@/store/useEditarVentaStore";
 import EditarVentaModal from "@/components/EditarVentaModal";
-import { capitalizarNombre } from '@/utils/formatearTexto'
+import { capitalizarNombre } from "@/utils/formatearTexto";
 import { formatearFechaColombia } from "@/utils/formatearFecha";
 
 // ══════════════════════════════════════════
@@ -65,7 +69,7 @@ const TIPO_CONFIG = {
   efectivo: { bg: "#f0fdf4", color: "#15803d", label: "Efectivo" },
   transferencia: { bg: "#eff6ff", color: "#1d4ed8", label: "Transferencia" },
   otro: { bg: "#f9fafb", color: "#6b7280", label: "Otro" },
-  sin_pago: { bg: "#f3f4f6", color: "#9ca3af", label: "Sin pago" },
+  Deben: { bg: "#f3f4f6", color: "#9ca3af", label: "Deben" },
   error: { bg: "#fee2e2", color: "#b91c1c", label: "Error" },
 };
 
@@ -163,8 +167,8 @@ export default function Ventas() {
         </thead>
         <tbody>
           ${(data.detalle || [])
-        .map(
-          (item) => `
+            .map(
+              (item) => `
             <tr>
               <td>${item.nombre_producto}</td>
               <td>${item.cantidad}</td>
@@ -172,8 +176,8 @@ export default function Ventas() {
               <td>$${item.subtotal?.toLocaleString("es-CO")}</td>
             </tr>
           `,
-        )
-        .join("")}
+            )
+            .join("")}
         </tbody>
       </table>
 
@@ -183,29 +187,30 @@ export default function Ventas() {
         </div>
       </div>
 
-      ${data.abonos?.length
-        ? `
+      ${
+        data.abonos?.length
+          ? `
       <div class="abonos">
         <h3>Abonos</h3>
         <table>
           <thead><tr><th>Fecha</th><th>Monto</th><th>Medio</th></tr></thead>
           <tbody>
             ${data.abonos
-          .map(
-            (a) => `
+              .map(
+                (a) => `
               <tr>
                 <td>${a.fecha}</td>
                 <td>$${a.monto?.toLocaleString("es-CO")}</td>
                 <td>${a.medio_pago}</td>
               </tr>
             `,
-          )
-          .join("")}
+              )
+              .join("")}
           </tbody>
         </table>
       </div>
       `
-        : ""
+          : ""
       }
     </body>
     </html>
@@ -275,17 +280,17 @@ export default function Ventas() {
     }
   };
   const handleAnularVenta = async () => {
-    if (!eliminarId) return
-    setAnulando(true)
+    if (!eliminarId) return;
+    setAnulando(true);
     try {
-      await anularVenta(eliminarId)
-      fetchVentas(1, 20, balance.corte_id)   // refrescar la lista
-      setEliminarId(null)
+      await anularVenta(eliminarId);
+      fetchVentas(1, 20, balance.corte_id); // refrescar la lista
+      setEliminarId(null);
     } catch (err) {
-      console.error('Error al anular venta', err)
-      alert(err.response?.data?.mensaje || 'Error al anular la venta')
+      console.error("Error al anular venta", err);
+      alert(err.response?.data?.mensaje || "Error al anular la venta");
     } finally {
-      setAnulando(false)
+      setAnulando(false);
     }
   };
 
@@ -300,9 +305,23 @@ export default function Ventas() {
       filtroEstados.length === 0 || filtroEstados.includes(v.estado);
 
     const medioPagoActual = getMedioPago(v.id_venta);
-    const matchT =
-      filtroTipos.length === 0 || filtroTipos.includes(medioPagoActual);
-    return matchQ && matchE && matchT;
+let matchT = false;
+
+
+if (filtroTipos.length === 0) {
+  matchT = true;
+} else {
+  
+  if (filtroTipos.includes('sin_pago') && v.saldo_pendiente > 0) {
+    matchT = true;
+  }
+  
+  if (filtroTipos.includes(medioPagoActual)) {
+    matchT = true;
+  }
+}
+
+return matchQ && matchE && matchT;
   });
   useEffect(() => {
     if (lista.length > 0) {
@@ -311,52 +330,55 @@ export default function Ventas() {
     }
   }, [lista]);
 
-  const ventasActivas = ventas.filter(v => v.estado !== 'anulada')
-  const ventasAnuladas = ventas.filter(v => v.estado === 'anulada')
+  const ventasActivas = ventas.filter((v) => v.estado !== "anulada");
+  const ventasAnuladas = ventas.filter((v) => v.estado === "anulada");
 
-  const totalMonto = ventasActivas.reduce((acc, v) => acc + (v.total || 0), 0)
-  const pendientes = ventasActivas.filter(v => v.estado === 'pendiente').length
-  const entregadas = ventasActivas.filter(v => v.estado === 'entregada').length
-  const anuladas = ventasAnuladas.length
+  const totalMonto = ventasActivas.reduce((acc, v) => acc + (v.total || 0), 0);
+  const pendientes = ventasActivas.filter(
+    (v) => v.estado === "pendiente",
+  ).length;
+  const entregadas = ventasActivas.filter(
+    (v) => v.estado === "entregada",
+  ).length;
+  const anuladas = ventasAnuladas.length;
   const statCards = [
     {
-      label: 'Total Ventas',
+      label: "Total Ventas",
       value: ventasActivas.length,
       icon: TrendingUp,
-      ring: 'ring-indigo-500/40',
-      iconCol: 'text-indigo-300',
+      ring: "ring-indigo-500/40",
+      iconCol: "text-indigo-300",
     },
     {
-      label: 'Monto Total',
+      label: "Monto Total",
       value: totalMonto,
       icon: DollarSign,
-      ring: 'ring-emerald-500/40',
-      iconCol: 'text-emerald-300',
+      ring: "ring-emerald-500/40",
+      iconCol: "text-emerald-300",
       isCurrency: true,
     },
     {
-      label: 'Pendientes',
+      label: "Pendientes",
       value: pendientes,
       icon: Clock,
-      ring: 'ring-amber-500/40',
-      iconCol: 'text-amber-300',
+      ring: "ring-amber-500/40",
+      iconCol: "text-amber-300",
     },
     {
-      label: 'Entregadas',
+      label: "Entregadas",
       value: entregadas,
       icon: CheckCircle2,
-      ring: 'ring-emerald-500/40',
-      iconCol: 'text-emerald-300',
+      ring: "ring-emerald-500/40",
+      iconCol: "text-emerald-300",
     },
     {
-      label: 'Anuladas',
+      label: "Anuladas",
       value: anuladas,
       icon: XCircle,
-      ring: 'ring-rose-500/40',
-      iconCol: 'text-rose-300',
+      ring: "ring-rose-500/40",
+      iconCol: "text-rose-300",
     },
-  ]
-
+  ];
 
   if (cargando)
     return (
@@ -419,150 +441,180 @@ export default function Ventas() {
 
       {/* ═══ KPI CARDS (Estilo Dashboard) ═══ */}
       <div
-  style={{ marginBottom: "32px" }}
-  className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-8"
->
-  {/* Monto Total (sin anuladas) */}
-  <div
-    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "scale(1.05)";
-      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "scale(1)";
-      e.currentTarget.style.boxShadow = "none";
-    }}
-  >
-    <div
-      style={{ margin: "12px 0px 12px 12px" }}
-      className="bg-[#13152280] ring-2 ring-orange-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
-    >
-      <DollarSign size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" color="#fb923c" />
-    </div>
-    <div className="min-w-0">
-      <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-white truncate">
-        ${totalMonto.toLocaleString("es-CO")}
-      </p>
-      <p
-        style={{ marginTop: "2px" }}
-        className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
+        style={{ marginBottom: "32px" }}
+        className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-8"
       >
-        Ingresos totales
-      </p>
-    </div>
-  </div>
+        {/* Monto Total (sin anuladas) */}
+        <div
+          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        >
+          <div
+            style={{ margin: "12px 0px 12px 12px" }}
+            className="bg-[#13152280] ring-2 ring-orange-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+          >
+            <DollarSign
+              size={16}
+              className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]"
+              color="#fb923c"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-white truncate">
+              ${totalMonto.toLocaleString("es-CO")}
+            </p>
+            <p
+              style={{ marginTop: "2px" }}
+              className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
+            >
+              Ingresos totales
+            </p>
+          </div>
+        </div>
 
-  {/* Total Ventas (activas) */}
-  <div
-    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "scale(1.05)";
-      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "scale(1)";
-      e.currentTarget.style.boxShadow = "none";
-    }}
-  >
-    <div
-      style={{ margin: "12px 0px 12px 12px" }}
-      className="bg-[#13152280] ring-2 ring-indigo-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
-    >
-      <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] lg:w-6 lg:h-6 text-indigo-300" />
-    </div>
-    <div className="min-w-0">
-      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">{ventasActivas.length}</p>
-      <p
-        style={{ marginTop: "2px" }}
-        className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
-      >
-        Total Ventas
-      </p>
-    </div>
-  </div>
+        {/* Total Ventas (activas) */}
+        <div
+          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        >
+          <div
+            style={{ margin: "12px 0px 12px 12px" }}
+            className="bg-[#13152280] ring-2 ring-indigo-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+          >
+            <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] lg:w-6 lg:h-6 text-indigo-300" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
+              {ventasActivas.length}
+            </p>
+            <p
+              style={{ marginTop: "2px" }}
+              className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
+            >
+              Total Ventas
+            </p>
+          </div>
+        </div>
 
-  {/* Entregadas */}
-  <div
-    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "scale(1.05)";
-      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "scale(1)";
-      e.currentTarget.style.boxShadow = "none";
-    }}
-  >
-    <div
-      style={{ margin: "12px 0px 12px 12px" }}
-      className="bg-[#13152280] ring-2 ring-cyan-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
-    >
-      <CheckCheck size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" color="#22d3ee" />
-    </div>
-    <div className="min-w-0">
-      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">{entregadas}</p>
-      <p
-        style={{ marginTop: "2px" }}
-        className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
-      >
-        Entregadas
-      </p>
-    </div>
-  </div>
+        {/* Entregadas */}
+        <div
+          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        >
+          <div
+            style={{ margin: "12px 0px 12px 12px" }}
+            className="bg-[#13152280] ring-2 ring-cyan-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+          >
+            <CheckCheck
+              size={16}
+              className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]"
+              color="#22d3ee"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
+              {entregadas}
+            </p>
+            <p
+              style={{ marginTop: "2px" }}
+              className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
+            >
+              Entregadas
+            </p>
+          </div>
+        </div>
 
-  {/* Pendientes */}
-  <div
-    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "scale(1.05)";
-      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "scale(1)";
-      e.currentTarget.style.boxShadow = "none";
-    }}
-  >
-    <div
-      style={{ margin: "12px 0px 12px 12px" }}
-      className="bg-[#13152280] ring-2 ring-[#e90e0e]/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
-    >
-      <Clock3 size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" color="#e90e0e" />
-    </div>
-    <div className="min-w-0">
-      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">{pendientes}</p>
-      <p style={{ marginTop: "2px" }} className="text-[10px] sm:text-xs text-white/50 truncate">
-        por entregar
-      </p>
-    </div>
-  </div>
+        {/* Pendientes */}
+        <div
+          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        >
+          <div
+            style={{ margin: "12px 0px 12px 12px" }}
+            className="bg-[#13152280] ring-2 ring-[#e90e0e]/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+          >
+            <Clock3
+              size={16}
+              className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]"
+              color="#e90e0e"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
+              {pendientes}
+            </p>
+            <p
+              style={{ marginTop: "2px" }}
+              className="text-[10px] sm:text-xs text-white/50 truncate"
+            >
+              por entregar
+            </p>
+          </div>
+        </div>
 
-  {/* Anuladas (nueva tarjeta) */}
-  <div
-    className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-    onMouseEnter={(e) => {
-      e.currentTarget.style.transform = "scale(1.05)";
-      e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.transform = "scale(1)";
-      e.currentTarget.style.boxShadow = "none";
-    }}
-  >
-    <div
-      style={{ margin: "12px 0px 12px 12px" }}
-      className="bg-[#13152280] ring-2 ring-rose-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
-    >
-      <XCircle size={16} className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]" color="#f43f5e" />
-    </div>
-    <div className="min-w-0">
-      <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">{anuladas}</p>
-      <p style={{ marginTop: "2px" }} className="text-[10px] sm:text-xs text-white/50 truncate">
-        Anuladas
-      </p>
-    </div>
-  </div>
-</div>
+        {/* Anuladas (nueva tarjeta) */}
+        <div
+          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = "scale(1.05)";
+            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = "scale(1)";
+            e.currentTarget.style.boxShadow = "none";
+          }}
+        >
+          <div
+            style={{ margin: "12px 0px 12px 12px" }}
+            className="bg-[#13152280] ring-2 ring-rose-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+          >
+            <XCircle
+              size={16}
+              className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]"
+              color="#f43f5e"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
+              {anuladas}
+            </p>
+            <p
+              style={{ marginTop: "2px" }}
+              className="text-[10px] sm:text-xs text-white/50 truncate"
+            >
+              Anuladas
+            </p>
+          </div>
+        </div>
+      </div>
       {/* ═══ TABLA ═══ */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-visible">
         {/* barra busqueda + filtro */}
@@ -791,7 +843,7 @@ export default function Ventas() {
                         style={{ padding: "16px 24px" }}
                         className=" text-slate-500 text-sm whitespace-nowrap"
                       >
-                        {formatearFechaColombia(v.fecha_entrega) }
+                        {formatearFechaColombia(v.fecha_entrega)}
                       </td>
                       <td
                         style={{ padding: "16px 24px" }}
@@ -808,12 +860,18 @@ export default function Ventas() {
                       {/* Columna Pagada */}
                       <td className="px-6 py-4">
                         {v.saldo_pendiente === 0 ? (
-                          <span style={{ padding: "6px 14px" }} className="inline-flex items-center gap-1 text-xs px-3.5 py-1.5 rounded-full font-medium bg-emerald-50 text-emerald-600 border border-emerald-200">
+                          <span
+                            style={{ padding: "6px 14px" }}
+                            className="inline-flex items-center gap-1 text-xs px-3.5 py-1.5 rounded-full font-medium bg-emerald-50 text-emerald-600 border border-emerald-200"
+                          >
                             <CheckCircle2 size={12} />
                             Pagada
                           </span>
                         ) : (
-                          <span style={{ padding: "6px 14px" }} className="inline-flex items-center gap-1 text-xs px-3.5 py-1.5 rounded-full font-medium bg-amber-50 text-amber-600 border border-amber-200">
+                          <span
+                            style={{ padding: "6px 14px" }}
+                            className="inline-flex items-center gap-1 text-xs px-3.5 py-1.5 rounded-full font-medium bg-amber-50 text-amber-600 border border-amber-200"
+                          >
                             <Clock size={12} />
                             Debe
                           </span>
@@ -992,7 +1050,10 @@ export default function Ventas() {
                 onClick={() => setEliminarId(null)}
                 disabled={anulando}
                 className="flex-1 py-3 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-all"
-                style={{ cursor: anulando ? 'not-allowed' : 'pointer',padding:"12px 0px" }}
+                style={{
+                  cursor: anulando ? "not-allowed" : "pointer",
+                  padding: "12px 0px",
+                }}
               >
                 Cancelar
               </button>
@@ -1000,9 +1061,12 @@ export default function Ventas() {
                 onClick={handleAnularVenta}
                 disabled={anulando}
                 className="flex-1 py-3 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
-                style={{ cursor: anulando ? 'not-allowed' : 'pointer' ,padding:"12px 0px" }}
+                style={{
+                  cursor: anulando ? "not-allowed" : "pointer",
+                  padding: "12px 0px",
+                }}
               >
-                {anulando ? 'Anulando...' : 'Sí, anular'}
+                {anulando ? "Anulando..." : "Sí, anular"}
               </button>
             </div>
           </div>
@@ -1010,17 +1074,38 @@ export default function Ventas() {
       )}
       {/* Modal confirmar entregar */}
       {entregarId && (
-        <div style={{ padding: "16px" }} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div style={{ padding: "32px" }} className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-8 text-center">
-            <div style={{ marginBottom: "24px", marginLeft: "auto", marginRight: "auto" }} className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-6">
+        <div
+          style={{ padding: "16px" }}
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        >
+          <div
+            style={{ padding: "32px" }}
+            className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-8 text-center"
+          >
+            <div
+              style={{
+                marginBottom: "24px",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+              className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-6"
+            >
               <CircleCheckBig size={32} className="text-emerald-500" />
             </div>
-            <p style={{ marginBottom: "12px" }} className="font-bold text-xl text-slate-800 mb-3">¿Marcar como entregada?</p>
-            <p style={{ marginBottom: "32px" }} className="text-sm text-slate-500 mb-8 leading-relaxed">
-              La venta{' '}
+            <p
+              style={{ marginBottom: "12px" }}
+              className="font-bold text-xl text-slate-800 mb-3"
+            >
+              ¿Marcar como entregada?
+            </p>
+            <p
+              style={{ marginBottom: "32px" }}
+              className="text-sm text-slate-500 mb-8 leading-relaxed"
+            >
+              La venta{" "}
               <span className="font-semibold text-indigo-600">
-                #{String(entregarId).padStart(3, '0')}
-              </span>{' '}
+                #{String(entregarId).padStart(3, "0")}
+              </span>{" "}
               pasará a estado <strong>Entregada</strong>. ¿Confirmas?
             </p>
             <div className="flex gap-3">
@@ -1038,7 +1123,7 @@ export default function Ventas() {
                 style={{ paddingTop: "12px", paddingBottom: "12px" }}
                 className="flex-1 py-3 border-none rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-all shadow-sm hover:shadow-md disabled:opacity-70"
               >
-                {entregando ? 'Guardando...' : 'Sí, entregar'}
+                {entregando ? "Guardando..." : "Sí, entregar"}
               </button>
             </div>
           </div>

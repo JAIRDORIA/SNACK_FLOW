@@ -3,6 +3,7 @@ import { Plus, Search, Trash2, Loader2, AlertCircle, Info, X } from 'lucide-reac
 import useAbonosModuleStore from '@/store/useAbonosModuleStore'
 import useBalanceStore from '@/store/useBalanceStore'
 import NuevoAbonoModal from '@/components/NuevoAbonoModal'
+import { formatearFechaCorta } from '@/utils/formatearFecha'
 
 export default function Abonos() {
   const {
@@ -109,7 +110,7 @@ export default function Abonos() {
                   abonosFiltrados.map(abono => (
                     <tr key={abono.id} className="border-t border-gray-100 hover:bg-gray-50/50 transition-colors">
                       <td style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 font-medium text-indigo-600 text-xs sm:text-sm whitespace-nowrap">#{abono.id}</td>
-                      <td style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-gray-500 text-xs sm:text-sm whitespace-nowrap">{abono.fecha}</td>
+                      <td style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-gray-500 text-xs sm:text-sm whitespace-nowrap">{formatearFechaCorta(abono.fecha)}</td>
                       <td style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-gray-700 text-xs sm:text-sm whitespace-nowrap">{abono.nombre_cliente}</td>
                       <td style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-right font-semibold text-xs sm:text-sm whitespace-nowrap">${abono.monto.toLocaleString('es-CO')}</td>
                       <td style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3">

@@ -8,7 +8,7 @@ import useInventarioStore from '@/store/useInventarioStore'
 import { putInventario } from '@/api/inventario_api'
 import { postProduccion, getProducciones } from '@/api/producciones_api'
 import { getProductos } from '@/api/productos_api'
-import { formatearFechaColombia } from '@/utils/formatearFecha'
+import { formatearFechaColombia,formatearFechaCorta } from '@/utils/formatearFecha'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
@@ -408,7 +408,7 @@ function ModalHistorialProduccion({ onCerrar }) {
                           👤 {prod.nombre_usuario || `Usuario #${prod.usuario_id}`}
                         </span>
                       </td>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{prod.fecha}</td>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{formatearFechaCorta(prod.fecha) }</td>
                       <td style={{ padding: '14px 12px', fontSize: '13px', color: '#64748b', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {prod.observacion || '—'}
                       </td>

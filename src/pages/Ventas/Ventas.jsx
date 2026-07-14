@@ -1408,7 +1408,7 @@ export default function Ventas() {
                   {ESTADOS_CONFIG[detalleVenta.estado]?.label}
                 </span>
                 <span className="text-sm text-slate-400">
-                  Entrega: {detalleVenta.fecha_entrega}
+                  Entrega: {formatearFechaColombia(detalleVenta.fecha_entrega) }
                 </span>
               </div>
               <div className="flex items-center gap-2">
@@ -1454,7 +1454,7 @@ export default function Ventas() {
                   Comprobante {comprobante.numero}
                 </h3>
                 <p className="text-sm text-slate-500">
-                  Fecha de emisión: {comprobante.fecha_emision}
+                  Fecha de emisión: {formatearFechaColombia(comprobante.fecha_emision)}
                 </p>
               </div>
               <div className="flex gap-2 no-print">
@@ -1506,7 +1506,7 @@ export default function Ventas() {
                     Fecha de venta
                   </p>
                   <p className="font-medium text-slate-800">
-                    {comprobante.fecha_venta}
+                    {formatearFechaColombia(comprobante.fecha_venta) }
                   </p>
                 </div>
                 <div>
@@ -1514,7 +1514,7 @@ export default function Ventas() {
                     Fecha de entrega
                   </p>
                   <p className="font-medium text-slate-800">
-                    {comprobante.fecha_entrega}
+                    {formatearFechaColombia(comprobante.fecha_entrega) }
                   </p>
                 </div>
               </div>

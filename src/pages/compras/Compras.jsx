@@ -462,7 +462,7 @@ export default function Compras() {
                     {fmt(c.costo_total || 0)}
                   </td>
                   <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
-                    {fmtFecha(c.fecha_compra)}
+                    {c.fecha_compra}
                   </td>
                   <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
                     {c.medio_pago || <span style={{ color: '#cbd5e1' }}>—</span>}

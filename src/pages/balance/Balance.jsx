@@ -318,8 +318,8 @@ export default function Balance() {
                   historial.map((corte) => (
                     <tr key={corte.id} className="border-t border-gray-100 hover:bg-gray-50/50 transition-colors">
                       <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 font-medium text-indigo-600">#{corte.numero}</td>
-                      <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm">{corte.fecha_inicio || '—'}</td>
-                      <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm">{corte.fecha_cierre || '—'}</td>
+                      <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm">{formatearFechaColombia(corte.fecha_inicio)  || '—'}</td>
+                      <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-gray-500 text-xs sm:text-sm">{formatearFechaColombia( corte.fecha_cierre) || '—'}</td>
                       <td style={{padding:" 12px 16px"}} className="px-4 sm:px-6 py-3 sm:py-4 text-center">
                         {corte.estado === 'cerrado' && (
                           <button

@@ -35,6 +35,7 @@ const menuPrincipal = [
   { id: 'proveedores', label: 'Proveedores', icon: Truck, path: '/proveedores' },
   { id: 'balance', label: 'Balance', icon: Scale, path: '/balance' },
   { id: 'abonos', label: 'Abonos', icon: DollarSign, path: '/abonos' },
+  { id: 'prestamos', label: 'Prestamos', icon: DollarSign, path: '/prestamos' },
   { id: 'auditoria', label: 'Auditoría', icon: FileText, path: '/auditoria', soloAdmin: true },
 ]
 

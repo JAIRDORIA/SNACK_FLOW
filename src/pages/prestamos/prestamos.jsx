@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { usePrestamosStore } from '@/store/Useprestamosstore' 
-import NuevoPrestamoModal from '@/components/NuevoPrestamomodal'
-import PagarPrestamoModal from '@/components/PagarPrestamomodal'
+import NuevoPrestamoModal from '@/components/Nuevoprestamomodal'
+import PagarPrestamoModal from '@/components/Pagarprestamomodal'
 import { formatearFechaColombia } from '@/utils/formatearFecha'
 
 export default function Prestamos() {

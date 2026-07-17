@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { usePrestamosStore } from '@/store/Useprestamosstore' 
-import NuevoPrestamoModal from '@/components/Nuevoprestamomodal'
+import NuevoPrestamoModal from '@/components/nuevoprestamomodal'
 import PagarPrestamoModal from '@/components/Pagarprestamomodal'
 import { formatearFechaColombia } from '@/utils/formatearFecha'
 

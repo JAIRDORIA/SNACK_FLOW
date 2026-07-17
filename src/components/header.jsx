@@ -13,6 +13,7 @@ const nombresPagina = {
   '/proveedores': 'Proveedores',
   '/balance': 'Balance',
   '/abonos': 'Abonos',
+  '/prestamos': 'Prestamos',
   '/cortes': 'Cortes',
   '/inventario/ver': 'Inventario',
   '/inventario/productos': 'Productos',

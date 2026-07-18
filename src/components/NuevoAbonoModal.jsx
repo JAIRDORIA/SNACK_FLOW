@@ -53,7 +53,7 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
     setCargandoVentas(true)
     try {
       // Obtener ventas pendientes de ese cliente
-      const res = await api.get('/ventas/?limite=200')
+      const res = await api.get('/ventas/?limite=190')
       let todas = res.data.datos || []
       console.log(resumenFuturo)
       if (resumenFuturo?.id) {

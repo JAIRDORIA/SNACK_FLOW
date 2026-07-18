@@ -196,7 +196,7 @@ export default function CustomersManager() {
             <Users size={18} className="text-indigo-300" />
           </div>
           <div>
-            <p className="text-xl font-bold text-white">{customers.length}</p>
+            <p className="text-xl font-bold text-white">{totalClientes}</p>
             <p className="text-xs text-white/50">Clientes registrados</p>
           </div>
         </div>

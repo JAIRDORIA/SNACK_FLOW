@@ -5,6 +5,7 @@ import {
   Search,
   Pencil,
   Trash2,
+  Loader2,  
   X,
   AlertTriangle,
   CheckCircle,
@@ -79,9 +80,11 @@ const TIPO_CONFIG = {
 export default function Ventas() {
   const { ventas, total, pagina, total_paginas, cargando, error, fetchVentas } =
     useVentasStore();
+ 
   const [detalleVenta, setDetalleVenta] = useState(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
   const [busqueda, setBusqueda] = useState("");
+   const [busquedaInput, setBusquedaInput] = useState(busqueda) ;
   const [modalOpen, setModalOpen] = useState(false);
   const [eliminarId, setEliminarId] = useState(null);
   const [anulando, setAnulando] = useState(false);
@@ -100,6 +103,19 @@ export default function Ventas() {
   const { cargarVenta } = useEditarVentaStore();
   const [entregarId, setEntregarId] = useState(null);
   const [entregando, setEntregando] = useState(false);
+  const [buscando, setBuscando] = useState(false)
+  const debounceRef = useRef(null)
+
+const handleSearch = (value) => {
+    setBusquedaInput(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(async () => {
+        setBusqueda(value)
+        setBuscando(true)                          // Activa spinner local
+        await fetchVentas(1, 20, null, value, { silent: true }) // Búsqueda silenciosa
+        setBuscando(false)                         // Desactiva spinner local
+    }, 300)
+}
 
   // Cargar tipos de pago para las ventas visibles
 
@@ -294,12 +310,7 @@ export default function Ventas() {
   };
 
   const lista = ventas.filter((v) => {
-    const q = busqueda.toLowerCase();
-    const matchQ =
-      String(v.id_venta).includes(q) ||
-      v.nombre_cliente?.toLowerCase().includes(q) ||
-      v.fecha_entrega?.includes(q) ||
-      v.estado?.toLowerCase().includes(q);
+    
     const matchE =
       filtroEstados.length === 0 || filtroEstados.includes(v.estado);
 
@@ -322,7 +333,7 @@ export default function Ventas() {
       }
     }
 
-    return matchQ && matchE && matchT;
+    return  matchE && matchT;
   });
   // Debería devolver la nueva función con 'saldo_pendiente > 0'
 
@@ -635,14 +646,19 @@ export default function Ventas() {
               }}
               type="text"
               placeholder="Buscar por ID, cliente, fecha o estado..."
-              value={busqueda}
-              onChange={(e) => setBusqueda(e.target.value)}
+              value={busquedaInput}
+              onChange={e => handleSearch(e.target.value)}
               className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-xl text-sm outline-none text-slate-700 bg-white focus:border-indigo-400 focus:ring-3 focus:ring-indigo-50 transition-all placeholder:text-slate-400"
             />
             <Search
               size={16}
               className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
             />
+            {buscando && (
+        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            <Loader2 size={16} className="animate-spin text-indigo-500" />
+        </div>
+    )}
           </div>
 
           <div ref={filtroRef} className="relative">
@@ -984,7 +1000,7 @@ export default function Ventas() {
           {total_paginas > 1 && (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => fetchVentas(pagina - 1)}
+                onClick={() =>  fetchVentas(pagina - 1, 20, null, busqueda)}
                 disabled={pagina === 1}
                 className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
                 style={{
@@ -1001,7 +1017,7 @@ export default function Ventas() {
                 {pagina} / {total_paginas}
               </span>
               <button
-                onClick={() => fetchVentas(pagina + 1)}
+                onClick={() => fetchVentas(pagina + 1, 20, null, busqueda)}
                 disabled={pagina === total_paginas}
                 className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
                 style={{

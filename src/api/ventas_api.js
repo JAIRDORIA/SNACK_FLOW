@@ -1,9 +1,10 @@
 import api from "./axios";
 
 // listar ventas con paginacion
-export const getVentas = (pagina = 1, limite = 20, corte_id = null) => {
+export const getVentas = (pagina = 1, limite = 20, corte_id = null, q = '') => {
     let url = `/ventas/?pagina=${pagina}&limite=${limite}`
     if (corte_id) url += `&corte_id=${corte_id}`
+    if (q) url += `&q=${encodeURIComponent(q)}`
     return api.get(url)
 }
 

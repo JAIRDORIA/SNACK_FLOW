@@ -502,7 +502,7 @@ export default function Ventas() {
           </div>
           <div className="min-w-0">
             <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
-              {ventasActivas.length}
+              {total}
             </p>
             <p
               style={{ marginTop: "2px" }}

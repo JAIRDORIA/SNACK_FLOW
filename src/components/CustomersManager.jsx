@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,useRef} from 'react'
 import {
-  Plus, Search, Pencil, Trash2, Users, Phone, MapPin, X, AlertTriangle, Mail
+  Plus, Search, Pencil, Trash2, Users, Phone, MapPin, X, AlertTriangle, Mail,Loader2
 } from 'lucide-react'
 import api from '../api/axios'
 import Toast from '@/components/Toast'
@@ -9,14 +9,16 @@ import { capitalizarNombre } from '@/utils/formatearTexto'
 
 export default function CustomersManager() {
   const [customers, setCustomers] = useState([])
+  const [buscando, setBuscando] = useState(false)
+  const debounceRef = useRef(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [deleteModal, setDeleteModal] = useState({ open: false, id: null, nombre: '' })
   const [deleting, setDeleting] = useState(false)
   const [toast, setToast] = useState(null)
   const [pagina, setPagina] = useState(1)
-const [totalPaginas, setTotalPaginas] = useState(0)
-const [totalClientes, setTotalClientes] = useState(0)
+  const [totalPaginas, setTotalPaginas] = useState(0)
+  const [totalClientes, setTotalClientes] = useState(0)
 
   // Modal de creación
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
@@ -36,14 +38,16 @@ const [totalClientes, setTotalClientes] = useState(0)
   const [searchTerm, setSearchTerm] = useState('')
 
   // Cargar clientes
-  const fetchCustomers = async (pagina=1) => {
-    setLoading(true)
+  const fetchCustomers = async (pagina = 1, busqueda = searchTerm) => {
+
+    setBuscando(true)
     try {
-      const response = await api.get('/clientes/',{
-        params: { 
-        page: pagina, 
-        per_page: 10 
-      } 
+      const response = await api.get('/clientes/', {
+        params: {
+          page: pagina,
+          per_page: 10,
+          q: busqueda  // ← Enviar el término de búsqueda al backend
+        }
       })
       const data = response.data
       setCustomers(data.items || [])
@@ -55,13 +59,22 @@ const [totalClientes, setTotalClientes] = useState(0)
       console.error(err)
       setError('No se pudieron cargar los clientes.')
     } finally {
-      setLoading(false)
+
+      setBuscando(false)
     }
   }
 
   useEffect(() => {
     fetchCustomers()
   }, [])
+
+  const handleSearch = (value) => {
+    setSearchTerm(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      fetchCustomers(1, value)   // página 1, término actual
+    }, 300)
+  }
 
   // Crear cliente
   const handleCreate = async (payload) => {
@@ -71,7 +84,7 @@ const [totalClientes, setTotalClientes] = useState(0)
         identificacion: payload.identificacion,  // ← nuevo
         telefono: payload.telefono,
         direccion: payload.direccion,
-        email: payload.email ,
+        email: payload.email,
       })
       setCreateForm({ nombres: '', apellidos: '', identificacion: '', telefono: '', direccion: '', email: '' })
       setIsCreateModalOpen(false)
@@ -110,7 +123,7 @@ const [totalClientes, setTotalClientes] = useState(0)
         identificacion: payload.identificacion,  // ← nuevo
         telefono: payload.telefono,
         direccion: payload.direccion,
-        email: payload.email ,
+        email: payload.email,
       })
       setIsEditModalOpen(false)
       fetchCustomers()
@@ -138,10 +151,6 @@ const [totalClientes, setTotalClientes] = useState(0)
   }
 
   // Filtro de búsqueda
-  const filteredCustomers = customers.filter((c) =>
-    c.Cli_Nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    c.Cli_Telefono?.includes(searchTerm)
-  )
 
   if (loading) {
     return (
@@ -196,7 +205,7 @@ const [totalClientes, setTotalClientes] = useState(0)
             <Phone size={18} className="text-cyan-300" />
           </div>
           <div>
-            <p className="text-xl font-bold text-white">{filteredCustomers.length}</p>
+            <p className="text-xl font-bold text-white">{customers.length}</p>
             <p className="text-xs text-white/50">Resultados encontrados</p>
           </div>
         </div>
@@ -221,16 +230,21 @@ const [totalClientes, setTotalClientes] = useState(0)
       {/* TABLA (sin formulario inline) */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
         <div style={{ padding: "16px" }} className="p-4 border-b border-gray-100">
-          <div className="relative max-w-sm">
+          <div style={{ position: 'relative', maxWidth: '360px' }}>
             <input
               type="text"
               placeholder="Buscar cliente..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ paddingRight: "16px", paddingLeft: "40px", paddingTop: "8px", paddingBottom: "8px" }}
+              onChange={(e) => handleSearch(e.target.value)}
+              style={{ paddingRight: '16px', paddingLeft: '40px', paddingTop: '8px', paddingBottom: '8px' }}
               className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:ring-2 focus:ring-indigo-400"
             />
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={15} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
+            {buscando && (
+              <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)' }}>
+                <Loader2 size={16} className="animate-spin text-indigo-500" />
+              </div>
+            )}
           </div>
         </div>
         <div className="overflow-x-auto">
@@ -245,16 +259,16 @@ const [totalClientes, setTotalClientes] = useState(0)
               </tr>
             </thead>
             <tbody>
-              {filteredCustomers.length === 0 ? (
+              {customers.length === 0 ? (
                 <tr>
                   <td style={{ paddingTop: "48px", paddingBottom: "48px" }} colSpan="4" className="text-center py-12 text-gray-400">No hay clientes registrados</td>
                 </tr>
               ) : (
-                filteredCustomers.map((customer) => (
+                customers.map((customer) => (
                   <tr key={customer.ID_Cliente} className="border-t border-gray-100 hover:bg-gray-50">
                     <td style={{ padding: "12px  16px" }} className="px-4 py-3 font-medium text-gray-800">{capitalizarNombre(customer.Cli_Nombre)}</td>
                     <td style={{ padding: "12px  16px" }} className="px-4 py-3 text-gray-600">{capitalizarNombre(customer.Cli_Telefono) || '—'}</td>
-                    <td style={{ padding: "12px  16px" }} className="px-4 py-3 text-gray-600">{capitalizarNombre(customer.Cli_Direccion)    || '—'}</td>
+                    <td style={{ padding: "12px  16px" }} className="px-4 py-3 text-gray-600">{capitalizarNombre(customer.Cli_Direccion) || '—'}</td>
                     <td style={{ padding: "12px  16px" }} className="px-4 py-3">
                       <div className="flex gap-1">
                         <button
@@ -277,53 +291,53 @@ const [totalClientes, setTotalClientes] = useState(0)
             </tbody>
           </table>
           {/* Pie de tabla con paginación */}
-<div
-  style={{ padding: "20px 32px" }}
-  className="border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30"
->
-  <span className="text-sm">
-    Mostrando{" "}
-    <strong className="text-slate-700 font-semibold">
-      {customers.length}
-    </strong>{" "}
-    de{" "}
-    <strong className="text-slate-700 font-semibold">{totalClientes}</strong>{" "}
-    clientes
-  </span>
+          <div
+            style={{ padding: "20px 32px" }}
+            className="border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30"
+          >
+            <span className="text-sm">
+              Mostrando{" "}
+              <strong className="text-slate-700 font-semibold">
+                {customers.length}
+              </strong>{" "}
+              de{" "}
+              <strong className="text-slate-700 font-semibold">{totalClientes}</strong>{" "}
+              clientes
+            </span>
 
-  {totalPaginas > 1 && (
-    <div className="flex items-center gap-2">
-      <button
-        onClick={() => fetchCustomers(pagina - 1)}
-        disabled={pagina === 1}
-        className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
-        style={{
-          cursor: pagina === 1 ? "not-allowed" : "pointer",
-          padding: "10px 16px",
-        }}
-      >
-        ← Anterior
-      </button>
-      <span
-        style={{ paddingLeft: "12px", paddingRight: "12px" }}
-        className="text-sm text-slate-500 px-3 font-medium"
-      >
-        {pagina} / {totalPaginas}
-      </span>
-      <button
-        onClick={() => fetchCustomers(pagina + 1)}
-        disabled={pagina === totalPaginas}
-        className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
-        style={{
-          cursor: pagina === totalPaginas ? "not-allowed" : "pointer",
-          padding: "10px 16px",
-        }}
-      >
-        Siguiente →
-      </button>
-    </div>
-  )}
-</div>
+            {totalPaginas > 1 && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => fetchCustomers(pagina - 1, searchTerm)}
+                  disabled={pagina === 1}
+                  className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+                  style={{
+                    cursor: pagina === 1 ? "not-allowed" : "pointer",
+                    padding: "10px 16px",
+                  }}
+                >
+                  ← Anterior
+                </button>
+                <span
+                  style={{ paddingLeft: "12px", paddingRight: "12px" }}
+                  className="text-sm text-slate-500 px-3 font-medium"
+                >
+                  {pagina} / {totalPaginas}
+                </span>
+                <button
+                  onClick={() => fetchCustomers(pagina + 1, searchTerm)}
+                  disabled={pagina === totalPaginas}
+                  className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+                  style={{
+                    cursor: pagina === totalPaginas ? "not-allowed" : "pointer",
+                    padding: "10px 16px",
+                  }}
+                >
+                  Siguiente →
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -339,7 +353,7 @@ const [totalClientes, setTotalClientes] = useState(0)
             </div>
             <form onSubmit={(e) => {
               e.preventDefault()
-              
+
               const nombreCompleto = `${createForm.nombres.trim()} ${createForm.apellidos.trim()}`
               handleCreate({
                 nombre: nombreCompleto,
@@ -475,7 +489,7 @@ const [totalClientes, setTotalClientes] = useState(0)
             </div>
             <form onSubmit={(e) => {
               e.preventDefault()
-            
+
               const nombreCompleto = `${editingCustomer.nombres.trim()} ${editingCustomer.apellidos.trim()}`
               handleUpdate({
                 id: editingCustomer.id,

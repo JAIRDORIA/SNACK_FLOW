@@ -16,17 +16,25 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
     const [error, setError] = useState('')
     const [guardando, setGuardando] = useState(false)
 
-    useEffect(() => {
-        if (!isOpen) return
-        getClientes().then((res) => setClientes(res.data.items || [])).catch(() => setClientes([]))
-    }, [isOpen])
+  useEffect(() => {
+  if (!isOpen) return
+  if (!busquedaCliente || clienteSeleccionado) {
+    setClientes([])
+    return
+  }
+
+  const timer = setTimeout(() => {
+    getClientes(1, 10, busquedaCliente)
+      .then((res) => setClientes(res.data.items))
+      .catch(() => {})
+  }, 300) // espera 300ms desde que el usuario deja de escribir
+
+  return () => clearTimeout(timer)
+}, [isOpen, busquedaCliente, clienteSeleccionado])
 
     if (!isOpen) return null
 
-    const clientesFiltrados = clientes.filter((c) =>
-        c.Cli_Nombre.toLowerCase().includes(busquedaCliente.toLowerCase())
-    )
-
+    
     const resetForm = () => {
         setClienteSeleccionado(null)
         setBusquedaCliente('')
@@ -91,7 +99,7 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
                         />
                         {busquedaCliente && !clienteSeleccionado && (
                             <div style={{ marginTop: "4px" }} className="border rounded mt-1 max-h-40 overflow-y-auto">
-                                {clientesFiltrados.map((c) => (
+                                {clientes.map((c) => (
                                     <div
                                         key={c.ID_Cliente}
                                         style={{ padding: "8px 12px" }}

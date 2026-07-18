@@ -11,6 +11,7 @@ import {
 import useNuevaVentaStore from "@/store/useNuevaVentaStore";
 import useBalanceStore from "@/store/useBalanceStore";
 import { formatearFechaColombia } from "@/utils/formatearFecha";
+import { getClientes } from "@/api/clientes_api";
 
 const MEDIOS_PAGO = ["efectivo", "transferencia", "otro"];
 
@@ -52,6 +53,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     totalAbonado,
   } = useNuevaVentaStore();
   const { balance, fetchBalance } = useBalanceStore();
+  const [clienteNombre, setClienteNombre] = useState('')
+const [clienteIdentificacion, setClienteIdentificacion] = useState('')
 
   const selectProductoRef = useRef(null);
   const [textoBusqueda, setTextoBusqueda] = useState("");
@@ -115,6 +118,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
     setItemsFiltrados([...productosFiltrados, ...combosFiltrados]);
   }, [textoBusqueda, productos, combos]);
+
+
   useEffect(() => {
     if (!textoBusqueda.trim()) {
       setItemsFiltrados([]);
@@ -169,17 +174,20 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       setClientesFiltrados([]);
       return;
     }
-    const q = textoBusquedaCliente.toLowerCase();
-    const filtrados = clientes.filter((c) =>
-      c.Cli_Nombre?.toLowerCase().includes(q),
-    );
-    setClientesFiltrados(filtrados);
-  }, [textoBusquedaCliente, clientes, seleccionado]);
+    getClientes(1, 25, textoBusquedaCliente)
+      .then(res => {
+        setClientesFiltrados(res.data.items || res.data.datos || [])
+      })
+      .catch(() => setClientesFiltrados([]))
+  }, [textoBusquedaCliente, seleccionado]);
+
+
+
   const fechaMinimaEntrega = balance?.fecha_inicio
     ? formatearFechaColombia(balance.fecha_inicio, false)
-        .split("/")
-        .reverse()
-        .join("-")
+      .split("/")
+      .reverse()
+      .join("-")
     : "";
 
   if (!open) return null;
@@ -268,6 +276,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               key={c.ID_Cliente}
                               onClick={() => {
                                 setClienteId(c.ID_Cliente);
+                                setClienteNombre(c.Cli_Nombre)                         // ← nuevo
+                                setClienteIdentificacion(c.Cli_identificacion || 'S/N') // ← nuevo
                                 setTextoBusquedaCliente(
                                   `${c.Cli_Nombre} - ${c.Cli_identificacion || "S/N"}`,
                                 );
@@ -298,15 +308,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
                 {clienteId && (
                   <p className="text-xs text-indigo-600 mt-1">
-                    Cliente seleccionado:{" "}
-                    {
-                      clientes.find((c) => c.ID_Cliente == clienteId)
-                        ?.Cli_Nombre
-                    }
-                    (
-                    {clientes.find((c) => c.ID_Cliente == clienteId)
-                      ?.Cli_identificacion || "S/N"}
-                    )
+                     Cliente seleccionado: {clienteNombre} ({clienteIdentificacion})
                   </p>
                 )}
               </div>
@@ -542,7 +544,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                             setPrecioEditado(
                               parseFloat(
                                 itemSeleccionado.precio_venta ||
-                                  itemSeleccionado.precio,
+                                itemSeleccionado.precio,
                               ),
                             );
                             setMostrarInfoCombo(true);
@@ -982,7 +984,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             </button>
 
             {itemSeleccionado.productos &&
-            itemSeleccionado.productos.length > 0 ? (
+              itemSeleccionado.productos.length > 0 ? (
               <>
                 <table
                   style={{ marginBottom: "16px" }}

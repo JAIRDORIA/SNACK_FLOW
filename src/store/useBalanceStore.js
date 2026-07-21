@@ -57,23 +57,35 @@ cerrarDetalleCorte: () => set({ detalleCorte: null }),
   },
 
 
+// Trae TODAS las paginas de un listado paginado, sin importar cuantas sean
+fetchTodasLasPaginas : async (fetchFn, corteId, campoLista) => {
+  let pagina = 1
+  let totalPaginas = 1
+  let acumulado = []
+
+  do {
+    const res = await fetchFn(pagina, 100, corteId)
+    const datos = res.data?.[campoLista] || []
+    acumulado = acumulado.concat(datos)
+    totalPaginas = res.data?.total_paginas || 1
+    pagina++
+  } while (pagina <= totalPaginas)
+
+  return acumulado
+},
+
 fetchDetalleCorte: async (corteId) => {
   set({ cargandoDetalleCorte: true, errorDetalleCorte: null, detalleCorte: null })
-  
+
   try {
-    console.log('🔍 Solicitando ventas y compras para el corte:', corteId)
-    const [ventasRes, comprasRes] = await Promise.all([
-      getVentas(1,100,corteId),
-      getCompras(1,100,corteId)
+    const [ventas, compras] = await Promise.all([
+      get().fetchTodasLasPaginas(getVentas, corteId, 'datos'),
+      get().fetchTodasLasPaginas(getCompras, corteId, 'compras'),
     ])
-     console.log('📦 Respuesta ventas:', ventasRes.data)
-    console.log('📦 Respuesta compras:', comprasRes.data)
-    
-    const ventas = ventasRes.data?.datos || []
-    const compras = comprasRes.data?.compras || []
+
     const totalVentas = ventas.reduce((sum, v) => sum + (v.total || 0), 0)
     const totalCompras = compras.reduce((sum, c) => sum + (c.total || 0), 0)
-    
+
     set({
       detalleCorte: {
         corteId,

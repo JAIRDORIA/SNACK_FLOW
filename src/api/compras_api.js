@@ -1,11 +1,11 @@
 import api from "./axios";
 
-export const getCompras = (pagina = 1, limite = 20, corteId = null) => {
+export const getCompras = (pagina = 1, limite = 20, corteId = null, busqueda = '') => {
     let url = `/compras/?pagina=${pagina}&limite=${limite}`
-    if (corteId !== null && corteId !== undefined) url += `&corte_id=${corteId}`
+    if (corteId) url += `&corte_id=${corteId}`
+    if (busqueda) url += `&q=${encodeURIComponent(busqueda)}`
     return api.get(url)
 }
-
 export const postCompra = (data) =>
     api.post("/compras/", data);
 

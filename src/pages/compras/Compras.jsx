@@ -2,8 +2,8 @@ import { useState, useRef, useEffect } from 'react'
 import {
   Plus, Search, Pencil, Trash2, X,
   AlertTriangle, ShoppingBag, DollarSign,
-  Calendar, Truck, SlidersHorizontal, ChevronDown,
-  TrendingDown, BarChart3, CheckCircle2, FileText, Info,CreditCard
+  Calendar, Truck, SlidersHorizontal, ChevronDown,Loader2,
+  TrendingDown, BarChart3, CheckCircle2, FileText, Info, CreditCard
 } from 'lucide-react'
 import useComprasStore from '@/store/useComprasStore'
 import useProveedoresStore from '@/store/useProveedoresStore'
@@ -282,17 +282,19 @@ export default function Compras() {
   const {
     compras, cargando, error,
     fetchCompras, crearCompra, editarCompra, eliminarCompra,
-    corteIdFiltro, cortes, fetchCortes
+    corteIdFiltro, cortes, fetchCortes, pagina, limite, total_paginas,total
   } = useComprasStore()
   const { proveedores, fetchProveedores } = useProveedoresStore()
   const { balance } = useDashboardStore()
 
   const [busqueda, setBusqueda] = useState('')
+  const isFirstRender = useRef(true)
   const [modalFormOpen, setModalFormOpen] = useState(false)
   const [compraEditar, setCompraEditar] = useState(null)
   const [compraEliminar, setCompraEliminar] = useState(null)
   const [panelFiltro, setPanelFiltro] = useState(false)
   const [filtroProveedor, setFiltroProveedor] = useState('')
+
   const filtroRef = useRef(null)
 
   useEffect(() => {
@@ -306,6 +308,15 @@ export default function Compras() {
   }, [balance])
 
   useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return }
+    const timer = setTimeout(() => {
+      fetchCompras(1, limite, corteIdFiltro, busqueda)
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [busqueda])
+
+
+  useEffect(() => {
     const fn = (e) => { if (filtroRef.current && !filtroRef.current.contains(e.target)) setPanelFiltro(false) }
     document.addEventListener('mousedown', fn)
     return () => document.removeEventListener('mousedown', fn)
@@ -315,10 +326,8 @@ export default function Compras() {
   const fmtFecha = (f) => f ? new Date(f).toLocaleDateString('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
 
   const lista = compras.filter(c => {
-    const q = busqueda.toLowerCase()
-    const matchQ = c.nombre_proveedor?.toLowerCase().includes(q) || c.descripcion?.toLowerCase().includes(q) || String(c.costo_total).includes(q)
     const matchP = !filtroProveedor || c.id_proveedor === Number(filtroProveedor)
-    return matchQ && matchP
+    return matchP
   })
 
   const totalCompras = lista.reduce((acc, c) => acc + (c.costo_total || 0), 0)
@@ -333,7 +342,7 @@ export default function Compras() {
     else await crearCompra(data)
   }
 
-  if (cargando) return (
+  if (cargando && compras.length === 0) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
       <div style={{ width: '36px', height: '36px', border: '3px solid #5842ff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
     </div>
@@ -385,11 +394,17 @@ export default function Compras() {
         <div className="toolbar-container" style={{ padding: '16px 24px', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="search-box" style={{ position: 'relative', width: '320px' }}>
             <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
-            <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar proveedor, descripción..."
+            <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar por descripción..."
               style={{ width: '100%', boxSizing: 'border-box', padding: '10px 16px 10px 44px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#0f172a', background: '#ffffff', outline: 'none', fontFamily: 'inherit' }}
               onFocus={e => e.target.style.border = '1px solid #5842ff'}
               onBlur={e => e.target.style.border = '1px solid #e2e8f0'}
             />
+            {cargando && compras.length > 0 && (
+    <Loader2
+      size={16}
+      style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', color: '#5842ff', animation: 'spin 0.8s linear infinite' }}
+    />
+  )}
           </div>
 
           <div ref={filtroRef} style={{ position: 'relative' }}>
@@ -421,7 +436,7 @@ export default function Compras() {
             )}
           </div>
 
-          <select value={corteIdFiltro ?? ''} onChange={e => fetchCompras(1, 20, e.target.value ? Number(e.target.value) : null)}
+          <select value={corteIdFiltro ?? ''} onChange={e => fetchCompras(1, limite, e.target.value ? Number(e.target.value) : null, busqueda)}
             style={{ padding: '10px 16px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#ffffff', color: '#475569', fontSize: '14px', fontWeight: 500, cursor: 'pointer', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}>
             <option value="">Corte actual</option>
             {cortes.filter(c => c.estado === 'cerrado').map(c => (
@@ -435,7 +450,7 @@ export default function Compras() {
           <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
             <thead>
               <tr style={{ background: '#fafbfc', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
-                {['ID', 'PROVEEDOR', 'DESCRIPCIÓN', 'COSTO TOTAL', 'FECHA','MEDIO DE PAGO', 'ACCIONES'].map(h => (
+                {['ID', 'PROVEEDOR', 'DESCRIPCIÓN', 'COSTO TOTAL', 'FECHA', 'MEDIO DE PAGO', 'ACCIONES'].map(h => (
                   <th key={h} style={{ padding: '14px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
@@ -526,11 +541,27 @@ export default function Compras() {
         {/* Pie tabla */}
         <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '12px' }}>
           <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>
-            Mostrando <strong style={{ color: '#111827' }}>{lista.length}</strong> de <strong style={{ color: '#111827' }}>{compras.length}</strong> registros
+            Mostrando <strong style={{ color: '#111827' }}>{lista.length}</strong> de <strong style={{ color: '#111827' }}>{total}</strong> registros
           </span>
-          <span style={{ fontSize: '14px', fontWeight: 600, color: '#475569' }}>
-            Total: <span style={{ color: '#f43f5e', fontWeight: 700, marginLeft: '4px' }}>{fmt(totalCompras)}</span>
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <button
+              disabled={pagina <= 1}
+              onClick={() => fetchCompras(pagina - 1, limite, corteIdFiltro, busqueda)}
+              style={{ padding: '6px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff', cursor: pagina <= 1 ? 'not-allowed' : 'pointer', opacity: pagina <= 1 ? 0.4 : 1, fontSize: '13px', fontFamily: 'inherit' }}
+            >
+              Anterior
+            </button>
+            <span style={{ fontSize: '13px', color: '#64748b' }}>
+              Página {pagina} de {total_paginas || 1}
+            </span>
+            <button
+              disabled={pagina >= total_paginas}
+              onClick={() => fetchCompras(pagina + 1, limite, corteIdFiltro, busqueda)}
+              style={{ padding: '6px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff', cursor: pagina >= total_paginas ? 'not-allowed' : 'pointer', opacity: pagina >= total_paginas ? 0.4 : 1, fontSize: '13px', fontFamily: 'inherit' }}
+            >
+              Siguiente
+            </button>
+          </div>
         </div>
       </div>
 

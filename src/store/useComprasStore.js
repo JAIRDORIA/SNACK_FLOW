@@ -11,7 +11,6 @@ const normalizar = (c) => ({
   costo_total:      c.costo_total      ?? c.total ?? 0,
   fecha_compra:     c.fecha_compra     ?? c.fecha ?? '',
 })
-
 const useComprasStore = create((set, get) => ({
   compras:       [],
   total:         0,
@@ -21,12 +20,13 @@ const useComprasStore = create((set, get) => ({
   cargando:      false,
   error:         null,
   corteIdFiltro: null,
+  busqueda:      '',   // <- nuevo
   cortes:        [],
 
-  fetchCompras: async (pagina = 1, limite = 20, corteId = null) => {
-    set({ cargando: true, error: null, corteIdFiltro: corteId })
+  fetchCompras: async (pagina = 1, limite = 5, corteId = null, busqueda = '') => {
+    set({ cargando: true, error: null, corteIdFiltro: corteId, busqueda })
     try {
-      const res = await getCompras(pagina, limite, corteId)
+      const res = await getCompras(pagina, limite, corteId, busqueda)
       const raw = res.data
       set({
         compras:       (raw.compras ?? raw.datos ?? []).map(normalizar),
@@ -51,8 +51,6 @@ const useComprasStore = create((set, get) => ({
   },
 
   crearCompra: async (data) => {
-    // Frontend envía: id_proveedor, descripcion, costo_total, fecha_compra
-    // Backend espera:  proveedor_id, descripcion, total,       fecha,        usuario_id
     const usuario_id = JSON.parse(localStorage.getItem('usuario') || '{}').id ?? 1
     const payload = {
       proveedor_id: data.id_proveedor,
@@ -63,7 +61,7 @@ const useComprasStore = create((set, get) => ({
       usuario_id,
     }
     const res = await postCompra(payload)
-    await get().fetchCompras(1, 20, get().corteIdFiltro)
+    await get().fetchCompras(get().pagina, get().limite, get().corteIdFiltro, get().busqueda)
     return res.data
   },
 
@@ -74,16 +72,17 @@ const useComprasStore = create((set, get) => ({
       total:        data.costo_total,
       fecha:        data.fecha_compra,
       descripcion:  data.descripcion || '',
+      medio_pago:   data.medio_pago || 'efectivo',
       usuario_id,
     }
     const res = await putCompra(id, payload)
-    await get().fetchCompras(1, 20, get().corteIdFiltro)
+    await get().fetchCompras(get().pagina, get().limite, get().corteIdFiltro, get().busqueda)
     return res.data
   },
 
   eliminarCompra: async (id) => {
     await deleteCompra(id)
-    await get().fetchCompras(1, 20, get().corteIdFiltro)
+    await get().fetchCompras(get().pagina, get().limite, get().corteIdFiltro, get().busqueda)
   },
 }))
 

@@ -46,42 +46,27 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
     : []
 
   const seleccionarCliente = async (cliente) => {
-    setClienteSeleccionado(cliente)
-    setBusquedaCliente('')
-    setVentaSeleccionada(null)
-    setMonto(0)
-    setCargandoVentas(true)
-    try {
-      // Obtener ventas pendientes de ese cliente
-      const res = await api.get('/ventas/?limite=190')
-      let todas = res.data.datos || []
-      console.log(resumenFuturo)
-      if (resumenFuturo?.id) {
-      try {
-        const resFuturo = await api.get(`/ventas/?corte_id=${resumenFuturo.id}&limite=200/`)
-        const ventasFuturo = resFuturo.data.datos || []
-        todas = [...todas, ...ventasFuturo]
-      } catch (err) {
-        // Si falla, al menos tenemos las actuales
-        console.warn('No se pudieron cargar ventas del corte futuro', err)
-      }
-    }
-
-
-
-
-      const pendientes = todas.filter(v =>
-        v.cliente_id === cliente.ID_Cliente &&
-        v.saldo_pendiente > 0 &&
-        v.estado !== 'anulada'
-      )
-      setVentasCliente(pendientes)
-    } catch (err) {
-      setError('Error al cargar ventas del cliente')
-    } finally {
-      setCargandoVentas(false)
-    }
+  setClienteSeleccionado(cliente)
+  setBusquedaCliente('')
+  setVentaSeleccionada(null)
+  setMonto(0)
+  setCargandoVentas(true)
+  setError('')
+  try {
+    // El backend ya filtra por cliente_id -- usamos el ID real de este objeto
+    const res = await api.get(`/ventas/?cliente_id=${cliente.ID_Cliente}&limite=50`)
+    const pendientes = (res.data.datos || []).filter(v =>
+      v.saldo_pendiente > 0 && v.estado !== 'anulada'
+    )
+    console.log('primera venta:', pendientes[0])
+    setVentasCliente(pendientes)
+  } catch (err) {
+    setError('Error al cargar ventas del cliente')
+    setVentasCliente([])
+  } finally {
+    setCargandoVentas(false)
   }
+}
 
   const handleSubmit = async () => {
     if (!ventaSeleccionada || monto <= 0 || monto > ventaSeleccionada.saldo_pendiente) {

@@ -1,14 +1,14 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect,useMemo } from 'react'
 import {
   Search, AlertTriangle, Package,
   TrendingDown, CheckCircle, Layers,
-  Pencil, X, RefreshCw, Plus, ClipboardList
+  Pencil, X, RefreshCw, Plus, ClipboardList, Boxes
 } from 'lucide-react'
 import useInventarioStore from '@/store/useInventarioStore'
-import { putInventario } from '@/api/inventario_api'
+import { putInventario, putInventarioCantidades } from '@/api/inventario_api'
 import { postProduccion, getProducciones } from '@/api/producciones_api'
 import { getProductos } from '@/api/productos_api'
-import { formatearFechaColombia,formatearFechaCorta } from '@/utils/formatearFecha'
+import { formatearFechaColombia, formatearFechaCorta } from '@/utils/formatearFecha'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
@@ -19,6 +19,138 @@ function useIsMobile() {
   }, [])
   return isMobile
 }
+
+function normalizar(stockActual, unidadesSueltas, unidadesPorBandeja) {
+  if (!unidadesPorBandeja) return { bandejas: stockActual, sueltas: unidadesSueltas }
+  const total = stockActual * unidadesPorBandeja + unidadesSueltas
+  const bandejas = Math.trunc(total / unidadesPorBandeja)
+  const sueltas = total - bandejas * unidadesPorBandeja
+  return { bandejas, sueltas }
+}
+
+export  function ModalEditarCantidades({ item, onCerrar, onGuardado }) {
+  // item debe traer: id, nombre_producto, stock_actual, unidades_sueltas, unidades_por_bandeja
+  const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
+
+  const [stockActual, setStockActual] = useState(String(item.stock_actual))
+  const [unidadesSueltas, setUnidadesSueltas] = useState(String(item.unidades_sueltas))
+  const [error, setError] = useState('')
+  const [guardando, setGuardando] = useState(false)
+
+  const stockNum = parseInt(stockActual)
+  const sueltasNum = parseInt(unidadesSueltas)
+  const valoresValidos = !isNaN(stockNum) && !isNaN(sueltasNum)
+
+  const preview = useMemo(() => {
+    if (!valoresValidos) return null
+    return normalizar(stockNum, sueltasNum, item.unidades_por_bandeja)
+  }, [stockNum, sueltasNum, valoresValidos, item.unidades_por_bandeja])
+
+  const seNormaliza = preview && (preview.bandejas !== stockNum || preview.sueltas !== sueltasNum)
+
+  const submit = async (e) => {
+    e.preventDefault()
+    setError('')
+
+    if (!valoresValidos) {
+      setError('Ingresa números enteros válidos.')
+      return
+    }
+    if (stockNum === item.stock_actual && sueltasNum === item.unidades_sueltas) {
+      setError('Los valores son iguales a los actuales.')
+      return
+    }
+    if (!usuario?.id) {
+      setError('No se pudo identificar el usuario actual.')
+      return
+    }
+
+    setGuardando(true)
+    try {
+      await putInventarioCantidades(item.id, {
+        stock_actual: stockNum,
+        unidades_sueltas: sueltasNum,
+        usuario_id: usuario.id,
+      })
+      onGuardado()
+      onCerrar()
+    } catch (err) {
+      setError(err.response?.data?.mensaje || 'Error al actualizar.')
+    } finally {
+      setGuardando(false)
+    }
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+      onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
+    >
+      <div style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '420px', boxShadow: '0 24px 60px rgba(0,0,0,0.25)', overflow: 'hidden' }}>
+
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Pencil size={16} color="#4f46e5" />
+            </div>
+            <div>
+              <p style={{ margin: 0, fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Editar cantidades</p>
+              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>{item.nombre_producto}</p>
+            </div>
+          </div>
+          <button onClick={onCerrar} style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <X size={15} color="#64748b" />
+          </button>
+        </div>
+
+        <form onSubmit={submit} style={{ padding: '24px' }}>
+          <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '14px 16px', marginBottom: '18px', fontSize: '12px', color: '#64748b' }}>
+            {item.unidades_por_bandeja} unidades por bandeja
+          </div>
+
+          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+                Bandejas
+              </label>
+              <input type="number" value={stockActual}
+                onChange={e => { setStockActual(e.target.value); setError('') }}
+                style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px', fontSize: '15px', fontWeight: 600, outline: 'none', fontFamily: 'inherit', color: '#0f172a' }}
+              />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+                Sueltas
+              </label>
+              <input type="number" value={unidadesSueltas}
+                onChange={e => { setUnidadesSueltas(e.target.value); setError('') }}
+                style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px', fontSize: '15px', fontWeight: 600, outline: 'none', fontFamily: 'inherit', color: '#0f172a' }}
+              />
+            </div>
+          </div>
+
+          {seNormaliza && (
+            <div style={{ background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: '10px', padding: '12px 14px', marginBottom: '14px', fontSize: '13px', color: '#4338ca' }}>
+              Se guardará normalizado como <strong>{preview.bandejas} bandejas</strong> y <strong>{preview.sueltas} sueltas</strong>.
+            </div>
+          )}
+
+          {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', color: '#ef4444', fontSize: '13px', marginBottom: '12px' }}>⚠ {error}</div>}
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button type="button" onClick={onCerrar} style={{ flex: 1, background: '#f1f5f9', border: 'none', borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: '#475569', fontFamily: 'inherit' }}>
+              Cancelar
+            </button>
+            <button type="submit" disabled={guardando} style={{ flex: 1, background: guardando ? 'rgba(79,70,229,0.5)' : '#4f46e5', border: 'none', borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', color: 'white', fontFamily: 'inherit' }}>
+              {guardando ? 'Guardando...' : 'Guardar'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+
 // MODAL EDITAR STOCK MINIMO
 function ModalEditarStockMinimo({ item, onCerrar, onGuardado }) {
   const [valor, setValor] = useState(String(item.stock_minimo))
@@ -397,7 +529,7 @@ function ModalHistorialProduccion({ onCerrar }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {producciones.map(prod => ( 
+                  {producciones.map(prod => (
                     <tr key={prod.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '14px 12px', fontSize: '13px', fontWeight: 500, color: '#4f46e5' }}>#{prod.id}</td>
                       <td style={{ padding: '14px 12px', fontSize: '13px', color: '#0f172a' }}> {prod.nombre_producto}</td>
@@ -408,7 +540,7 @@ function ModalHistorialProduccion({ onCerrar }) {
                           👤 {prod.nombre_usuario || `Usuario #${prod.usuario_id}`}
                         </span>
                       </td>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{formatearFechaCorta(prod.fecha) }</td>
+                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{formatearFechaCorta(prod.fecha)}</td>
                       <td style={{ padding: '14px 12px', fontSize: '13px', color: '#64748b', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {prod.observacion || '—'}
                       </td>
@@ -454,6 +586,7 @@ export default function Inventario() {
 
   const [busqueda, setBusqueda] = useState('')
   const [editando, setEditando] = useState(null)
+  const [editandoCantidades, setEditandoCantidades] = useState(null)
   const [modalProduccion, setModalProduccion] = useState(false)
   const [modalHistorial, setModalHistorial] = useState(false)
   const isMobile = useIsMobile()
@@ -628,7 +761,7 @@ export default function Inventario() {
                     <td style={{ padding: '4px 6px' }} className="text-slate-500 text-sm">{item.stock_minimo}</td>
                     <td style={{ padding: '4px 6px' }}>
                       <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-medium border"
-                        style={{padding:"6px 12px", background: estadoCfg.bg, color: estadoCfg.color, borderColor: estadoCfg.border }}>
+                        style={{ padding: "6px 12px", background: estadoCfg.bg, color: estadoCfg.color, borderColor: estadoCfg.border }}>
                         {estadoCfg.label}
                       </span>
                     </td>
@@ -638,6 +771,12 @@ export default function Inventario() {
                         style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
                       >
                         <Pencil size={15} color="#4f46e5" />
+                      </button>
+                      <button title="Editar cantidades (bandejas/sueltas)" onClick={() => setEditandoCantidades(item)}
+                        className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-emerald-50"
+                        style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
+                      >
+                        <Boxes size={15} color="#059669" />
                       </button>
                     </td>
                   </tr>
@@ -679,6 +818,13 @@ export default function Inventario() {
           onGuardado={() => cargar(pagina)}
         />
       )}
+      {editandoCantidades && (
+        <ModalEditarCantidades
+          item={editandoCantidades}
+          onCerrar={() => setEditandoCantidades(null)}
+          onGuardado={() => cargar(pagina)}
+        />
+      )}
       {modalProduccion && (
         <ModalProduccion
           onCerrar={() => setModalProduccion(false)}
@@ -690,6 +836,7 @@ export default function Inventario() {
           onCerrar={() => setModalHistorial(false)}
         />
       )}
+
     </div>
   )
 }

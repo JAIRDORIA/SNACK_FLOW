@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { usePrestamosStore } from '../store/Useprestamosstore'
-import { getClientes } from '../api/clientes_api'
+import { getClientes } from '@/api/clientes_api'
 
 export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
   const { nuevoPrestamo } = usePrestamosStore()
@@ -15,16 +15,31 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
   const [error, setError] = useState('')
   const [guardando, setGuardando] = useState(false)
 
+  // Al cerrar el modal, limpia la lista y el formulario
   useEffect(() => {
-    if (!isOpen) return
-    getClientes().then((res) => setClientes(res.data.items)).catch(() => {})
+    if (!isOpen) {
+      setClientes([])
+    }
   }, [isOpen])
+
+  // Busqueda de clientes en el backend, con debounce (ya no trae 200 fijos)
+  useEffect(() => {
+    if (!isOpen || !busquedaCliente || clienteSeleccionado) {
+      setClientes([])
+      return
+    }
+    const timer = setTimeout(() => {
+      getClientes(1, 20, busquedaCliente)
+        .then((res) => setClientes(res.data.items || res.data.datos || []))
+        .catch(() => {})
+    }, 300)
+    return () => clearTimeout(timer)
+  }, [busquedaCliente, isOpen, clienteSeleccionado])
 
   if (!isOpen) return null
 
-  const clientesFiltrados = clientes.filter((c) =>
-    c.Cli_Nombre.toLowerCase().includes(busquedaCliente.toLowerCase())
-  )
+  // el backend ya filtra con q, no hace falta filtrar de nuevo en el frontend
+  const clientesFiltrados = clientes
 
   const resetForm = () => {
     setClienteSeleccionado(null)
@@ -75,15 +90,16 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <h2 className="text-lg font-semibold mb-4">Nuevo préstamo</h2>
+      <div style={{padding:"24px"}} className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <h2 style={{marginBottom:"16px"}} className="text-lg font-semibold mb-4">Nuevo préstamo</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Cliente</label>
+            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Cliente</label>
             <input
               type="text"
               placeholder="Buscar cliente..."
+              style={{padding:"8px 12px"}}
               className="w-full border rounded px-3 py-2 text-sm"
               value={clienteSeleccionado ? clienteSeleccionado.Cli_Nombre : busquedaCliente}
               onChange={(e) => {
@@ -92,10 +108,11 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
               }}
             />
             {busquedaCliente && !clienteSeleccionado && (
-              <div className="border rounded mt-1 max-h-40 overflow-y-auto">
+              <div style={{marginTop:"4px"}} className="border rounded mt-1 max-h-40 overflow-y-auto">
                 {clientesFiltrados.map((c) => (
                   <div
                     key={c.ID_Cliente}
+                    style={{padding:"8px 12px"}}
                     className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
                     onClick={() => {
                       setClienteSeleccionado(c)
@@ -105,16 +122,20 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
                     {c.Cli_Nombre}
                   </div>
                 ))}
+                {clientesFiltrados.length === 0 && (
+                  <div style={{padding:"8px 12px"}} className="px-3 py-2 text-sm text-gray-400">No se encontraron clientes</div>
+                )}
               </div>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Monto</label>
+            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Monto</label>
             <input
               type="number"
               min="1"
               step="1"
+              style={{padding:"8px 12px"}}
               className="w-full border rounded px-3 py-2 text-sm"
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
@@ -122,8 +143,9 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Medio de pago (con el que se presta)</label>
+            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Medio de pago (con el que se presta)</label>
             <select
+            style={{padding:"8px 12px"}}
               className="w-full border rounded px-3 py-2 text-sm"
               value={medioPago}
               onChange={(e) => setMedioPago(e.target.value)}
@@ -134,8 +156,9 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Observación (opcional)</label>
+            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Observación (opcional)</label>
             <textarea
+            style={{padding:"8px 12px"}}
               className="w-full border rounded px-3 py-2 text-sm"
               rows={2}
               value={observacion}
@@ -148,6 +171,7 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
+              style={{padding:"8px 16px"}}
               className="px-4 py-2 text-sm rounded border"
               onClick={() => { resetForm(); onClose() }}
             >
@@ -156,6 +180,7 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
             <button
               type="submit"
               disabled={guardando}
+              style={{padding:"8px 16px"}}
               className="px-4 py-2 text-sm rounded bg-blue-600 text-white disabled:opacity-50"
             >
               {guardando ? 'Guardando...' : 'Guardar préstamo'}

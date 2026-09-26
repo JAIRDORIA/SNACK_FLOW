@@ -50,6 +50,7 @@ export default function Prestamos() {
               <th style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase whitespace-nowrap">Monto prestado</th>
               <th style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase whitespace-nowrap">Abonado</th>
               <th style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase whitespace-nowrap">Saldo pendiente</th>
+              <th style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase whitespace-nowrap">Observacion</th>
               <th style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase whitespace-nowrap">Estado</th>
               <th style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase whitespace-nowrap">Fecha préstamo</th>
               <th style={{padding:"12px 16px"}} className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs text-slate-500 uppercase whitespace-nowrap">Acciones</th>
@@ -57,10 +58,10 @@ export default function Prestamos() {
           </thead>
           <tbody>
             {loading && (
-              <tr><td colSpan={7} style={{padding:"16px 0px 16px 0px"}} className="text-center py-4">Cargando...</td></tr>
+              <tr><td colSpan={8} style={{padding:"16px 0px 16px 0px"}} className="text-center py-4">Cargando...</td></tr>
             )}
             {!loading && prestamos.length === 0 && (
-              <tr><td colSpan={7} style={{padding:"16px 0px 16px 0px"}} className="text-center py-4 text-gray-500">No hay préstamos registrados</td></tr>
+              <tr><td colSpan={8} style={{padding:"16px 0px 16px 0px"}} className="text-center py-4 text-gray-500">No hay préstamos registrados</td></tr>
             )}
             {prestamos.map((p) => (
               <tr key={p.id} className="border-t border-gray-100 hover:bg-gray-50/50 transition-colors">
@@ -68,6 +69,7 @@ export default function Prestamos() {
                 <td style={{padding:"8px 12px"}} className="px-3 py-2">${p.monto.toLocaleString('es-CO')}</td>
                 <td style={{padding:"8px 12px"}} className="px-3 py-2 text-green-700">${p.total_abonado.toLocaleString('es-CO')}</td>
                 <td style={{padding:"8px 12px"}} className="px-3 py-2 font-medium">${p.saldo_pendiente.toLocaleString('es-CO')}</td>
+                <td style={{padding:"8px 12px"}} className="px-3 py-2 text-gray-500">{p.observacion || '—'}</td>
                 <td style={{padding:"8px 12px"}} className="px-3 py-2">
                   <span style={{padding:"2px 8px"}} className={`px-2 py-0.5 rounded text-xs ${
                     p.estado === 'pagado' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'

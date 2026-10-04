@@ -24,10 +24,10 @@ export default function Toast({ mensaje, tipo = 'error', onClose, duracion = 500
   const Icono = estilo.icon
 
   return (
-    <div  style={{padding:"16px"}} className={`fixed top-5 right-5 z-50 ${estilo.bg} ${estilo.border} border rounded-xl p-4 flex items-center gap-3 shadow-lg animate-bounce`}>
+    <div className={`fixed top-5 right-5 z-50 ${estilo.bg} ${estilo.border} border rounded-xl p-4 flex items-center gap-3 shadow-lg animate-bounce`}>
       <Icono size={20} className={estilo.text} />
       <span className={`text-sm ${estilo.text} font-medium`}>{mensaje}</span>
-      <button onClick={() => { setVisible(false); if (onClose) onClose() }} style={{marginLeft:"8px"}} className={`ml-2 ${estilo.text} hover:opacity-70`}>
+      <button onClick={() => { setVisible(false); if (onClose) onClose() }} className={`ml-2 ${estilo.text} hover:opacity-70`}>
         <X size={16} />
       </button>
     </div>

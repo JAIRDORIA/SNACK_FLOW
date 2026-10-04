@@ -82,19 +82,19 @@ export  function ModalEditarCantidades({ item, onCerrar, onGuardado }) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+    <div className="p-6" style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
     >
       <div style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '420px', boxShadow: '0 24px 60px rgba(0,0,0,0.25)', overflow: 'hidden' }}>
 
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="py-5 px-6" style={{ borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Pencil size={16} color="#4f46e5" />
             </div>
             <div>
-              <p style={{ margin: 0, fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Editar cantidades</p>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>{item.nombre_producto}</p>
+              <p className="m-0" style={{ fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Editar cantidades</p>
+              <p className="m-0" style={{ fontSize: '12px', color: '#64748b' }}>{item.nombre_producto}</p>
             </div>
           </div>
           <button onClick={onCerrar} style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -102,45 +102,45 @@ export  function ModalEditarCantidades({ item, onCerrar, onGuardado }) {
           </button>
         </div>
 
-        <form onSubmit={submit} style={{ padding: '24px' }}>
-          <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '14px 16px', marginBottom: '18px', fontSize: '12px', color: '#64748b' }}>
+        <form onSubmit={submit} className="p-6">
+          <div className="py-3.5 px-4 mb-4" style={{ background: '#f8fafc', borderRadius: '12px', fontSize: '12px', color: '#64748b' }}>
             {item.unidades_por_bandeja} unidades por bandeja
           </div>
 
-          <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+          <div className="mb-4" style={{ display: 'flex', gap: '12px' }}>
             <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+              <label className="mb-2" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Bandejas
               </label>
               <input type="number" value={stockActual}
                 onChange={e => { setStockActual(e.target.value); setError('') }}
-                style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px', fontSize: '15px', fontWeight: 600, outline: 'none', fontFamily: 'inherit', color: '#0f172a' }}
+                className="py-3 px-3.5" style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', fontWeight: 600, outline: 'none', fontFamily: 'inherit', color: '#0f172a' }}
               />
             </div>
             <div style={{ flex: 1 }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+              <label className="mb-2" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Sueltas
               </label>
               <input type="number" value={unidadesSueltas}
                 onChange={e => { setUnidadesSueltas(e.target.value); setError('') }}
-                style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px', fontSize: '15px', fontWeight: 600, outline: 'none', fontFamily: 'inherit', color: '#0f172a' }}
+                className="py-3 px-3.5" style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '15px', fontWeight: 600, outline: 'none', fontFamily: 'inherit', color: '#0f172a' }}
               />
             </div>
           </div>
 
           {seNormaliza && (
-            <div style={{ background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: '10px', padding: '12px 14px', marginBottom: '14px', fontSize: '13px', color: '#4338ca' }}>
+            <div className="py-3 px-3.5 mb-3.5" style={{ background: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: '10px', fontSize: '13px', color: '#4338ca' }}>
               Se guardará normalizado como <strong>{preview.bandejas} bandejas</strong> y <strong>{preview.sueltas} sueltas</strong>.
             </div>
           )}
 
-          {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', color: '#ef4444', fontSize: '13px', marginBottom: '12px' }}>⚠ {error}</div>}
+          {error && <div className="py-2.5 px-3.5 mb-3" style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#ef4444', fontSize: '13px' }}>⚠ {error}</div>}
 
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button type="button" onClick={onCerrar} style={{ flex: 1, background: '#f1f5f9', border: 'none', borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: '#475569', fontFamily: 'inherit' }}>
+            <button type="button" onClick={onCerrar} className="p-3" style={{ flex: 1, background: '#f1f5f9', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: '#475569', fontFamily: 'inherit' }}>
               Cancelar
             </button>
-            <button type="submit" disabled={guardando} style={{ flex: 1, background: guardando ? 'rgba(79,70,229,0.5)' : '#4f46e5', border: 'none', borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', color: 'white', fontFamily: 'inherit' }}>
+            <button type="submit" disabled={guardando} className="p-3" style={{ flex: 1, background: guardando ? 'rgba(79,70,229,0.5)' : '#4f46e5', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', color: 'white', fontFamily: 'inherit' }}>
               {guardando ? 'Guardando...' : 'Guardar'}
             </button>
           </div>
@@ -173,20 +173,20 @@ function ModalEditarStockMinimo({ item, onCerrar, onGuardado }) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+    <div className="p-6" style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
     >
       <div style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '400px', boxShadow: '0 24px 60px rgba(0,0,0,0.25)', overflow: 'hidden', animation: 'popIn 0.2s ease' }}>
         <style>{`@keyframes popIn { from { opacity:0; transform:scale(0.93); } to { opacity:1; transform:scale(1); } }`}</style>
 
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="py-5 px-6" style={{ borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Pencil size={16} color="#4f46e5" />
             </div>
             <div>
-              <p style={{ margin: 0, fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Editar stock mínimo</p>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>{item.nombre_producto}</p>
+              <p className="m-0" style={{ fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Editar stock mínimo</p>
+              <p className="m-0" style={{ fontSize: '12px', color: '#64748b' }}>{item.nombre_producto}</p>
             </div>
           </div>
           <button onClick={onCerrar} style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -194,36 +194,36 @@ function ModalEditarStockMinimo({ item, onCerrar, onGuardado }) {
           </button>
         </div>
 
-        <form onSubmit={submit} style={{ padding: '24px' }}>
-          <div style={{ background: '#f8fafc', borderRadius: '12px', padding: '16px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <form onSubmit={submit} className="p-6">
+          <div className="p-4 mb-5" style={{ background: '#f8fafc', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <p style={{ margin: '0 0 2px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Stock actual</p>
-              <p style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#0f172a' }}>{item.stock_actual}</p>
+              <p className="mt-0 mr-0 mb-0.5 ml-0" style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Stock actual</p>
+              <p className="m-0" style={{ fontSize: '24px', fontWeight: 700, color: '#0f172a' }}>{item.stock_actual}</p>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <p style={{ margin: '0 0 2px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Stock mínimo actual</p>
-              <p style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#4f46e5' }}>{item.stock_minimo}</p>
+              <p className="mt-0 mr-0 mb-0.5 ml-0" style={{ fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Stock mínimo actual</p>
+              <p className="m-0" style={{ fontSize: '24px', fontWeight: 700, color: '#4f46e5' }}>{item.stock_minimo}</p>
             </div>
           </div>
 
-          <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+          <label className="mb-2" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
             Nuevo stock mínimo
           </label>
           <input type="number" min="0" value={valor}
             onChange={e => { setValor(e.target.value); setError('') }}
-            style={{ width: '100%', boxSizing: 'border-box', border: `1.5px solid ${error ? '#fca5a5' : '#e2e8f0'}`, borderRadius: '10px', padding: '12px 14px', fontSize: '15px', fontWeight: 600, outline: 'none', fontFamily: 'inherit', color: '#0f172a', transition: 'border 0.15s', marginBottom: '12px' }}
+            className="py-3 px-3.5 mb-3" style={{ width: '100%', boxSizing: 'border-box', border: `1.5px solid ${error ? '#fca5a5' : '#e2e8f0'}`, borderRadius: '10px', fontSize: '15px', fontWeight: 600, outline: 'none', fontFamily: 'inherit', color: '#0f172a', transition: 'border 0.15s' }}
             onFocus={e => { if (!error) e.target.style.borderColor = '#4f46e5' }}
             onBlur={e => { if (!error) e.target.style.borderColor = '#e2e8f0' }}
             autoFocus
           />
 
-          {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', color: '#ef4444', fontSize: '13px', marginBottom: '12px' }}>⚠ {error}</div>}
+          {error && <div className="py-2.5 px-3.5 mb-3" style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#ef4444', fontSize: '13px' }}>⚠ {error}</div>}
 
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button type="button" onClick={onCerrar} style={{ flex: 1, background: '#f1f5f9', border: 'none', borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: '#475569', fontFamily: 'inherit' }}>
+            <button type="button" onClick={onCerrar} className="p-3" style={{ flex: 1, background: '#f1f5f9', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: '#475569', fontFamily: 'inherit' }}>
               Cancelar
             </button>
-            <button type="submit" disabled={guardando} style={{ flex: 1, background: guardando ? 'rgba(79,70,229,0.5)' : '#4f46e5', border: 'none', borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', color: 'white', fontFamily: 'inherit', transition: 'background 0.15s' }}>
+            <button type="submit" disabled={guardando} className="p-3" style={{ flex: 1, background: guardando ? 'rgba(79,70,229,0.5)' : '#4f46e5', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', color: 'white', fontFamily: 'inherit', transition: 'background 0.15s' }}>
               {guardando ? 'Guardando...' : 'Guardar'}
             </button>
           </div>
@@ -318,20 +318,20 @@ function ModalProduccion({ onCerrar, onGuardado }) {
   const hayConversion = bandejasExtra > 0
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+    <div className="p-6" style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
     >
       <div style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '460px', boxShadow: '0 24px 60px rgba(0,0,0,0.25)', overflow: 'hidden', animation: 'popIn 0.2s ease' }}>
 
         {/* header */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="py-5 px-6" style={{ borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ClipboardList size={16} color="#4f46e5" />
             </div>
             <div>
-              <p style={{ margin: 0, fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Registrar producción</p>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>El stock se actualizará automáticamente</p>
+              <p className="m-0" style={{ fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Registrar producción</p>
+              <p className="m-0" style={{ fontSize: '12px', color: '#64748b' }}>El stock se actualizará automáticamente</p>
             </div>
           </div>
           <button onClick={onCerrar} style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -340,11 +340,11 @@ function ModalProduccion({ onCerrar, onGuardado }) {
         </div>
 
         {/* body */}
-        <form onSubmit={submit} style={{ padding: '24px' }}>
+        <form onSubmit={submit} className="p-6">
 
           {/* producto */}
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+          <div className="mb-4">
+            <label className="mb-2" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Producto
             </label>
             <select name="producto_id" value={form.producto_id} onChange={change}
@@ -361,9 +361,9 @@ function ModalProduccion({ onCerrar, onGuardado }) {
           </div>
 
           {/* cantidad y fecha en grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+          <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+              <label className="mb-2" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Cantidad (bandejas)
               </label>
               <input type="number" name="cantidad" value={form.cantidad} onChange={change}
@@ -374,7 +374,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
               />
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+              <label className="mb-2" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Unidades sueltas
               </label>
               <input type="number" name="unidades_sueltas" value={form.unidades_sueltas} onChange={change}
@@ -384,8 +384,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
                 onBlur={e => e.target.style.borderColor = '#e2e8f0'}
               />
               {hayConversion && (
-                <div style={{
-                  marginTop: '6px', padding: '8px 12px',
+                <div className="mt-1.5 py-2 px-3" style={{
                   background: '#fffbeb', border: '1px solid #fde68a',
                   borderRadius: '8px', fontSize: '12px', color: '#b45309'
                 }}>
@@ -394,7 +393,7 @@ function ModalProduccion({ onCerrar, onGuardado }) {
               )}
             </div>
             <div style={{ gridColumn: '1 / -1' }}>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+              <label className="mb-2" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Fecha
               </label>
               <input type="date" name="fecha" value={form.fecha} onChange={change}
@@ -406,8 +405,8 @@ function ModalProduccion({ onCerrar, onGuardado }) {
           </div>
 
           {/* observacion */}
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' }}>
+          <div className="mb-5">
+            <label className="mb-2" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
               Observación <span style={{ color: '#94a3b8', fontWeight: 400 }}>(opcional)</span>
             </label>
             <textarea name="observacion" value={form.observacion} onChange={change}
@@ -421,22 +420,22 @@ function ModalProduccion({ onCerrar, onGuardado }) {
 
           {/* errores y exito */}
           {error && (
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', color: '#ef4444', fontSize: '13px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="py-2.5 px-3.5 mb-4" style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#ef4444', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               ⚠ {error}
             </div>
           )}
           {exito && (
-            <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '10px 14px', color: '#15803d', fontSize: '13px', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div className="py-2.5 px-3.5 mb-4" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', color: '#15803d', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               ✓ {exito}
             </div>
           )}
 
           {/* botones */}
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button type="button" onClick={onCerrar} style={{ flex: 1, background: '#f1f5f9', border: 'none', borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: '#475569', fontFamily: 'inherit' }}>
+            <button type="button" onClick={onCerrar} className="p-3" style={{ flex: 1, background: '#f1f5f9', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', color: '#475569', fontFamily: 'inherit' }}>
               Cancelar
             </button>
-            <button type="submit" disabled={guardando || !!exito} style={{ flex: 1, background: guardando ? 'rgba(79,70,229,0.5)' : '#4f46e5', border: 'none', borderRadius: '10px', padding: '12px', fontSize: '13px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', color: 'white', fontFamily: 'inherit', transition: 'background 0.15s' }}>
+            <button type="submit" disabled={guardando || !!exito} className="p-3" style={{ flex: 1, background: guardando ? 'rgba(79,70,229,0.5)' : '#4f46e5', border: 'none', borderRadius: '10px', fontSize: '13px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', color: 'white', fontFamily: 'inherit', transition: 'background 0.15s' }}>
               {guardando ? 'Registrando...' : 'Registrar producción'}
             </button>
           </div>
@@ -476,20 +475,20 @@ function ModalHistorialProduccion({ onCerrar }) {
   }, [])
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+    <div className="p-6" style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(15,23,42,0.6)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
     >
       <div style={{ background: 'white', borderRadius: '20px', width: '100%', maxWidth: '900px', maxHeight: '80vh', boxShadow: '0 24px 60px rgba(0,0,0,0.25)', overflow: 'hidden', display: 'flex', flexDirection: 'column', animation: 'popIn 0.2s ease' }}>
 
         {/* header */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+        <div className="py-5 px-6" style={{ borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <div style={{ width: '36px', height: '36px', background: '#eef2ff', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <ClipboardList size={16} color="#4f46e5" />
             </div>
             <div>
-              <p style={{ margin: 0, fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Historial de producciones</p>
-              <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Registro de todas las producciones realizadas</p>
+              <p className="m-0" style={{ fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>Historial de producciones</p>
+              <p className="m-0" style={{ fontSize: '12px', color: '#64748b' }}>Registro de todas las producciones realizadas</p>
             </div>
           </div>
           <button onClick={onCerrar} style={{ background: '#f1f5f9', border: 'none', borderRadius: '8px', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -500,18 +499,18 @@ function ModalHistorialProduccion({ onCerrar }) {
         {/* contenido */}
         <div style={{ overflow: 'auto', flex: 1 }}>
           {cargando ? (
-            <div style={{ padding: '60px', textAlign: 'center' }}>
-              <div className="w-10 h-10 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" style={{ margin: '0 auto' }} />
-              <p style={{ marginTop: '16px', color: '#64748b' }}>Cargando historial...</p>
+            <div className="p-14" style={{ textAlign: 'center' }}>
+              <div className="w-10 h-10 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin my-0 mx-auto" />
+              <p className="mt-4" style={{ color: '#64748b' }}>Cargando historial...</p>
             </div>
           ) : error ? (
-            <div style={{ padding: '40px', textAlign: 'center', color: '#ef4444' }}>
-              <AlertTriangle size={32} style={{ margin: '0 auto 12px' }} />
+            <div className="p-10" style={{ textAlign: 'center', color: '#ef4444' }}>
+              <AlertTriangle size={32} className="mt-0 mr-auto mb-3 ml-auto" />
               <p>{error}</p>
             </div>
           ) : producciones.length === 0 ? (
-            <div style={{ padding: '60px', textAlign: 'center', color: '#94a3b8' }}>
-              <Package size={48} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
+            <div className="p-14" style={{ textAlign: 'center', color: '#94a3b8' }}>
+              <Package size={48} className="mt-0 mr-auto mb-3 ml-auto" style={{ opacity: 0.5 }} />
               <p>No hay producciones registradas</p>
             </div>
           ) : (
@@ -519,29 +518,29 @@ function ModalHistorialProduccion({ onCerrar }) {
               <table style={{ minWidth: '1100px', width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{ position: 'sticky', top: 0, background: 'white', zIndex: 1 }}>
                   <tr style={{ borderBottom: '1px solid #e2e8f0', background: '#f8fafc' }}>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>ID</th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Producto</th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Cantidad (bandejas)</th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Unidades sueltas</th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Usuario</th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Fecha</th>
-                    <th style={{ padding: '16px 12px', textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Observación</th>
+                    <th className="py-4 px-3" style={{ textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>ID</th>
+                    <th className="py-4 px-3" style={{ textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Producto</th>
+                    <th className="py-4 px-3" style={{ textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Cantidad (bandejas)</th>
+                    <th className="py-4 px-3" style={{ textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Unidades sueltas</th>
+                    <th className="py-4 px-3" style={{ textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Usuario</th>
+                    <th className="py-4 px-3" style={{ textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Fecha</th>
+                    <th className="py-4 px-3" style={{ textAlign: 'left', fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Observación</th>
                   </tr>
                 </thead>
                 <tbody>
                   {producciones.map(prod => (
                     <tr key={prod.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', fontWeight: 500, color: '#4f46e5' }}>#{prod.id}</td>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#0f172a' }}> {prod.nombre_producto}</td>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{prod.cantidad}</td>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{prod.unidades_sueltas || 0}</td>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', padding: '4px 10px', borderRadius: '20px' }}>
+                      <td className="py-3.5 px-3" style={{ fontSize: '13px', fontWeight: 500, color: '#4f46e5' }}>#{prod.id}</td>
+                      <td className="py-3.5 px-3" style={{ fontSize: '13px', color: '#0f172a' }}> {prod.nombre_producto}</td>
+                      <td className="py-3.5 px-3" style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{prod.cantidad}</td>
+                      <td className="py-3.5 px-3" style={{ fontSize: '13px', color: '#475569' }}>{prod.unidades_sueltas || 0}</td>
+                      <td className="py-3.5 px-3" style={{ fontSize: '13px', color: '#475569' }}>
+                        <span className="py-1 px-2.5" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#f1f5f9', borderRadius: '20px' }}>
                           👤 {prod.nombre_usuario || `Usuario #${prod.usuario_id}`}
                         </span>
                       </td>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#475569' }}>{formatearFechaCorta(prod.fecha)}</td>
-                      <td style={{ padding: '14px 12px', fontSize: '13px', color: '#64748b', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <td className="py-3.5 px-3" style={{ fontSize: '13px', color: '#475569' }}>{formatearFechaCorta(prod.fecha)}</td>
+                      <td className="py-3.5 px-3" style={{ fontSize: '13px', color: '#64748b', maxWidth: '250px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {prod.observacion || '—'}
                       </td>
                     </tr>
@@ -551,18 +550,18 @@ function ModalHistorialProduccion({ onCerrar }) {
 
               {/* paginación */}
               {totalPaginas > 1 && (
-                <div style={{ padding: '16px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="py-4 px-5" style={{ borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <button
                     onClick={() => cargarProducciones(pagina - 1)}
                     disabled={pagina === 1}
-                    style={{ padding: '8px 16px', background: pagina === 1 ? '#f1f5f9' : 'white', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: pagina === 1 ? 'not-allowed' : 'pointer', color: pagina === 1 ? '#94a3b8' : '#475569' }}>
+                    className="py-2 px-4" style={{ background: pagina === 1 ? '#f1f5f9' : 'white', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: pagina === 1 ? 'not-allowed' : 'pointer', color: pagina === 1 ? '#94a3b8' : '#475569' }}>
                     ← Anterior
                   </button>
                   <span style={{ fontSize: '13px', color: '#64748b' }}>Página {pagina} de {totalPaginas}</span>
                   <button
                     onClick={() => cargarProducciones(pagina + 1)}
                     disabled={pagina === totalPaginas}
-                    style={{ padding: '8px 16px', background: pagina === totalPaginas ? '#f1f5f9' : 'white', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer', color: pagina === totalPaginas ? '#94a3b8' : '#475569' }} >
+                    className="py-2 px-4" style={{ background: pagina === totalPaginas ? '#f1f5f9' : 'white', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: pagina === totalPaginas ? 'not-allowed' : 'pointer', color: pagina === totalPaginas ? '#94a3b8' : '#475569' }} >
                     Siguiente →
                   </button>
                 </div>
@@ -633,26 +632,26 @@ export default function Inventario() {
   )
 
   return (
-    <div style={{ padding: '32px' }} className="flex-1 bg-gray-50">
+    <div className="flex-1 bg-gray-50 p-8">
 
       {/* título */}
-      <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '16px' : '0' }}>
-        <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#000000', margin: 0, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+      <div className="mb-8" style={{ display: 'flex', justifyContent: 'space-between', alignItems: isMobile ? 'flex-start' : 'center', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '16px' : '0' }}>
+        <h1 className="m-0" style={{ fontSize: '28px', fontWeight: 700, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
           Gestión de Inventario
         </h1>
         <div style={{ display: 'flex', gap: '10px', flexWrap: isMobile ? 'wrap' : 'nowrap', width: isMobile ? '100%' : 'auto' }}>
           <button
             onClick={() => setModalProduccion(true)}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95"
-            style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, border: 'none', flex: isMobile ? 1 : undefined }}
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95 py-2 px-4"
+            style={{ cursor: 'pointer', fontSize: '13px', fontWeight: 600, border: 'none', flex: isMobile ? 1 : undefined }}
           >
             <Plus size={15} />
             Registrar producción
           </button>
           <button
             onClick={() => setModalHistorial(true)}
-            className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl transition-all"
-            style={{ padding: '8px 16px', cursor: 'pointer', fontSize: '13px', fontWeight: 600, border: 'none', flex: isMobile ? 1 : undefined }}
+            className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-600 rounded-xl transition-all py-2 px-4"
+            style={{ cursor: 'pointer', fontSize: '13px', fontWeight: 600, border: 'none', flex: isMobile ? 1 : undefined }}
           >
             <ClipboardList size={14} />
             Ver historial
@@ -661,7 +660,7 @@ export default function Inventario() {
       </div>
 
       {/* KPI cards */}
-      <div style={{ marginBottom: '30px' }} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         {[
           { label: isMobile ? 'Productos' : 'Total productos', val: totalProductos, icon: <Layers size={isMobile ? 16 : 22} color="#818cf8" />, ring: 'ring-indigo-500/40' },
           { label: isMobile ? 'Stock OK' : 'Total stock OK', val: stockOk, icon: <CheckCircle size={isMobile ? 16 : 22} color="#34d399" />, ring: 'ring-emerald-400/40' },
@@ -678,8 +677,8 @@ export default function Inventario() {
               {card.icon}
             </div>
             <div>
-              <p style={{ fontSize: isMobile ? '24px' : '30px', color: 'white', fontWeight: 700, margin: 0, lineHeight: 1 }} >{card.val} </p>
-              <p style={{ fontSize: isMobile ? '11px' : '12px', color: 'rgba(255,255,255,0.5)', margin: '4px 0 0', lineHeight: 1.2, wordBreak: 'break-word' }}>{card.label}</p>
+              <p className="m-0" style={{ fontSize: isMobile ? '24px' : '30px', color: 'white', fontWeight: 700, lineHeight: 1 }} >{card.val} </p>
+              <p className="mt-1 mr-0 mb-0 ml-0" style={{ fontSize: isMobile ? '11px' : '12px', color: 'rgba(255,255,255,0.5)', lineHeight: 1.2, wordBreak: 'break-word' }}>{card.label}</p>
             </div>
           </div>
         ))}
@@ -687,13 +686,13 @@ export default function Inventario() {
 
       {/* alerta bajo stock */}
       {bajoStock.length > 0 && (
-        <div style={{ marginBottom: '24px', padding: '16px 20px', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '14px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-          <AlertTriangle size={18} color="#d97706" style={{ flexShrink: 0, marginTop: '1px' }} />
+        <div className="mb-6 py-4 px-5" style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '14px', display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <AlertTriangle size={18} color="#d97706" className="mt-0" style={{ flexShrink: 0 }} />
           <div>
-            <p style={{ margin: '0 0 4px', fontWeight: 600, color: '#92400e', fontSize: '13px' }}>
+            <p className="mt-0 mr-0 mb-1 ml-0" style={{ fontWeight: 600, color: '#92400e', fontSize: '13px' }}>
               {bajoStock.length} producto{bajoStock.length > 1 ? 's' : ''} bajo el stock mínimo
             </p>
-            <p style={{ margin: 0, color: '#b45309', fontSize: '12px' }}>
+            <p className="m-0" style={{ color: '#b45309', fontSize: '12px' }}>
               {bajoStock.map(b => b.nombre).join(', ')}
             </p>
           </div>
@@ -703,12 +702,12 @@ export default function Inventario() {
       {/* tabla */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-visible">
 
-        <div className="border-b border-slate-100 flex gap-4 items-center flex-wrap" style={{ padding: '12px' }}>
+        <div className="border-b border-slate-100 flex gap-4 items-center flex-wrap p-3">
           <div className="relative flex-1 max-w-md" style={{ minWidth: isMobile ? '100%' : '280px' }}>
             <input type="text" placeholder="Buscar por ID o producto..."
               value={busqueda} onChange={e => setBusqueda(e.target.value)} maxLength={50}
-              style={{ paddingLeft: '48px', paddingRight: '16px', paddingTop: '12px', paddingBottom: '12px' }}
-              className="w-full border border-slate-200 rounded-xl text-sm outline-none text-slate-700 bg-white focus:border-indigo-400 focus:ring-3 focus:ring-indigo-50 transition-all placeholder:text-slate-400"
+
+              className="w-full border border-slate-200 rounded-xl text-sm outline-none text-slate-700 bg-white focus:border-indigo-400 focus:ring-3 focus:ring-indigo-50 transition-all placeholder:text-slate-400 pl-12 pr-4 pt-3 pb-3"
             />
             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
@@ -719,7 +718,7 @@ export default function Inventario() {
             <thead>
               <tr className="bg-slate-50/80">
                 {['ID', 'Producto', 'Stock actual', 'Unidades sueltas', 'Stock mínimo', 'Estado', 'Acciones'].map((h, i) => (
-                  <th key={h} style={{ padding: '4px 8px' }} className={`text-left text-xs font-semibold text-slate-400 uppercase tracking-wider ${i === 0 ? 'pl-8' : ''}`}>
+                  <th key={h} className={`text-left text-xs font-semibold text-slate-400 uppercase tracking-wider ${i === 0 ? 'pl-8' : ''} py-1 px-2`}>
                     {h}
                   </th>
                 ))}
@@ -728,7 +727,7 @@ export default function Inventario() {
             <tbody>
               {lista.length === 0 ? (
                 <tr>
-                  <td colSpan={7} style={{ padding: '20px 0' }} className="text-center text-slate-400">
+                  <td colSpan={7} className="text-center text-slate-400 py-5 px-0">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
                         <Search size={28} className="text-slate-300" />
@@ -748,24 +747,24 @@ export default function Inventario() {
 
                 return (
                   <tr key={item.id} className="border-b border-slate-50 hover:bg-slate-50/30 transition-colors">
-                    <td style={{ padding: '4px 6px', paddingLeft: '32px' }}>
+                    <td className="py-1 px-1.5 pl-8">
                       <span className="font-semibold text-sm text-indigo-600">#{String(item.id).padStart(3, '0')}</span>
                     </td>
-                    <td style={{ padding: '4px 6px' }} className="text-slate-700 font-medium text-sm">{item.nombre_producto}</td>
-                    <td style={{ padding: '4px 6px' }}>
+                    <td className="text-slate-700 font-medium text-sm py-1 px-1.5">{item.nombre_producto}</td>
+                    <td className="py-1 px-1.5">
                       <span style={{ fontSize: '15px', fontWeight: 700, color: sinStockItem ? '#dc2626' : bajStockItem ? '#b45309' : '#0f172a' }}>
                         {item.stock_actual}
                       </span>
                     </td>
-                    <td style={{ padding: '4px 6px' }} className="text-slate-500 text-sm">{item.unidades_sueltas}</td>
-                    <td style={{ padding: '4px 6px' }} className="text-slate-500 text-sm">{item.stock_minimo}</td>
-                    <td style={{ padding: '4px 6px' }}>
-                      <span className="inline-flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full font-medium border"
-                        style={{ padding: "6px 12px", background: estadoCfg.bg, color: estadoCfg.color, borderColor: estadoCfg.border }}>
+                    <td className="text-slate-500 text-sm py-1 px-1.5">{item.unidades_sueltas}</td>
+                    <td className="text-slate-500 text-sm py-1 px-1.5">{item.stock_minimo}</td>
+                    <td className="py-1 px-1.5">
+                      <span className="inline-flex items-center gap-1.5 text-xs rounded-full font-medium border py-1.5 px-3"
+                        style={{ background: estadoCfg.bg, color: estadoCfg.color, borderColor: estadoCfg.border }}>
                         {estadoCfg.label}
                       </span>
                     </td>
-                    <td style={{ padding: '4px 6px' }}>
+                    <td className="py-1 px-1.5">
                       <button title="Editar stock mínimo" onClick={() => setEditando(item)}
                         className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-indigo-50"
                         style={{ border: 'none', background: 'transparent', cursor: 'pointer' }}
@@ -787,7 +786,7 @@ export default function Inventario() {
         </div>
 
         {/* pie tabla */}
-        <div style={{ padding: '5px 8px' }} className="border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30">
+        <div className="border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30 py-1 px-2">
           <span className="text-sm">
             Mostrando <strong className="text-slate-700 font-semibold">{lista.length}</strong> de{' '}
             <strong className="text-slate-700 font-semibold">{total}</strong> productos

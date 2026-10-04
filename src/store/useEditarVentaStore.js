@@ -7,7 +7,7 @@ const useEditarVentaStore = create((set, get) => ({
   ventaId: null,
   fechaEntrega: '',
   horaEntrega: '',
-  detalle: [], // { producto_id, nombre_producto, cantidad, precio_unitario }
+  detalle: [], // { tipo, producto_id, combo_id, nombre_producto, cantidad, precio_unitario, productos? }
 
   // UI
   cargando: false,
@@ -25,7 +25,6 @@ const useEditarVentaStore = create((set, get) => ({
     try {
       const res = await getVentaDetalle(id)
       const data = res.data
-      // Separar fecha y hora
       const [fecha, hora] = (data.fecha_entrega || '').split(' ')
       set({
         ventaId: id,
@@ -38,6 +37,10 @@ const useEditarVentaStore = create((set, get) => ({
           nombre_producto: d.nombre_producto,
           cantidad: d.cantidad,
           precio_unitario: d.precio_unitario,
+          // FIX: antes esto se perdia por completo. Sin esto, un combo
+          // personalizado que el admin no toca al editar la venta se
+          // reenviaba como si nunca hubiera tenido composicion propia.
+          productos: d.es_combo === 1 ? (d.combo_productos || null) : null,
         })),
         cargando: false,
       })
@@ -76,7 +79,6 @@ const useEditarVentaStore = create((set, get) => ({
     const { ventaId, fechaEntrega, horaEntrega, detalle } = get()
     if (!ventaId) return false
 
-    // Validar
     if (!fechaEntrega) {
       set({ error: 'La fecha de entrega es requerida' })
       return false
@@ -90,24 +92,34 @@ const useEditarVentaStore = create((set, get) => ({
         set({ error: 'Cantidad y precio deben ser mayores a 0' })
         return false
       }
+      if (item.tipo === 'combo' && Array.isArray(item.productos) && item.productos.length === 0) {
+        set({ error: `El combo "${item.nombre_producto}" debe tener al menos un producto en su composición` })
+        return false
+      }
     }
 
     set({ cargando: true, error: null })
 
     try {
-      // 1. Actualizar detalle
       await axios.put(`/ventas/${ventaId}/detalle`, {
-        detalle: detalle.map(d => ({
-          tipo: d.tipo || 'producto',
-          producto_id: d.tipo === 'combo' ? null : d.producto_id,
-          combo_id: d.tipo === 'combo' ? d.combo_id : null,
-          nombre_producto: d.nombre_producto,
-          cantidad: d.cantidad,
-          precio_unitario: d.precio_unitario,
-        }))
+        detalle: detalle.map(d => {
+          const item = {
+            tipo: d.tipo || 'producto',
+            producto_id: d.tipo === 'combo' ? null : d.producto_id,
+            combo_id: d.tipo === 'combo' ? d.combo_id : null,
+            nombre_producto: d.nombre_producto,
+            cantidad: d.cantidad,
+            precio_unitario: d.precio_unitario,
+          }
+          // FIX: reenviar la composicion personalizada cuando exista, para
+          // que actualizar_detalle_venta no la borre al reinsertar la linea.
+          if (d.tipo === 'combo' && Array.isArray(d.productos) && d.productos.length > 0) {
+            item.productos = d.productos
+          }
+          return item
+        })
       })
 
-      // 2. Actualizar fecha si cambió (opcional)
       const horaConSegundos = horaEntrega ? `${horaEntrega}:00` : '00:00:00'
       const nuevaFecha = `${fechaEntrega} ${horaConSegundos}`
       await axios.put(`/ventas/${ventaId}`, { fecha_entrega: nuevaFecha })

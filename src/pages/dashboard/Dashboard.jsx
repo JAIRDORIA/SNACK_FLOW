@@ -85,12 +85,12 @@ const statsCards = [
         animation: 'spin 0.8s linear infinite' 
       }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      <p style={{ color: '#6b7280', fontSize: '16px', marginLeft: '12px' }}>Cargando dashboard...</p>
+      <p className="ml-3" style={{ color: '#6b7280', fontSize: '16px' }}>Cargando dashboard...</p>
     </div>
   )
 
   if (error) return (
-    <div style={{ padding: '16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
+    <div className="p-4" style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px' }}>
       <p style={{ color: '#ef4444' }}>{error}</p>
     </div>
   )
@@ -110,11 +110,10 @@ const statsCards = [
 
       {/* título */}
       <div style={{ marginBottom: 'clamp(16px, 3vw, 32px)' }}>
-        <h1 style={{
+        <h1 className="m-0" style={{
           fontSize: 'clamp(18px, 4vw, 28px)',
           fontWeight: 700,
           color: '#000000',
-          margin: 0,
           textTransform: 'uppercase',
           letterSpacing: '0.02em',
           wordBreak: 'break-word'
@@ -174,8 +173,8 @@ const statsCards = [
       `}</style>
 
       <div 
-        className="kpi-grid" 
-        style={{ marginBottom: '32px' }}
+        className="kpi-grid mb-8" 
+
         ref={carouselRef}
         onMouseEnter={pauseAutoSlide}
         onMouseLeave={resumeAutoSlide}
@@ -221,18 +220,16 @@ const statsCards = [
                     <Icon size={window.innerWidth < 1024 ? 22 : 26} color={stat.iconColor} />
                   </div>
                 </div>
-                <p style={{
+                <p className="mt-0 mr-0 mb-2.5 ml-0" style={{
                   color: 'rgba(255,255,255,0.85)',
-                  fontSize: 'clamp(13px, 1.8vw, 18px)',
-                  margin: '0 0 10px 0'
+                  fontSize: 'clamp(13px, 1.8vw, 18px)'
                 }}>
                   {stat.title}
                 </p>
-                <p style={{
+                <p className="m-0" style={{
                   color: 'white',
                   fontSize: 'clamp(20px, 3.5vw, 28px)',
-                  fontWeight: 600,
-                  margin: 0
+                  fontWeight: 600
                 }}>
                   ${stat.value.toLocaleString('es-CO')}
                 </p>
@@ -259,7 +256,7 @@ const statsCards = [
                   cursor: 'default',
                 }}
               >
-                <div style={{ marginBottom: '16px' }}>
+                <div className="mb-4">
                   <div style={{
                     width: '48px',
                     height: '48px',
@@ -273,18 +270,16 @@ const statsCards = [
                     <Icon size={24} color={stat.iconColor} />
                   </div>
                 </div>
-                <p style={{
+                <p className="mt-0 mr-0 mb-2.5 ml-0" style={{
                   color: 'rgba(255,255,255,0.85)',
-                  fontSize: '15px',
-                  margin: '0 0 10px 0'
+                  fontSize: '15px'
                 }}>
                   {stat.title}
                 </p>
-                <p style={{
+                <p className="m-0" style={{
                   color: 'white',
                   fontSize: '24px',
-                  fontWeight: 600,
-                  margin: 0
+                  fontWeight: 600
                 }}>
                   ${stat.value.toLocaleString('es-CO')}
                 </p>
@@ -370,7 +365,7 @@ const statsCards = [
             padding: 'clamp(12px, 2vw, 16px) clamp(12px, 2vw, 24px)',
             borderBottom: '2px solid #d1d5db'
           }}>
-            <h2 style={{ fontSize: 'clamp(14px, 2vw, 18px)', margin: 0, color: '#111827' }}>
+            <h2 className="m-0" style={{ fontSize: 'clamp(14px, 2vw, 18px)', color: '#111827' }}>
               Productos Más Vendidos
             </h2>
           </div>
@@ -419,7 +414,7 @@ const statsCards = [
             padding: 'clamp(12px, 2vw, 16px) clamp(12px, 2vw, 24px)',
             borderBottom: '2px solid #d1d5db'
           }}>
-            <h2 style={{ fontSize: 'clamp(14px, 2vw, 18px)', margin: 0, color: '#111827' }}>
+            <h2 className="m-0" style={{ fontSize: 'clamp(14px, 2vw, 18px)', color: '#111827' }}>
               Clientes Que Más Compran
             </h2>
           </div>

@@ -18,6 +18,7 @@ export const useNuevaVentaStore = create((set, get) => ({
   corteId: '',
   fechaEntrega: '',
   horaEntrega: '',
+  observacion: '',
   detalle: [],
   //conAbono: false,
   //montoAbono: 0,
@@ -52,6 +53,37 @@ export const useNuevaVentaStore = create((set, get) => ({
       return { abonosIniciales: nuevos }
     })
   },
+  pagarCompleto: () => {
+  const total = get().totalVenta();
+  const abonos = get().abonosIniciales;
+
+  // Si ya hay una fila vacía (monto 0), la reutilizamos
+  const indiceVacio = abonos.findIndex(
+    (a) => !a.monto || Number(a.monto) === 0
+  );
+
+  if (indiceVacio !== -1) {
+    const nuevos = [...abonos];
+    nuevos[indiceVacio] = {
+      ...nuevos[indiceVacio],
+      monto: total > 0 ? total : nuevos[indiceVacio].monto,
+    };
+    set({ abonosIniciales: nuevos });
+    return;
+  }
+
+  // Si no, creamos una nueva fila con el total
+  set({
+    abonosIniciales: [
+      ...abonos,
+      {
+        monto: total > 0 ? total : 0,
+        medio_pago: 'efectivo',
+        observacion: '',
+      },
+    ],
+  });
+},
   totalAbonado: () => {
     return get().abonosIniciales.reduce((sum, a) => sum + (a.monto || 0), 0)
   },
@@ -123,6 +155,7 @@ export const useNuevaVentaStore = create((set, get) => ({
   setCorteId: (id) => set({ corteId: id }),
   setFechaEntrega: (fecha) => set({ fechaEntrega: fecha }),
   setHoraEntrega: (hora) => set({ horaEntrega: hora }),
+  setObservacion: (obs) => set({ observacion: obs }),
   //setConAbono: (val) => set({ conAbono: val }),
   //setMontoAbono: (monto) => set({ montoAbono: monto }),
   //setMedioPago: (medio) => set({ medioPago: medio }),
@@ -183,6 +216,7 @@ export const useNuevaVentaStore = create((set, get) => ({
       clienteId: '',
       fechaEntrega: '',
       horaEntrega: '',
+      observacion: '',
       detalle: [],
       abonosIniciales: [],
       enviando: false,
@@ -193,11 +227,11 @@ export const useNuevaVentaStore = create((set, get) => ({
 
   // Enviar venta
   registrarVenta: async () => {
-    const { clienteId, corteId, fechaEntrega, horaEntrega, detalle, abonosIniciales } = get()
+    const { clienteId, corteId, fechaEntrega, horaEntrega,observacion, detalle, abonosIniciales } = get()
     const total = get().totalVenta()
     const totalRedondeado = Math.round(total * 100) / 100
     const totalAbonado = get().totalAbonado()
-
+    const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
     // Validaciones
     if (!clienteId || !corteId || !fechaEntrega || detalle.length === 0) {
       set({ errorMsg: 'Completa todos los campos requeridos (cliente, corte, fecha, al menos un producto).' })
@@ -217,9 +251,10 @@ export const useNuevaVentaStore = create((set, get) => ({
     const payload = {
       cliente_id: Number(clienteId),
       corte_id: Number(corteId),
-      usuario_id: 1, // Reemplazar con el ID real del usuario logueado
+      usuario_id: usuario?.id,
       fecha_entrega: fechaFormateada,
       total: totalRedondeado,
+      observacion: observacion?.trim() || null, 
       detalle: detalle.map((d) => {
         const item = {
           tipo: d.tipo || 'producto',

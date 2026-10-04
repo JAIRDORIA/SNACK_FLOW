@@ -53,9 +53,9 @@ export default function AbonarPrestamoModal({ prestamo, onClose, onSuccess }) {
 
   return (
     <div  className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div style={{padding:"24px"}} className="bg-white rounded-lg shadow-lg w-full max-w-sm p-6">
-        <h2 style={{marginBottom:"8px"}} className="text-lg font-semibold mb-2">Abonar a préstamo</h2>
-        <p style={{marginBottom:"32px"}} className="text-sm text-gray-900 mb-4">
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-sm p-6">
+        <h2 className="text-lg font-semibold mb-2">Abonar a préstamo</h2>
+        <p className="text-sm text-gray-900 mb-8">
           {prestamo.cliente_nombre}
           <br />
           <span className="text-xs text-red-800">
@@ -65,7 +65,7 @@ export default function AbonarPrestamoModal({ prestamo, onClose, onSuccess }) {
 
         <form onSubmit={handleConfirmar} className="space-y-3">
           <div>
-            <div style={{marginBottom:"4px"}} className="flex items-center justify-between mb-1">
+            <div className="flex items-center justify-between mb-1">
               <label className="text-sm font-medium">Monto a abonar</label>
               <button
                 type="button"
@@ -80,18 +80,18 @@ export default function AbonarPrestamoModal({ prestamo, onClose, onSuccess }) {
               min="1"
               max={prestamo.saldo_pendiente}
               step="1"
-              style={{padding:"4px 12px"}}
-              className="w-full border rounded px-3 py-2 text-sm"
+
+              className="w-full border rounded text-sm py-1 px-3"
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
             />
           </div>
 
           <div>
-            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Medio de pago</label>
+            <label className="block text-sm font-medium mb-1">Medio de pago</label>
             <select
-            style={{padding:"8px 12px"}}
-              className="w-full border rounded px-3 py-2 text-sm"
+
+              className="w-full border rounded text-sm py-2 px-3"
               value={medioPago}
               onChange={(e) => setMedioPago(e.target.value)}
             >
@@ -101,12 +101,12 @@ export default function AbonarPrestamoModal({ prestamo, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Observación (opcional)</label>
+            <label className="block text-sm font-medium mb-1">Observación (opcional)</label>
             <input
 
               type="text"
-              style={{padding:"8px 12px"}}
-              className="w-full border rounded px-3 py-2 text-sm"
+
+              className="w-full border rounded text-sm py-2 px-3"
               value={observacion}
               onChange={(e) => setObservacion(e.target.value)}
             />
@@ -114,14 +114,14 @@ export default function AbonarPrestamoModal({ prestamo, onClose, onSuccess }) {
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <div style={{paddingTop:"8px"}} className="flex justify-end gap-2 pt-2">
-            <button style={{padding:"8px 16px"}} type="button" className="px-4 py-2 text-sm rounded border" onClick={onClose}>
+          <div className="flex justify-end gap-2 pt-2">
+            <button type="button" className="text-sm rounded border py-2 px-4" onClick={onClose}>
               Cancelar
             </button>
             <button
               type="submit"
               disabled={guardando}
-              style={{padding:"8px 16px"}}
+
               className={`px-4 py-2 text-sm rounded text-white disabled:opacity-50 ${esPagoTotal ? 'bg-green-600' : 'bg-blue-600'}`}
             >
               {guardando ? 'Guardando...' : esPagoTotal ? 'Confirmar pago total' : 'Confirmar abono'}

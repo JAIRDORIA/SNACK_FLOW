@@ -107,20 +107,20 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
   const focusOut = (e) => { e.target.style.border = '1.5px solid #e2e8f0'; e.target.style.background = '#fafafa' }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
+    <div className="p-4" style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
       <div className="modal-inner" style={{ background: '#ffffff', borderRadius: '20px', width: '100%', maxWidth: '480px', boxShadow: '0 24px 64px rgba(0,0,0,0.14)', overflow: 'hidden', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
 
         {/* Header */}
-        <div className="modal-header" style={{ padding: '24px 28px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div className="modal-header pt-6 pr-7 pb-5 pl-7" style={{ borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(88,66,255,0.08)', border: '1px solid rgba(88,66,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <ShoppingBag size={20} color="#5842ff" />
             </div>
             <div>
-              <p style={{ margin: 0, fontWeight: 700, fontSize: '17px', color: '#0f172a' }}>
+              <p className="m-0" style={{ fontWeight: 700, fontSize: '17px', color: '#0f172a' }}>
                 {compra ? 'Editar Compra' : 'Nueva Compra'}
               </p>
-              <p style={{ margin: '2px 0 0', fontSize: '13px', color: '#94a3b8' }}>
+              <p className="mt-0.5 mr-0 mb-0 ml-0" style={{ fontSize: '13px', color: '#94a3b8' }}>
                 {compra ? 'Modifica los datos de la compra' : 'Registra una nueva adquisición'}
               </p>
             </div>
@@ -131,11 +131,11 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
         </div>
 
         {/* Body */}
-        <div className="modal-body" style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="modal-body py-6 px-7" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
 
           {/* Proveedor */}
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Proveedor <span style={{ color: '#f43f5e' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
@@ -154,7 +154,7 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
 
           {/* Descripción */}
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Descripción / Insumos
             </label>
             <div style={{ position: 'relative' }}>
@@ -169,7 +169,7 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
           {/* Costo + Fecha */}
           <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Costo Total <span style={{ color: '#f43f5e' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
@@ -179,7 +179,7 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
               </div>
             </div>
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Fecha de Compra
               </label>
               <div style={{ position: 'relative' }}>
@@ -191,7 +191,7 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
           </div>
           {/* Medio de pago */}
           <div>
-            <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Medio de pago <span style={{ color: '#f43f5e' }}>*</span>
             </label>
             <div style={{ position: 'relative' }}>
@@ -208,26 +208,26 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
           </div>
 
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 14px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '10px' }}>
+          <div className="py-3 px-3.5" style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '10px' }}>
             <Info size={15} color="#94a3b8" style={{ flexShrink: 0 }} />
-            <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>La compra se asociará al corte activo automáticamente.</p>
+            <p className="m-0" style={{ fontSize: '12px', color: '#64748b' }}>La compra se asociará al corte activo automáticamente.</p>
           </div>
 
           {errForm && (
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', padding: '12px 14px', background: '#fff1f2', border: '1.5px solid #fecdd3', borderRadius: '10px' }}>
-              <AlertTriangle size={15} color="#f43f5e" style={{ flexShrink: 0, marginTop: '1px' }} />
-              <p style={{ margin: 0, fontSize: '13px', color: '#e11d48' }}>{errForm}</p>
+            <div className="py-3 px-3.5" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', background: '#fff1f2', border: '1.5px solid #fecdd3', borderRadius: '10px' }}>
+              <AlertTriangle size={15} color="#f43f5e" className="mt-0" style={{ flexShrink: 0 }} />
+              <p className="m-0" style={{ fontSize: '13px', color: '#e11d48' }}>{errForm}</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="modal-footer modal-footer-wrap" style={{ padding: '16px 28px 24px', borderTop: '1px solid #f1f5f9', display: 'flex', gap: '10px' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
+        <div className="modal-footer modal-footer-wrap pt-4 pr-7 pb-6 pl-7" style={{ borderTop: '1px solid #f1f5f9', display: 'flex', gap: '10px' }}>
+          <button onClick={onClose} className="p-2.5" style={{ flex: 1, borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
             Cancelar
           </button>
           <button onClick={handleGuardar} disabled={guardando}
-            style={{ flex: 1, padding: '11px', borderRadius: '10px', border: 'none', background: guardando ? '#a5b4fc' : '#5842ff', color: 'white', fontSize: '14px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px' }}>
+            className="p-2.5" style={{ flex: 1, borderRadius: '10px', border: 'none', background: guardando ? '#a5b4fc' : '#5842ff', color: 'white', fontSize: '14px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px' }}>
             <CheckCircle2 size={15} />
             {guardando ? 'Guardando...' : compra ? 'Guardar Cambios' : 'Crear Compra'}
           </button>
@@ -251,22 +251,22 @@ function ModalEliminar({ compra, onClose, onConfirmar }) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
-      <div style={{ background: '#ffffff', borderRadius: '20px', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.14)', padding: '36px 28px', textAlign: 'center', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
-        <div style={{ width: '60px', height: '60px', borderRadius: '16px', background: '#fff1f2', border: '1px solid #fecdd3', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
+    <div className="p-4" style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
+      <div className="py-9 px-7" style={{ background: '#ffffff', borderRadius: '20px', width: '100%', maxWidth: '400px', boxShadow: '0 24px 64px rgba(0,0,0,0.14)', textAlign: 'center', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
+        <div className="mt-0 mr-auto mb-5 ml-auto" style={{ width: '60px', height: '60px', borderRadius: '16px', background: '#fff1f2', border: '1px solid #fecdd3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Trash2 size={26} color="#f43f5e" />
         </div>
-        <p style={{ margin: '0 0 8px', fontWeight: 700, fontSize: '18px', color: '#0f172a' }}>¿Eliminar compra?</p>
-        <p style={{ margin: '0 0 28px', fontSize: '14px', color: '#64748b', lineHeight: 1.6 }}>
+        <p className="mt-0 mr-0 mb-2 ml-0" style={{ fontWeight: 700, fontSize: '18px', color: '#0f172a' }}>¿Eliminar compra?</p>
+        <p className="mt-0 mr-0 mb-7 ml-0" style={{ fontSize: '14px', color: '#64748b', lineHeight: 1.6 }}>
           Compra de <strong style={{ color: '#0f172a' }}>{compra?.nombre_proveedor || 'este proveedor'}</strong> por{' '}
           <strong style={{ color: '#e11d48' }}>{fmt(compra?.costo_total || 0)}</strong>. Esta acción no se puede deshacer.
         </p>
         <div className="modal-footer" style={{ display: 'flex', gap: '10px' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: '11px', borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
+          <button onClick={onClose} className="p-2.5" style={{ flex: 1, borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
             Cancelar
           </button>
           <button onClick={handleConfirmar} disabled={eliminando}
-            style={{ flex: 1, padding: '11px', borderRadius: '10px', border: 'none', background: eliminando ? '#fda4af' : '#f43f5e', color: 'white', fontSize: '14px', fontWeight: 600, cursor: eliminando ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
+            className="p-2.5" style={{ flex: 1, borderRadius: '10px', border: 'none', background: eliminando ? '#fda4af' : '#f43f5e', color: 'white', fontSize: '14px', fontWeight: 600, cursor: eliminando ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}>
             {eliminando ? 'Eliminando...' : 'Sí, eliminar'}
           </button>
         </div>
@@ -349,18 +349,18 @@ export default function Compras() {
   )
 
   return (
-    <div className="page-container" style={{ padding: '40px 48px', flex: 1, background: '#fafbfc', minHeight: '100vh', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
+    <div className="page-container py-10 px-12" style={{ flex: 1, background: '#fafbfc', minHeight: '100vh', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
       <style>{responsiveStyles}</style>
 
       {/* ═══ HEADER ═══ */}
-      <div className="header-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
+      <div className="header-container mb-8" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+          <h1 className="m-0" style={{ fontSize: '24px', fontWeight: 800, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
             GESTIÓN DE COMPRAS
           </h1>
         </div>
-        <button className="header-btn" onClick={abrirCrear}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '12px 20px', background: '#5842ff', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
+        <button className="header-btn py-3 px-5" onClick={abrirCrear}
+          style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#5842ff', color: 'white', border: 'none', borderRadius: '10px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>
           <Plus size={18} />
           Nueva Compra
         </button>
@@ -373,15 +373,15 @@ export default function Compras() {
           { icon: <TrendingDown size={20} color="#f43f5e" />, borderColor: '#f43f5e', value: totalCompras, label: 'Total Egresado', isMoney: true },
           { icon: <BarChart3 size={20} color="#f59e0b" />, borderColor: '#f59e0b', value: promedio, label: 'Promedio x Compra', isMoney: true },
         ].map((card, i) => (
-          <div key={i} style={{ background: '#1a1b26', borderRadius: '16px', padding: '20px 24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div key={i} className="py-5 px-6" style={{ background: '#1a1b26', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: '12px', border: `1.5px solid ${card.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               {card.icon}
             </div>
             <div style={{ minWidth: 0 }}>
-              <p style={{ margin: 0, fontSize: '22px', fontWeight: 700, color: '#ffffff', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <p className="m-0" style={{ fontSize: '22px', fontWeight: 700, color: '#ffffff', lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {card.isMoney ? fmt(card.value) : card.value}
               </p>
-              <p style={{ margin: '4px 0 0', fontSize: '13px', color: '#94a3b8', fontWeight: 500 }}>{card.label}</p>
+              <p className="mt-1 mr-0 mb-0 ml-0" style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 500 }}>{card.label}</p>
             </div>
           </div>
         ))}
@@ -391,11 +391,11 @@ export default function Compras() {
       <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '16px', overflow: 'hidden' }}>
 
         {/* Barra de herramientas */}
-        <div className="toolbar-container" style={{ padding: '16px 24px', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <div className="toolbar-container py-4 px-6" style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="search-box" style={{ position: 'relative', width: '320px' }}>
             <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
             <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar por descripción..."
-              style={{ width: '100%', boxSizing: 'border-box', padding: '10px 16px 10px 44px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#0f172a', background: '#ffffff', outline: 'none', fontFamily: 'inherit' }}
+              className="pt-2.5 pr-4 pb-2.5 pl-11" style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#0f172a', background: '#ffffff', outline: 'none', fontFamily: 'inherit' }}
               onFocus={e => e.target.style.border = '1px solid #5842ff'}
               onBlur={e => e.target.style.border = '1px solid #e2e8f0'}
             />
@@ -409,25 +409,25 @@ export default function Compras() {
 
           <div ref={filtroRef} style={{ position: 'relative' }}>
             <button onClick={() => setPanelFiltro(p => !p)}
-              style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 16px', border: nFiltros > 0 ? '1px solid #5842ff' : '1px solid #e2e8f0', background: '#ffffff', color: nFiltros > 0 ? '#5842ff' : '#475569', fontSize: '14px', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', width: '100%', boxSizing: 'border-box', justifyContent: 'center' }}>
+              className="py-2.5 px-4" style={{ display: 'flex', alignItems: 'center', gap: '8px', border: nFiltros > 0 ? '1px solid #5842ff' : '1px solid #e2e8f0', background: '#ffffff', color: nFiltros > 0 ? '#5842ff' : '#475569', fontSize: '14px', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', borderRadius: '8px', width: '100%', boxSizing: 'border-box', justifyContent: 'center' }}>
               <SlidersHorizontal size={16} />
               Filtros
-              {nFiltros > 0 && <span style={{ background: '#5842ff', color: 'white', padding: '2px 6px', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>{nFiltros}</span>}
-              <ChevronDown size={14} style={{ transform: panelFiltro ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', marginLeft: 'auto' }} />
+              {nFiltros > 0 && <span className="py-0.5 px-1.5" style={{ background: '#5842ff', color: 'white', borderRadius: '12px', fontSize: '11px', fontWeight: 'bold' }}>{nFiltros}</span>}
+              <ChevronDown size={14} className="m-auto" style={{ transform: panelFiltro ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
             </button>
 
             {panelFiltro && (
-              <div style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', minWidth: '240px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 40 }}>
-                <p style={{ margin: '0 0 8px', fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Proveedor</p>
+              <div className="p-5" style={{ position: 'absolute', top: 'calc(100% + 8px)', left: 0, background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', minWidth: '240px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', zIndex: 40 }}>
+                <p className="mt-0 mr-0 mb-2 ml-0" style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Proveedor</p>
                 <select value={filtroProveedor} onChange={e => setFiltroProveedor(e.target.value)}
-                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', outline: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
+                  className="py-2 px-3" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', outline: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
                   <option value="">Todos los proveedores</option>
                   {proveedores.map(p => <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>)}
                 </select>
                 {nFiltros > 0 && (
-                  <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #f1f5f9' }}>
+                  <div className="mt-4 pt-4" style={{ borderTop: '1px solid #f1f5f9' }}>
                     <button onClick={() => { setFiltroProveedor(''); setPanelFiltro(false) }}
-                      style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0 }}>
+                      className="p-0" style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                       Limpiar filtros
                     </button>
                   </div>
@@ -437,7 +437,7 @@ export default function Compras() {
           </div>
 
           <select value={corteIdFiltro ?? ''} onChange={e => fetchCompras(1, limite, e.target.value ? Number(e.target.value) : null, busqueda)}
-            style={{ padding: '10px 16px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#ffffff', color: '#475569', fontSize: '14px', fontWeight: 500, cursor: 'pointer', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}>
+            className="py-2.5 px-4" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', background: '#ffffff', color: '#475569', fontSize: '14px', fontWeight: 500, cursor: 'pointer', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}>
             <option value="">Corte actual</option>
             {cortes.filter(c => c.estado === 'cerrado').map(c => (
               <option key={c.id} value={c.id}>Corte #{c.numero} — {c.fecha_inicio?.slice(0, 10)}</option>
@@ -451,43 +451,43 @@ export default function Compras() {
             <thead>
               <tr style={{ background: '#fafbfc', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
                 {['ID', 'PROVEEDOR', 'DESCRIPCIÓN', 'COSTO TOTAL', 'FECHA', 'MEDIO DE PAGO', 'ACCIONES'].map(h => (
-                  <th key={h} style={{ padding: '14px 24px', textAlign: 'left', fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                  <th key={h} className="py-3.5 px-6" style={{ textAlign: 'left', fontSize: '12px', fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {lista.length === 0 ? (
                 <tr>
-                  <td colSpan={6} style={{ padding: '60px 0', textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
+                  <td colSpan={6} className="py-14 px-0" style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
                     No se encontraron compras en este periodo.
                   </td>
                 </tr>
               ) : lista.map((c, idx) => (
                 <tr key={c.id_compra} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 600, color: '#5842ff' }}>
+                  <td className="py-4 px-6" style={{ fontSize: '14px', fontWeight: 600, color: '#5842ff' }}>
                     #{String(c.id_compra || idx + 1).padStart(3, '0')}
                   </td>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#111827', fontWeight: 600 }}>
+                  <td className="py-4 px-6" style={{ fontSize: '14px', color: '#111827', fontWeight: 600 }}>
                     {c.nombre_proveedor || '—'}
                   </td>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
+                  <td className="py-4 px-6" style={{ fontSize: '14px', color: '#475569' }}>
                     {c.descripcion || <span style={{ color: '#cbd5e1' }}>—</span>}
                   </td>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                  <td className="py-4 px-6" style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
                     {fmt(c.costo_total || 0)}
                   </td>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
+                  <td className="py-4 px-6" style={{ fontSize: '14px', color: '#475569' }}>
                     {c.fecha_compra}
                   </td>
-                  <td style={{ padding: '16px 24px', fontSize: '14px', color: '#475569' }}>
+                  <td className="py-4 px-6" style={{ fontSize: '14px', color: '#475569' }}>
                     {c.medio_pago || <span style={{ color: '#cbd5e1' }}>—</span>}
                   </td>
-                  <td style={{ padding: '16px 24px' }}>
+                  <td className="py-4 px-6">
                     <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
-                      <button onClick={() => abrirEditar(c)} title="Editar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+                      <button onClick={() => abrirEditar(c)} title="Editar" className="p-0" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
                         <Pencil size={18} color="#f59e0b" />
                       </button>
-                      <button onClick={() => setCompraEliminar(c)} title="Eliminar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+                      <button onClick={() => setCompraEliminar(c)} title="Eliminar" className="p-0" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
                         <Trash2 size={18} color="#ef4444" />
                       </button>
                     </div>
@@ -499,9 +499,9 @@ export default function Compras() {
         </div>
 
         {/* ── CARDS (móvil) ── */}
-        <div className="cards-mobile" style={{ padding: '8px 0 16px' }}>
+        <div className="cards-mobile pt-2 pr-0 pb-4 pl-0">
           {lista.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px', padding: '40px 0' }}>
+            <p className="py-10 px-0" style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
               No se encontraron compras en este periodo.
             </p>
           ) : lista.map((c, idx) => (
@@ -509,10 +509,10 @@ export default function Compras() {
               <div className="card-row">
                 <span style={{ fontSize: '13px', fontWeight: 700, color: '#5842ff' }}>#{String(c.id_compra || idx + 1).padStart(3, '0')}</span>
                 <div style={{ display: 'flex', gap: '16px' }}>
-                  <button onClick={() => abrirEditar(c)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+                  <button onClick={() => abrirEditar(c)} className="p-0" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
                     <Pencil size={16} color="#f59e0b" />
                   </button>
-                  <button onClick={() => setCompraEliminar(c)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 0 }}>
+                  <button onClick={() => setCompraEliminar(c)} className="p-0" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
                     <Trash2 size={16} color="#ef4444" />
                   </button>
                 </div>
@@ -527,11 +527,11 @@ export default function Compras() {
                   <span className="card-value">{c.descripcion}</span>
                 </div>
               )}
-              <div className="card-row" style={{ marginBottom: 0 }}>
+              <div className="card-row mb-0">
                 <span className="card-label">Costo</span>
                 <span className="card-value" style={{ fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>{fmt(c.costo_total || 0)}</span>
               </div>
-              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #f1f5f9', fontSize: '12px', color: '#94a3b8' }}>
+              <div className="mt-2.5 pt-2.5" style={{ borderTop: '1px solid #f1f5f9', fontSize: '12px', color: '#94a3b8' }}>
                 {fmtFecha(c.fecha_compra)}
               </div>
             </div>
@@ -539,7 +539,7 @@ export default function Compras() {
         </div>
 
         {/* Pie tabla */}
-        <div style={{ padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '12px' }}>
+        <div className="py-4 px-6" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#ffffff', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '12px' }}>
           <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>
             Mostrando <strong style={{ color: '#111827' }}>{lista.length}</strong> de <strong style={{ color: '#111827' }}>{total}</strong> registros
           </span>
@@ -547,7 +547,7 @@ export default function Compras() {
             <button
               disabled={pagina <= 1}
               onClick={() => fetchCompras(pagina - 1, limite, corteIdFiltro, busqueda)}
-              style={{ padding: '6px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff', cursor: pagina <= 1 ? 'not-allowed' : 'pointer', opacity: pagina <= 1 ? 0.4 : 1, fontSize: '13px', fontFamily: 'inherit' }}
+              className="py-1.5 px-3.5" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff', cursor: pagina <= 1 ? 'not-allowed' : 'pointer', opacity: pagina <= 1 ? 0.4 : 1, fontSize: '13px', fontFamily: 'inherit' }}
             >
               Anterior
             </button>
@@ -557,7 +557,7 @@ export default function Compras() {
             <button
               disabled={pagina >= total_paginas}
               onClick={() => fetchCompras(pagina + 1, limite, corteIdFiltro, busqueda)}
-              style={{ padding: '6px 14px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff', cursor: pagina >= total_paginas ? 'not-allowed' : 'pointer', opacity: pagina >= total_paginas ? 0.4 : 1, fontSize: '13px', fontFamily: 'inherit' }}
+              className="py-1.5 px-3.5" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', background: '#fff', cursor: pagina >= total_paginas ? 'not-allowed' : 'pointer', opacity: pagina >= total_paginas ? 0.4 : 1, fontSize: '13px', fontFamily: 'inherit' }}
             >
               Siguiente
             </button>

@@ -114,36 +114,36 @@ useEffect(() => {
   if (!open) return null
 
   return (
-    <div style={{padding:"16px"}}  className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div  className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden">
-        <div style={{padding:"16px 24px"}}  className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-indigo-50">
+        <div  className="flex items-center justify-between border-b border-gray-100 bg-indigo-50 py-4 px-6">
           <h2 className="text-lg font-bold text-slate-800">Nuevo Abono</h2>
           <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200">
             <X size={20} color="#64748b" />
           </button>
         </div>
 
-        <div style={{padding:"24px"}}  className="p-6 flex flex-col gap-6 max-h-[70vh] overflow-y-auto">
+        <div  className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto p-6">
           {/* Buscar cliente */}
           {!clienteSeleccionado ? (
             <div>
-              <label style={{marginBottom:"4px"}}    className="text-sm font-semibold text-slate-700 mb-2 block">Buscar cliente</label>
+              <label    className="text-sm font-semibold text-slate-700 block mb-1">Buscar cliente</label>
               <input
                 type="text"
                 value={busquedaCliente}
                 onChange={e => setBusquedaCliente(e.target.value)}
                 placeholder="Escriba el nombre del cliente..."
-                style={{padding:"8px"}} 
-                className="w-full border border-slate-300 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-400"
+ 
+                className="w-full border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400 p-2"
               />
               {busquedaCliente && clientesFiltrados.length > 0 && (
-                <div style={{marginTop:"8px",overflowY:"auto",maxHeight:"160px"}}  className="mt-2 border rounded-lg max-h-40 overflow-y-auto">
+                <div style={{ overflowY:"auto",maxHeight:"160px" }}  className="border rounded-lg max-h-40 overflow-y-auto mt-2">
                   {clientesFiltrados.map(c => (
                     <div
                       key={c.ID_Cliente}
                       onClick={() => seleccionarCliente(c)}
-                      style={{padding:"8px 16px"}} 
-                      className="px-4 py-2 hover:bg-indigo-100 cursor-pointer text-sm"
+ 
+                      className="hover:bg-indigo-100 cursor-pointer text-sm py-2 px-4"
                     >
                       {c.Cli_Nombre}
                     </div>
@@ -151,7 +151,7 @@ useEffect(() => {
                 </div>
               )}
               {busquedaCliente && clientesFiltrados.length === 0 && (
-      <div style={{marginTop:"8px",padding:"8px 16px"}} className="mt-2 border rounded-lg px-4 py-2 text-sm text-slate-400">
+      <div className="border rounded-lg text-sm text-slate-400 mt-2 py-2 px-4">
         No se encontraron clientes
       </div>
     )}
@@ -168,14 +168,14 @@ useEffect(() => {
               </div>
 
               {cargandoVentas ? (
-                <div style={{paddingTop:"16px",paddingBottom:"16px"}}  className="flex justify-center py-4">
+                <div  className="flex justify-center pt-4 pb-4">
                   <Loader2 size={20} className="animate-spin text-indigo-500" />
                 </div>
               ) : ventasCliente.length === 0 ? (
-                <p style={{marginTop:"8px"}}  className="text-sm text-gray-500 mt-2">No hay ventas pendientes para este cliente.</p>
+                <p  className="text-sm text-gray-500 mt-2">No hay ventas pendientes para este cliente.</p>
               ) : (
-                <div style={{marginTop:"12px"}} className="mt-3">
-                  <label style={{marginBottom:"4px"}} className="text-sm font-semibold text-slate-700 mb-1 block">Seleccione venta</label>
+                <div className="mt-3">
+                  <label className="text-sm font-semibold text-slate-700 block mb-1">Seleccione venta</label>
                   <select
                     value={ventaSeleccionada?.id_venta || ''}
                     onChange={e => {
@@ -183,8 +183,8 @@ useEffect(() => {
                       setVentaSeleccionada(v)
                       setMonto(v.saldo_pendiente) // por defecto el total pendiente
                     }}
-                    style={{padding:"8px"}}
-                    className="w-full border border-slate-200 rounded-lg p-2 text-sm"
+
+                    className="w-full border border-slate-200 rounded-lg text-sm p-2"
                   >
                     <option value="">-- Elegir venta --</option>
                     {ventasCliente.map(v => (
@@ -197,7 +197,7 @@ useEffect(() => {
               )}
 
               {ventaSeleccionada && (
-                <div style={{marginTop:"16px",padding:"16px"}} className="mt-4 p-4 bg-indigo-50 rounded-xl space-y-3">
+                <div className="bg-indigo-50 rounded-xl space-y-3 mt-4 p-4">
                   <div className="flex justify-between text-sm">
                     <span>Total venta</span>
                     <span className="font-semibold">${ventaSeleccionada.total.toLocaleString('es-CO')}</span>
@@ -214,14 +214,14 @@ useEffect(() => {
                     max={ventaSeleccionada.saldo_pendiente}
                     value={monto}
                     onChange={e => setMonto(Number(e.target.value))}
-                    style={{padding:"8px"}} 
-                    className="w-full border border-slate-200 rounded-lg p-2 text-sm"
+ 
+                    className="w-full border border-slate-200 rounded-lg text-sm p-2"
                   />
 
                   <label className="block text-xs text-slate-500">Medio de pago</label>
                   <select value={medioPago} onChange={e => setMedioPago(e.target.value)}
-                  style={{padding:"8px"}}
-                    className="w-full border border-slate-200 rounded-lg p-2 text-sm">
+
+                    className="w-full border border-slate-200 rounded-lg text-sm p-2">
                     <option value="efectivo">Efectivo</option>
                     <option value="transferencia">Transferencia</option>
                     <option value="otro">Otro</option>
@@ -232,8 +232,8 @@ useEffect(() => {
                     type="text"
                     value={observacion}
                     onChange={e => setObservacion(e.target.value)}
-                    style={{padding:"8px"}}
-                    className="w-full border border-slate-200 rounded-lg p-2 text-sm"
+
+                    className="w-full border border-slate-200 rounded-lg text-sm p-2"
                     placeholder="Ej. pago en caja"
                   />
                 </div>
@@ -247,20 +247,20 @@ useEffect(() => {
             </div>
           )}
           {exito && (
-            <div style={{padding:"12px"}} className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 p-3 rounded-lg">
+            <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-lg p-3">
               <CheckCircle2 size={16} /> Abono registrado correctamente
             </div>
           )}
         </div>
 
-        <div style={{padding:"16px 24px"}}  className="px-6 py-4 border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3">
+        <div  className="border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3 py-4 px-6">
           <button onClick={onClose} disabled={enviando}
             className="px-5 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50">
             Cancelar
           </button>
           <button onClick={handleSubmit} disabled={!ventaSeleccionada || enviando || monto <= 0}
-          style={{padding:"8px 24px"}}
-            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl text-sm font-semibold shadow-md disabled:opacity-50">
+
+            className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md disabled:opacity-50 py-2 px-6">
             {enviando ? <Loader2 size={16} className="animate-spin" /> : null}
             Registrar Abono
           </button>

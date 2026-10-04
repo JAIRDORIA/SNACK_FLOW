@@ -74,13 +74,10 @@ export default function Sidebar({ sidebarAbierto, setSidebarAbierto }) {
     >
 
       {/* Logo */}
-      <div style={{
-
-        padding: '0px',
-        paddingTop: "10px",
+      <div className="p-0 pt-2.5" style={{
         borderBottom: '1px solid #1f2937'
       }}>
-        <div style={{ marginTop: "6px", marginLeft: "20px", display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', borderRadius: '8px', width: '180px', height: '100px' }}>
+        <div className="mt-1.5 ml-5" style={{ display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', borderRadius: '8px', width: '180px', height: '100px' }}>
           {/* Imagen que contiene logo + nombre + slogan */}
           <img
             src="/SNACKFLOW_LOGO_BLANCO.png"
@@ -97,9 +94,8 @@ export default function Sidebar({ sidebarAbierto, setSidebarAbierto }) {
       </div>
 
       {/* Navegación */}
-      <nav style={{
+      <nav className="p-3" style={{
         flex: 1,
-        padding: '12px',
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
@@ -149,15 +145,15 @@ export default function Sidebar({ sidebarAbierto, setSidebarAbierto }) {
         <div>
           <button
             onClick={() => setInventarioAbierto(prev => !prev)}
-            style={{
+            className="py-2.5 px-4" style={{
               display: 'flex', alignItems: 'center', gap: '12px',
-              width: '100%', padding: '10px 16px', borderRadius: '8px',
+              width: '100%', borderRadius: '8px',
               background: inventarioActivo ? '#4f46e5' : 'transparent',
               color: inventarioActivo ? 'white' : '#9ca3af',
               border: 'none', cursor: 'pointer',
               fontFamily: 'inherit', fontSize: '17px',
               fontWeight: inventarioActivo ? 600 : 400,
-              textAlign: 'left', transition: 'all 0.15s',
+              textAlign: 'left', transition: 'all 0.15s'
             }}
             onMouseEnter={e => {
               if (!inventarioActivo) {
@@ -182,10 +178,7 @@ export default function Sidebar({ sidebarAbierto, setSidebarAbierto }) {
 
           {/* Submenú */}
           {inventarioAbierto && (
-            <div style={{
-              marginTop: '4px',
-              marginLeft: '12px',
-              paddingLeft: '12px',
+            <div className="mt-1 ml-3 pl-3" style={{
               borderLeft: '1px solid #374151',
               display: 'flex',
               flexDirection: 'column',
@@ -271,15 +264,13 @@ export default function Sidebar({ sidebarAbierto, setSidebarAbierto }) {
       </nav>
 
       {/* Footer */}
-      <div style={{
-        padding: '16px',
+      <div className="p-4" style={{
         borderTop: '1px solid #1f2937'
       }}>
-        <p style={{
+        <p className="m-0" style={{
           fontSize: '12px',
           color: '#6b7280',
-          textAlign: 'center',
-          margin: 0
+          textAlign: 'center'
         }}>
           © 2026 SnacFlow v1.0
         </p>

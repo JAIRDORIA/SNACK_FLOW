@@ -12,6 +12,7 @@ import useNuevaVentaStore from "@/store/useNuevaVentaStore";
 import useBalanceStore from "@/store/useBalanceStore";
 import { formatearFechaColombia } from "@/utils/formatearFecha";
 import { getClientes } from "@/api/clientes_api";
+import CrearClienteModal from "@/components/CrearClienteModal";
 
 const MEDIOS_PAGO = ["efectivo", "transferencia", "otro"];
 
@@ -24,6 +25,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     corteId,
     fechaEntrega,
     horaEntrega,
+    observacion,
+    setObservacion,
     detalle,
     enviando,
     exito,
@@ -51,6 +54,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     eliminarAbonoInicial,
     modificarAbonoInicial,
     totalAbonado,
+    pagarCompleto
   } = useNuevaVentaStore();
   const { balance, fetchBalance } = useBalanceStore();
   const [clienteNombre, setClienteNombre] = useState('')
@@ -65,6 +69,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [textoBusquedaCliente, setTextoBusquedaCliente] = useState("");
   const [clientesFiltrados, setClientesFiltrados] = useState([]);
   const [seleccionado, setSeleccionado] = useState(false);
+  const [crearClienteOpen, setCrearClienteOpen] = useState(false);
   const [mostrarInfoCombo, setMostrarInfoCombo] = useState(false);
   const [montosLocales, setMontosLocales] = useState([]);
   const [productosEditados, setProductosEditados] = useState([]);
@@ -97,6 +102,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       cargarDatos();
       cargarCombos();
       fetchBalance();
+      setCrearClienteOpen(false);
     }
   }, [open]);
   useEffect(() => {
@@ -181,6 +187,48 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       .catch(() => setClientesFiltrados([]))
   }, [textoBusquedaCliente, seleccionado]);
 
+  // Cliente recién creado desde el botón "+": se selecciona automáticamente
+  // para que el usuario siga armando la venta sin salir del modal.
+  const handleClienteCreado = async (clienteCreado) => {
+    setCrearClienteOpen(false);
+
+    const identificacion = clienteCreado?.Cli_identificacion || "";
+    try {
+      // Se re-consulta para obtener el ID_Cliente real (no se asume el shape
+      // de la respuesta del POST).
+      const res = await getClientes(1, 25, clienteCreado?.Cli_Nombre || "");
+      const lista = res.data.items || res.data.datos || [];
+      const encontrado =
+        lista.find((c) => c.Cli_identificacion === identificacion) || lista[0];
+
+      if (encontrado) {
+        setClienteId(encontrado.ID_Cliente);
+        setClienteNombre(encontrado.Cli_Nombre);
+        setClienteIdentificacion(encontrado.Cli_identificacion || "S/N");
+        setTextoBusquedaCliente(
+          `${encontrado.Cli_Nombre} - ${encontrado.Cli_identificacion || "S/N"}`,
+        );
+      } else {
+        // Sin coincidencia en la búsqueda, se conserva lo capturado del form.
+        setClienteNombre(clienteCreado?.Cli_Nombre || "");
+        setClienteIdentificacion(identificacion || "S/N");
+        setTextoBusquedaCliente(
+          `${clienteCreado?.Cli_Nombre || ""} - ${identificacion || "S/N"}`,
+        );
+      }
+      setSeleccionado(true);
+      setClientesFiltrados([]);
+    } catch {
+      setClienteNombre(clienteCreado?.Cli_Nombre || "");
+      setClienteIdentificacion(identificacion || "S/N");
+      setTextoBusquedaCliente(
+        `${clienteCreado?.Cli_Nombre || ""} - ${identificacion || "S/N"}`,
+      );
+      setSeleccionado(true);
+      setClientesFiltrados([]);
+    }
+  };
+
 
 
   const fechaMinimaEntrega = balance?.fecha_inicio
@@ -192,15 +240,16 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
   if (!open) return null;
   return (
+    <>
     <div
-      style={{ padding: "16px" }}
+
       className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
     >
       <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
         {/* Header */}
         <div
-          style={{ padding: "16px 36px" }}
-          className="flex items-center justify-between  border-b border-slate-100 bg-indigo-50"
+
+          className="flex items-center justify-between border-b border-slate-100 bg-indigo-50 py-4 px-9"
         >
           <h2 className="text-lg font-bold text-slate-800">Nueva Venta</h2>
           <button
@@ -215,14 +264,14 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
         </div>
 
         <div
-          style={{ padding: "24px" }}
-          className="p-6 flex flex-col gap-6 max-h-[70vh] overflow-y-auto"
+
+          className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto p-6"
         >
           {/* Error de carga */}
           {errorDatos && (
             <div
-              style={{ padding: "12px" }}
-              className="flex items-center gap-2 text-sm text-rose-600 bg-rose-50 p-3 rounded-lg"
+
+              className="flex items-center gap-2 text-sm text-rose-600 bg-rose-50 rounded-lg p-3"
             >
               <AlertCircle size={16} /> {errorDatos}
             </div>
@@ -231,19 +280,30 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
           {/* Sección 1: Datos generales */}
           <div>
             <h3
-              style={{ marginBottom: "12px" }}
+
               className="text-sm font-semibold text-slate-600 mb-3"
             >
               Datos generales
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label
-                  style={{ marginBottom: "4px" }}
-                  className="block text-xs text-slate-500 mb-1"
-                >
-                  Cliente *
-                </label>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs text-slate-500">
+                    Cliente *
+                  </label>
+
+                  {/* Botón para registrar un cliente sin salir de la venta */}
+                  <button
+                    type="button"
+                    onClick={() => setCrearClienteOpen(true)}
+                    disabled={cargandoDatos}
+                    title="Registrar nuevo cliente"
+                    aria-label="Registrar nuevo cliente"
+                    className="w-6 h-6 flex items-center justify-center rounded-md bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
 
                 <div className="relative">
                   <input
@@ -258,8 +318,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                       setSeleccionado(false);
                       if (clienteId) setClienteId("");
                     }}
-                    style={{ padding: "8px" }}
-                    className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+
+                    className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
                     disabled={cargandoDatos}
                   />
 
@@ -268,8 +328,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     <>
                       {clientesFiltrados.length > 0 ? (
                         <ul
-                          style={{ marginTop: "4px" }}
-                          className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg"
+
+                          className="absolute z-20 bg-white border border-slate-200 rounded-lg max-h-48 overflow-y-auto w-full shadow-lg mt-1"
                         >
                           {clientesFiltrados.map((c) => (
                             <li
@@ -284,8 +344,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                                 setSeleccionado(true);
                                 setClientesFiltrados([]);
                               }}
-                              style={{ padding: "8px 12px" }}
-                              className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm"
+
+                              className="hover:bg-indigo-50 cursor-pointer text-sm py-2 px-3"
                             >
                               <span>{c.Cli_Nombre} - </span>
                               <span className="text-xs text-slate-400 ml-2">
@@ -296,8 +356,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                         </ul>
                       ) : (
                         <div
-                          style={{ padding: "8px 12px", marginTop: "4px" }}
-                          className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 px-3 py-2 text-sm text-slate-400 w-full shadow-lg"
+
+                          className="absolute z-20 bg-white border border-slate-200 rounded-lg text-sm text-slate-400 w-full shadow-lg py-2 px-3 mt-1"
                         >
                           No se encontraron clientes
                         </div>
@@ -314,7 +374,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               </div>
               <div>
                 <label
-                  style={{ marginBottom: "4px" }}
+
                   className="block text-xs text-slate-500 mb-1"
                 >
                   Corte *
@@ -322,8 +382,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 <select
                   value={corteId}
                   onChange={(e) => setCorteId(e.target.value)}
-                  style={{ padding: "8px" }}
-                  className="w-full border border-slate-200 rounded-lg  text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+
+                  className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
                   disabled={cargandoDatos}
                 >
                   <option value="">Seleccionar corte...</option>
@@ -336,8 +396,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               </div>
               <div>
                 <label
-                  style={{ marginBottom: "4px" }}
-                  className="block text-xs text-slate-500 "
+
+                  className="block text-xs text-slate-500 mb-1"
                 >
                   Fecha de entrega *
                 </label>
@@ -346,14 +406,14 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   value={fechaEntrega}
                   onChange={(e) => setFechaEntrega(e.target.value)}
                   min={fechaMinimaEntrega}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
-                  style={{ padding: "8px" }}
+                  className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
+
                 />
               </div>
               <div>
                 <label
-                  style={{ marginBottom: "4px" }}
-                  className="block text-xs text-slate-500 "
+
+                  className="block text-xs text-slate-500 mb-1"
                 >
                   Hora de entrega
                 </label>
@@ -361,8 +421,24 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   type="time"
                   value={horaEntrega}
                   onChange={(e) => setHoraEntrega(e.target.value)}
-                  style={{ padding: "8px" }}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+
+                  className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label
+
+                  className="block text-xs text-slate-500 mb-1"
+                >
+                  Observación (opcional)
+                </label>
+                <textarea
+                  value={observacion}
+                  onChange={(e) => setObservacion(e.target.value)}
+                  placeholder="Ej: sin sal en las empanadas, salsa aparte..."
+                  rows={2}
+
+                  className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
                 />
               </div>
             </div>
@@ -371,14 +447,14 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
           {/* Sección 2: Productos */}
           <div>
             <h3
-              style={{ marginBottom: "0px" }}
-              className="text-sm font-semibold text-slate-600 "
+
+              className="text-sm font-semibold text-slate-600 mb-0"
             >
               Productos
             </h3>
             <div
-              style={{ marginBottom: "12px" }}
-              className="flex flex-wrap items-end gap-2 "
+
+              className="flex flex-wrap items-end gap-2 mb-3"
             >
               <div className="relative flex-1 min-w-[200px]">
                 <input
@@ -386,11 +462,11 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   placeholder="Buscar producto o combo..."
                   value={textoBusqueda}
                   onChange={(e) => setTextoBusqueda(e.target.value)}
-                  style={{ padding: "8px" }}
-                  className="w-full border border-slate-200 rounded-lg p-2 text-sm"
+
+                  className="w-full border border-slate-200 rounded-lg text-sm p-2"
                 />
                 {itemSeleccionado && (
-                  <div style={{ marginTop: "12px" }}>
+                  <div className="mt-3">
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-slate-600 flex-1">
                         {itemSeleccionado.nombre} ({itemSeleccionado.tipo})
@@ -409,8 +485,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                             setCantidadItem(val);
                           }
                         }}
-                        style={{ padding: "4px" }}
-                        className="w-20 border border-slate-200 rounded-lg p-1 text-sm"
+
+                        className="w-20 border border-slate-200 rounded-lg text-sm p-1"
                       />
                       {itemSeleccionado.tipo === "producto" ? (
                         <>
@@ -432,8 +508,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               setItemSeleccionado(null);
                               setCantidadItem(1);
                             }}
-                            style={{ padding: "8px 12px" }}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-medium"
+
+                            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium py-2 px-3"
                           >
                             Al detal ($
                             {parseFloat(
@@ -458,8 +534,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               setItemSeleccionado(null);
                               setCantidadItem(1);
                             }}
-                            style={{ padding: "8px 12px" }}
-                            className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-lg text-xs font-medium"
+
+                            className="bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-medium py-2 px-3"
                           >
                             Al mayor ($
                             {parseFloat(
@@ -487,8 +563,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               setItemSeleccionado(null);
                               setCantidadItem(1);
                             }}
-                            style={{ padding: "8px 12px" }}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-medium"
+
+                            className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium py-2 px-3"
                           >
                             Frito ($
                             {parseFloat(
@@ -513,8 +589,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               setItemSeleccionado(null);
                               setCantidadItem(1);
                             }}
-                            style={{ padding: "8px 12px" }}
-                            className="bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-2 rounded-lg text-xs font-medium"
+
+                            className="bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-medium py-2 px-3"
                           >
                             Congelado ($
                             {parseFloat(
@@ -527,7 +603,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     </div>
 
                     {/* Información adicional según el tipo */}
-                    <div style={{ marginTop: "8px" }} className="mt-2 text-sm">
+                    <div className="text-sm mt-2">
                       {itemSeleccionado.tipo === "producto" ? (
                         <p className="text-slate-600">
                           📦 Unidades por bandeja:{" "}
@@ -560,8 +636,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 )}
                 {textoBusqueda && itemsFiltrados.length > 0 && (
                   <ul
-                    style={{ marginTop: "4px" }}
-                    className="absolute z-20 bg-white border border-slate-200 rounded-lg mt-1 max-h-48 overflow-y-auto w-full shadow-lg"
+
+                    className="absolute z-20 bg-white border border-slate-200 rounded-lg max-h-48 overflow-y-auto w-full shadow-lg mt-1"
                   >
                     {itemsFiltrados.map((item) => (
                       <li
@@ -572,13 +648,13 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                           setItemSeleccionado(item);
                           setItemsFiltrados([]); // ocultar lista
                         }}
-                        style={{ padding: "8px 12px" }}
-                        className="px-3 py-2 hover:bg-indigo-50 cursor-pointer text-sm flex justify-between items-center"
+
+                        className="hover:bg-indigo-50 cursor-pointer text-sm flex justify-between items-center py-2 px-3"
                       >
                         <span>{item.nombre}</span>
                         <span
-                          style={{ padding: "2px 8px" }}
-                          className="text-xs text-slate-400 bg-slate-100 px-2 py-0.5 rounded"
+
+                          className="text-xs text-slate-400 bg-slate-100 rounded py-0.5 px-2"
                         >
                           {item.tipo === "combo" ? "Combo" : "Producto"}
                         </span>
@@ -609,11 +685,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                                 )}
                               </span>
                               <span
-                                style={{
-                                  marginLeft: "4px",
-                                  marginRight: "4px",
-                                }}
-                                className="mx-1 text-slate-300"
+
+                                className="text-slate-300 ml-1 mr-1"
                               >
                                 |
                               </span>
@@ -639,32 +712,32 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   <thead className="bg-slate-50">
                     <tr>
                       <th
-                        style={{ padding: "8px 12px" }}
-                        className="px-3 py-2 text-left text-slate-500"
+
+                        className="text-left text-slate-500 py-2 px-3"
                       >
                         Producto
                       </th>
                       <th
-                        style={{ padding: "8px 12px" }}
-                        className="px-3 py-2 text-center text-slate-500"
+
+                        className="text-center text-slate-500 py-2 px-3"
                       >
                         Cant
                       </th>
                       <th
-                        style={{ padding: "8px 12px" }}
-                        className="px-3 py-2 text-right text-slate-500"
+
+                        className="text-right text-slate-500 py-2 px-3"
                       >
                         Precio
                       </th>
                       <th
-                        style={{ padding: "8px 12px" }}
-                        className="px-3 py-2 text-right text-slate-500"
+
+                        className="text-right text-slate-500 py-2 px-3"
                       >
                         Subtotal
                       </th>
                       <th
-                        style={{ padding: "8px 12px" }}
-                        className="px-3 py-2"
+
+                        className="py-2 px-3"
                       ></th>
                     </tr>
                   </thead>
@@ -675,26 +748,26 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                         className="border-t border-slate-100 hover:bg-indigo-50/30"
                       >
                         <td
-                          style={{ padding: "8px 12px" }}
-                          className="px-3 py-2 text-slate-700"
+
+                          className="text-slate-700 py-2 px-3"
                         >
                           {item.nombre_producto}
                         </td>
                         <td
-                          style={{ padding: "8px 12px" }}
-                          className="px-3 py-2 text-center text-slate-600"
+
+                          className="text-center text-slate-600 py-2 px-3"
                         >
                           {item.cantidad}
                         </td>
                         <td
-                          style={{ padding: "8px 12px" }}
-                          className="px-3 py-2 text-right text-slate-600"
+
+                          className="text-right text-slate-600 py-2 px-3"
                         >
                           ${item.precio_unitario.toLocaleString("es-CO")}
                         </td>
                         <td
-                          style={{ padding: "8px 12px" }}
-                          className="px-3 py-2 text-right text-slate-700 font-medium"
+
+                          className="text-right text-slate-700 font-medium py-2 px-3"
                         >
                           $
                           {(
@@ -702,11 +775,11 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                           ).toLocaleString("es-CO")}
                         </td>
                         <td
-                          style={{ padding: "8px 12px" }}
-                          className="px-3 py-2 text-center"
+
+                          className="text-center py-2 px-3"
                         >
                           <button
-                            style={{ padding: "4px" }}
+                            
                             onClick={() => eliminarProducto(i)}
                             className="text-rose-500 hover:bg-rose-100 p-1 rounded"
                           >
@@ -720,7 +793,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               </div>
             ) : (
               <p
-                style={{ marginTop: "8px" }}
+
                 className="text-xs text-slate-400 mt-2"
               >
                 No hay productos agregados.
@@ -732,7 +805,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
           {/* Sección 3: Abonos iniciales */}
           <div>
             <div
-              style={{ marginBottom: "12px" }}
+
               className="flex items-center gap-3 mb-3"
             >
               <h3 className="text-sm font-semibold text-slate-600">
@@ -740,11 +813,19 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               </h3>
               <button
                 onClick={agregarAbonoInicial}
-                style={{ padding: "6px 12px" }}
+
                 className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
               >
                 <Plus size={14} />
                 Agregar abono
+              </button>
+              <button
+                onClick={pagarCompleto}
+
+                className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition-colors py-1.5 px-3"
+              >
+                <CheckCircle2 size={14} />
+                Pagar completo
               </button>
               {abonosIniciales.length === 0 && (
                 <span className="text-xs text-slate-500">
@@ -763,12 +844,12 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             {abonosIniciales.map((abono, index) => (
               <div
                 key={index}
-                style={{ marginBottom: "8px", padding: "12px" }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-2 p-3 bg-slate-50 rounded-xl border border-slate-200 mb-2"
+
+                className="grid grid-cols-1 md:grid-cols-3 gap-2 bg-slate-50 rounded-xl border border-slate-200 mb-2 p-3"
               >
                 <div>
                   <label
-                    style={{ marginBottom: "4px" }}
+
                     className="block text-xs text-slate-500 mb-1"
                   >
                     Monto
@@ -788,13 +869,13 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                       const clamped = Math.min(Math.max(val, 0), totalVenta());
                       modificarAbonoInicial(index, "monto", clamped);
                     }}
-                    style={{ padding: "8px" }}
-                    className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+
+                    className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
                   />
                 </div>
                 <div>
                   <label
-                    style={{ marginBottom: "4px" }}
+
                     className="block text-xs text-slate-500 mb-1"
                   >
                     Medio de pago
@@ -804,8 +885,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     onChange={(e) =>
                       modificarAbonoInicial(index, "medio_pago", e.target.value)
                     }
-                    style={{ padding: "8px" }}
-                    className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+
+                    className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
                   >
                     {MEDIOS_PAGO.map((medio) => (
                       <option key={medio} value={medio}>
@@ -817,7 +898,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 <div className="flex items-end gap-2">
                   <div className="flex-1">
                     <label
-                      style={{ marginBottom: "4px" }}
+
                       className="block text-xs text-slate-500 mb-1"
                     >
                       Observación
@@ -833,14 +914,14 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                         )
                       }
                       placeholder="Opcional"
-                      style={{ padding: "8px" }}
-                      className="w-full border border-slate-200 rounded-lg p-2 text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400"
+
+                      className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
                     />
                   </div>
                   <button
                     onClick={() => eliminarAbonoInicial(index)}
-                    style={{ padding: "8px" }}
-                    className="text-rose-500 hover:bg-rose-100 p-2 rounded-lg"
+
+                    className="text-rose-500 hover:bg-rose-100 rounded-lg p-2"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -851,8 +932,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
           {/* Resumen */}
           <div
-            style={{ padding: "16px" }}
-            className="bg-indigo-50 p-4 rounded-xl"
+
+            className="bg-indigo-50 rounded-xl p-4"
           >
             <div className="flex justify-between text-sm">
               <span className="text-slate-600">Total venta</span>
@@ -865,7 +946,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             </div>
             {abonosIniciales.length > 0 && (
               <div
-                style={{ marginTop: "4px" }}
+
                 className="flex justify-between text-sm mt-1"
               >
                 <span className="text-slate-600">Total abonado</span>
@@ -876,7 +957,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             )}
             {saldoPendiente() > 0 && (
               <div
-                style={{ marginTop: "4px" }}
+
                 className="flex justify-between text-sm mt-1"
               >
                 <span className="text-slate-600">Saldo pendiente</span>
@@ -890,8 +971,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
           {/* Error */}
           {errorMsg && (
             <div
-              style={{ padding: "12px" }}
-              className="flex items-center gap-2 text-sm text-rose-600 bg-rose-50 p-3 rounded-lg"
+
+              className="flex items-center gap-2 text-sm text-rose-600 bg-rose-50 rounded-lg p-3"
             >
               <AlertCircle size={16} /> {errorMsg}
             </div>
@@ -900,8 +981,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
           {/* Éxito */}
           {exito && (
             <div
-              style={{ padding: "12px" }}
-              className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 p-3 rounded-lg"
+
+              className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-lg p-3"
             >
               <CheckCircle2 size={16} /> Venta registrada correctamente
             </div>
@@ -910,8 +991,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
         {/* Footer */}
         <div
-          style={{ padding: "16px 24px" }}
-          className="px-6 py-4 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center"
+
+          className="border-t border-slate-100 bg-slate-50/50 flex justify-between items-center py-4 px-6"
         >
           <span className="text-sm text-slate-500">
             {detalle.length > 0
@@ -925,16 +1006,16 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 onClose();
               }}
               disabled={enviando}
-              style={{ padding: "6px 20px" }}
-              className=" border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-colors"
+
+              className="border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-colors py-1.5 px-5"
             >
               Cancelar
             </button>
             <button
               onClick={handleRegistrar}
               disabled={enviando || totalVenta() <= 0 || exito}
-              style={{ padding: "6px 24px" }}
-              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white  rounded-xl text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50 transition-all"
+
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50 transition-all py-1.5 px-6"
             >
               {enviando && <Loader2 size={16} className="animate-spin" />}
               {exito
@@ -949,15 +1030,15 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       {/* Modal info combo */}
       {mostrarInfoCombo && itemSeleccionado && (
         <div
-          style={{ padding: "16px" }}
+
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         >
           <div
-            style={{ padding: "24px" }}
+
             className="bg-white rounded-2xl w-full max-w-lg shadow-2xl p-6"
           >
             <div
-              style={{ marginBottom: "16px" }}
+
               className="flex items-center justify-between mb-4"
             >
               <h3 className="text-lg font-bold text-slate-800">
@@ -977,7 +1058,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   { producto_id: "", nombre: "", cantidad_unidades: 1 },
                 ]);
               }}
-              style={{ marginTop: "8px" }}
+
               className="text-indigo-600 text-sm hover:underline mt-2"
             >
               + Agregar producto
@@ -987,20 +1068,20 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               itemSeleccionado.productos.length > 0 ? (
               <>
                 <table
-                  style={{ marginBottom: "16px" }}
+
                   className="w-full text-sm border-collapse mb-4"
                 >
                   <thead>
                     <tr className="bg-slate-50">
                       <th
-                        style={{ padding: "8px 12px" }}
-                        className="px-3 py-2 text-left text-xs text-slate-500 uppercase"
+
+                        className="text-left text-xs text-slate-500 uppercase py-2 px-3"
                       >
                         Producto
                       </th>
                       <th
-                        style={{ padding: "8px 12px" }}
-                        className="px-3 py-2 text-center text-xs text-slate-500 uppercase w-24"
+
+                        className="text-center text-xs text-slate-500 uppercase w-24 py-2 px-3"
                       >
                         Cantidad
                       </th>
@@ -1009,7 +1090,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   <tbody>
                     {productosEditados.map((prod, i) => (
                       <tr key={i} className="border-t border-gray-100">
-                        <td style={{ padding: "4px 12px" }}>
+                        <td className="py-1 px-3">
                           <select
                             value={prod.producto_id || ""}
                             onChange={(e) => {
@@ -1026,8 +1107,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               };
                               setProductosEditados(nuevos);
                             }}
-                            style={{ padding: "6px" }}
-                            className="w-full border border-slate-200 rounded p-1.5 text-sm"
+
+                            className="w-full border border-slate-200 rounded text-sm p-1.5"
                           >
                             <option value="">Seleccionar producto...</option>
                             {productos.map((p) => (
@@ -1037,7 +1118,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                             ))}
                           </select>
                         </td>
-                        <td style={{ padding: "4px 12px" }}>
+                        <td className="py-1 px-3">
                           <input
                             type="number"
                             min="1"
@@ -1050,8 +1131,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               };
                               setProductosEditados(nuevos);
                             }}
-                            style={{ padding: "6px" }}
-                            className="w-20 text-center border border-slate-200 rounded p-1.5 text-sm"
+
+                            className="w-20 text-center border border-slate-200 rounded text-sm p-1.5"
                           />
                         </td>
                       </tr>
@@ -1059,9 +1140,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   </tbody>
                 </table>
 
-                <div style={{ marginBottom: "16px" }} className="mb-4">
+                <div className="mb-4">
                   <label
-                    style={{ marginBottom: "4px" }}
+
                     className="block text-xs font-semibold text-slate-500 uppercase mb-1"
                   >
                     Precio del combo
@@ -1072,8 +1153,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     step="0.01"
                     value={precioEditado}
                     onChange={(e) => setPrecioEditado(Number(e.target.value))}
-                    style={{ padding: "8px" }}
-                    className="w-full border border-slate-200 rounded-lg p-2 text-sm focus:ring-2 focus:ring-indigo-400"
+
+                    className="w-full border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400 p-2"
                   />
                 </div>
               </>
@@ -1084,13 +1165,13 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             )}
 
             <div
-              style={{ marginTop: "16px" }}
-              className="flex gap-2 justify-end"
+
+              className="flex gap-2 justify-end mt-4"
             >
               <button
                 onClick={() => setMostrarInfoCombo(false)}
-                style={{ padding: "8px 16px" }}
-                className="px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50"
+
+                className="border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 py-2 px-4"
               >
                 Cancelar
               </button>
@@ -1129,8 +1210,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   setTextoBusqueda("");
                   setCantidadItem(1);
                 }}
-                style={{ padding: "8px 16px" }}
-                className="px-4 py-2 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700"
+
+                className="bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 py-2 px-4"
               >
                 Confirmar y Agregar
               </button>
@@ -1139,5 +1220,13 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
         </div>
       )}
     </div>
+
+    {/* Modal para registrar cliente sin salir de la venta */}
+    <CrearClienteModal
+      open={crearClienteOpen}
+      onClose={() => setCrearClienteOpen(false)}
+      onCreated={handleClienteCreado}
+    />
+    </>
   );
 }

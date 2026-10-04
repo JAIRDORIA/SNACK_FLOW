@@ -17,11 +17,33 @@ import RequireCorte from './components/RequireCortes'
 import useInactivityTimer from './hooks/useInactivityTimer'
 import Auditoria from '@/pages/auditoria/Auditoria'
 import Prestamos from './pages/prestamos/prestamos'
+import PanelCocina from './pages/pedidos/panelcocina'
+//import PanelCocina from '@/pages/cocina/PanelCocina' // lo armamos en el siguiente paso
 
-function RutaProtegida({ children }) {
+function RutaProtegida({ children, rolesPermitidos }) {
   const token = localStorage.getItem('access_token')
-  useInactivityTimer()   // ← activa el temporizador de inactividad
-  return token ? children : <Navigate to="/login" replace />
+  // El rol se lee SIEMPRE (antes del hook, para respetar las reglas de hooks).
+  // Sin usuario o con rol desconocido el temporizador queda activo; solo se
+  // desactiva para el rol 'cocina', que mantiene su pantalla abierta todo el turno.
+  const rol = JSON.parse(localStorage.getItem('usuario') || 'null')?.rol
+  useInactivityTimer(undefined, rol !== 'cocina')
+
+  if (!token) return <Navigate to="/login" replace />
+
+  if (rolesPermitidos) {
+  if (!rol) {
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('usuario')
+    return <Navigate to="/login" replace />
+  }
+
+  if (!rolesPermitidos.includes(rol)) {
+    if (rol === 'cocina') return <Navigate to="/cocina" replace />
+    return <Navigate to="/" replace />
+  }
+}
+
+  return children
 }
 
 function App() {
@@ -29,19 +51,31 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
+
         <Route
           path="/primer-corte"
           element={
-            <RutaProtegida>
+            <RutaProtegida rolesPermitidos={['admin']}>
               <PrimerCorte />
+
             </RutaProtegida>
           }
         />
 
-         <Route
+        {/* Panel de cocina: sin Layout, sin sidebar, sin modulos de SnackFlow */}
+        <Route
+          path="/cocina"
+          element={
+            <RutaProtegida rolesPermitidos={['cocina']}>
+              <PanelCocina />
+            </RutaProtegida>
+          }
+        />
+
+        <Route
           path="/"
           element={
-            <RutaProtegida>
+            <RutaProtegida rolesPermitidos={['admin', 'cajero']}>
               <RequireCorte>
                 <Layout />
               </RequireCorte>
@@ -61,7 +95,6 @@ function App() {
           <Route path="prestamos" element={<Prestamos />} />
           <Route path="proveedores" element={<Proveedores />} />
           <Route path="auditoria" element={<Auditoria />} />
-
         </Route>
 
         <Route path="*" element={<Navigate to="/login" replace />} />

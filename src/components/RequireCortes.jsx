@@ -18,7 +18,7 @@ export default function RequireCorte({ children }) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#1B1D2E' }}>
         <div style={{ textAlign: 'center', color: 'white' }}>
-          <div style={{ width: 40, height: 40, border: '3px solid rgba(79,70,229,0.3)', borderTop: '3px solid #4f46e5', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px' }} />
+          <div className="mt-0 mr-auto mb-4 ml-auto" style={{ width: 40, height: 40, border: '3px solid rgba(79,70,229,0.3)', borderTop: '3px solid #4f46e5', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
           <p style={{ fontSize: 14, color: '#9ca3af' }}>Verificando cortes…</p>
           <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
         </div>

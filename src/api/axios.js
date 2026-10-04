@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-     baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:4000',// URL de tu backend
+    baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:4000',
     headers: {
         "Content-Type": "application/json"
     }
@@ -20,10 +20,14 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
     response => response,
     error => {
-        if (error.response?.status === 401) {
+        const esLogin = (error.config?.url || '').includes('/auth/login')
+
+        if (error.response?.status === 401 && !esLogin) {
             localStorage.removeItem("access_token")
             localStorage.removeItem('usuario')
-            window.location.href = "/login"
+            if (window.location.pathname !== '/login') {
+                window.location.replace("/login")
+            }
         }
         return Promise.reject(error)
     }

@@ -18,11 +18,11 @@ const inputStyle = {
 
 function Campo({ label, name, type = 'text', placeholder, value, onChange, extra, disabled, maxLength }) {
   return (
-    <div style={{ marginBottom: '16px' }}>
-      <label style={{
+    <div className="mb-4">
+      <label className="mb-1.5" style={{
         display: 'block', color: 'rgba(255,255,255,0.6)',
         fontSize: '11px', letterSpacing: '1.5px',
-        textTransform: 'uppercase', marginBottom: '7px'
+        textTransform: 'uppercase'
       }}>{label}</label>
       <div style={{ position: 'relative' }}>
         <input
@@ -46,9 +46,9 @@ function Campo({ label, name, type = 'text', placeholder, value, onChange, extra
 function ErrorMsg({ msg }) {
   if (!msg) return null
   return (
-    <div style={{
+    <div className="py-2.5 px-3.5 mb-4" style={{
       background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
-      borderRadius: '8px', padding: '11px 14px', marginBottom: '16px',
+      borderRadius: '8px',
       color: '#fca5a5', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px'
     }}>⚠ {msg}</div>
   )
@@ -57,9 +57,9 @@ function ErrorMsg({ msg }) {
 function SuccessMsg({ msg }) {
   if (!msg) return null
   return (
-    <div style={{
+    <div className="py-2.5 px-3.5 mb-4" style={{
       background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)',
-      borderRadius: '8px', padding: '11px 14px', marginBottom: '16px',
+      borderRadius: '8px',
       color: '#6ee7b7', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px'
     }}>✓ {msg}</div>
   )
@@ -71,9 +71,8 @@ function SubmitBtn({ loading, label }) {
     <button type="submit" disabled={loading}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      style={{
-        width: '100%', border: 'none', borderRadius: '12px',
-        padding: '14px', fontSize: '14px', fontWeight: 700,
+      className="p-3.5" style={{
+        width: '100%', border: 'none', borderRadius: '12px', fontSize: '14px', fontWeight: 700,
         fontFamily: 'inherit', cursor: loading ? 'not-allowed' : 'pointer',
         transition: 'all 0.2s', color: ACCENT,
         background: loading ? 'rgba(255,255,255,0.4)' : hover ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.92)',
@@ -100,11 +99,10 @@ function useIsMobile() {
 function PanelIzquierdo({ modo }) {
 
   return (
-    <div style={{
+    <div className="py-12 px-10" style={{
       width: '45%', flexShrink: 0, background: DARK,
       display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-      padding: '48px 40px', position: 'relative', overflow: 'hidden'
+      alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden'
     }}>
       <div style={{ position: 'absolute', width: '380px', height: '380px', borderRadius: '50%', border: '3px solid rgba(79,70,229,0.35)', top: '-100px', right: '-100px' }} />
       <div style={{ position: 'absolute', width: '260px', height: '260px', borderRadius: '50%', border: '3px solid rgba(79,70,229,0.25)', top: '-40px', right: '-40px' }} />
@@ -114,18 +112,18 @@ function PanelIzquierdo({ modo }) {
       <div style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(circle, rgba(79,70,229,0.2) 1px, transparent 1px)', backgroundSize: '28px 28px', pointerEvents: 'none' }} />
 
       <div style={{ zIndex: 1, textAlign: 'center' }}>
-        <img src="/SNACKFLOW_LOGO_BLANCO.png" alt="SnackFlow" style={{ width: '220px', objectFit: 'contain', marginBottom: '28px', filter: 'drop-shadow(0 8px 24px rgba(79,70,229,0.4))' }} />
-        <div style={{ width: '40px', height: '2px', background: 'rgba(79,70,229,0.6)', borderRadius: '2px', margin: '0 auto 16px' }} />
-        <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase', margin: 0 }}>
+        <img src="/SNACKFLOW_LOGO_BLANCO.png" alt="SnackFlow" className="mb-7" style={{ width: '220px', objectFit: 'contain', filter: 'drop-shadow(0 8px 24px rgba(79,70,229,0.4))' }} />
+        <div className="mt-0 mr-auto mb-4 ml-auto" style={{ width: '40px', height: '2px', background: 'rgba(79,70,229,0.6)', borderRadius: '2px' }} />
+        <p className="m-0" style={{ color: 'rgba(255,255,255,0.45)', fontSize: '11px', letterSpacing: '3px', textTransform: 'uppercase' }}>
           {modo === 'setup' ? 'Primera configuración' : modo === 'recuperar' ? 'Recuperar acceso' : 'Sistema de gestión'}
         </p>
       </div>
 
       <div style={{ position: 'absolute', bottom: '32px', left: '32px', right: '32px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px', zIndex: 1 }}>
         {[{ label: 'Ventas', val: '∞' }, { label: 'Productos', val: '∞' }, { label: 'Clientes', val: '∞' }].map((s, i) => (
-          <div key={i} style={{ background: 'rgba(79,70,229,0.12)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '10px', padding: '10px', textAlign: 'center' }}>
-            <p style={{ color: 'white', fontSize: '16px', fontWeight: 700, margin: '0 0 2px' }}>{s.val}</p>
-            <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', margin: 0 }}>{s.label}</p>
+          <div key={i} className="p-2.5" style={{ background: 'rgba(79,70,229,0.12)', border: '1px solid rgba(79,70,229,0.3)', borderRadius: '10px', textAlign: 'center' }}>
+            <p className="mt-0 mr-0 mb-0.5 ml-0" style={{ color: 'white', fontSize: '16px', fontWeight: 700 }}>{s.val}</p>
+            <p className="m-0" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px' }}>{s.label}</p>
           </div>
         ))}
       </div>
@@ -178,10 +176,10 @@ function Bienvenida({ onSetupComplete }) {
 
   if (paso === 'welcome') {
     return (
-      <div style={{
+      <div className="p-6" style={{
         minHeight: '100vh', background: DARK,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        fontFamily: "'Segoe UI', system-ui, sans-serif", padding: '24px',
+        fontFamily: "'Segoe UI', system-ui, sans-serif",
         position: 'relative', overflow: 'hidden'
       }}>
         <style>{`input::placeholder { color: rgba(255,255,255,0.18); } @keyframes fadeUp { from { opacity:0; transform:translateY(32px); } to { opacity:1; transform:translateY(0); } }`}</style>
@@ -192,39 +190,37 @@ function Bienvenida({ onSetupComplete }) {
         <div style={{ position: 'absolute', width: '300px', height: '300px', borderRadius: '50%', border: '2px solid rgba(79,70,229,0.15)', bottom: '-80px', left: '-80px' }} />
 
         <div style={{ textAlign: 'center', zIndex: 1, animation: 'fadeUp 0.7s ease forwards', maxWidth: '420px', width: '100%' }}>
-          <img src="/SNACKFLOW_LOGO_BLANCO.png" alt="SnackFlow" style={{ width: '200px', objectFit: 'contain', display: 'block', margin: '0 auto 32px', filter: 'drop-shadow(0 4px 20px rgba(79,70,229,0.5))' }} />
+          <img src="/SNACKFLOW_LOGO_BLANCO.png" alt="SnackFlow" className="mt-0 mr-auto mb-8 ml-auto" style={{ width: '200px', objectFit: 'contain', display: 'block', filter: 'drop-shadow(0 4px 20px rgba(79,70,229,0.5))' }} />
 
-          <div style={{
+          <div className="py-1 px-3.5 mb-5" style={{
             display: 'inline-flex', alignItems: 'center', gap: '6px',
             background: 'rgba(79,70,229,0.2)', border: '1px solid rgba(79,70,229,0.4)',
             color: '#a5b4fc', fontSize: '11px', fontWeight: 600,
-            letterSpacing: '1.5px', textTransform: 'uppercase',
-            padding: '5px 14px', borderRadius: '20px', marginBottom: '20px'
+            letterSpacing: '1.5px', textTransform: 'uppercase', borderRadius: '20px'
           }}>✦ Primera configuración</div>
 
-          <h1 style={{ color: 'white', fontSize: '30px', fontWeight: 700, margin: '0 0 10px', lineHeight: 1.2 }}>
+          <h1 className="mt-0 mr-0 mb-2.5 ml-0" style={{ color: 'white', fontSize: '30px', fontWeight: 700, lineHeight: 1.2 }}>
             Bienvenido al sistema
           </h1>
-          <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: '15px', lineHeight: 1.7, margin: '0 0 36px' }}>
+          <p className="mt-0 mr-0 mb-9 ml-0" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '15px', lineHeight: 1.7 }}>
             No hay administradores registrados aún.<br />Crea tu cuenta para comenzar.
           </p>
 
-          <div style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.25)', borderRadius: '14px', padding: '20px 24px', marginBottom: '28px', textAlign: 'left' }}>
+          <div className="py-5 px-6 mb-7" style={{ background: 'rgba(79,70,229,0.1)', border: '1px solid rgba(79,70,229,0.25)', borderRadius: '14px', textAlign: 'left' }}>
             {[
               { icon: '🔐', text: 'Control total del sistema' },
               { icon: '📦', text: 'Gestión de inventario y ventas' },
               { icon: '👥', text: 'Puedes crear más admins después' },
             ].map((item, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '9px 0', borderBottom: i < 2 ? '1px solid rgba(79,70,229,0.15)' : 'none' }}>
+              <div key={i} className="py-2 px-0" style={{ display: 'flex', alignItems: 'center', gap: '12px', borderBottom: i < 2 ? '1px solid rgba(79,70,229,0.15)' : 'none' }}>
                 <span style={{ fontSize: '18px' }}>{item.icon}</span>
                 <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>{item.text}</span>
               </div>
             ))}
           </div>
 
-          <button onClick={() => setPaso('form')} style={{
-            width: '100%', border: 'none', borderRadius: '12px',
-            padding: '16px', fontSize: '15px', fontWeight: 700,
+          <button onClick={() => setPaso('form')} className="p-4" style={{
+            width: '100%', border: 'none', borderRadius: '12px', fontSize: '15px', fontWeight: 700,
             background: `linear-gradient(135deg, ${ACCENT}, #3730a3)`,
             color: 'white', cursor: 'pointer', fontFamily: 'inherit',
             boxShadow: '0 8px 28px rgba(79,70,229,0.4)', transition: 'all 0.2s'
@@ -253,16 +249,15 @@ function Bienvenida({ onSetupComplete }) {
         minHeight: isMobile ? '100vh' : 'auto'
       }}>
         <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
-          <div style={{ marginBottom: '28px' }}>
-            <div style={{
+          <div className="mb-7">
+            <div className="py-1 px-3.5 mb-4" style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
               background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
               color: 'white', fontSize: '11px', fontWeight: 600,
-              letterSpacing: '1.5px', textTransform: 'uppercase',
-              padding: '5px 14px', borderRadius: '20px', marginBottom: '16px'
+              letterSpacing: '1.5px', textTransform: 'uppercase', borderRadius: '20px'
             }}>Primera configuración</div>
-            <h2 style={{ color: 'white', fontSize: '24px', fontWeight: 700, margin: '0 0 6px' }}>Crear administrador</h2>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', margin: 0 }}>Esta acción solo se realiza una vez.</p>
+            <h2 className="mt-0 mr-0 mb-1.5 ml-0" style={{ color: 'white', fontSize: '24px', fontWeight: 700 }}>Crear administrador</h2>
+            <p className="m-0" style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>Esta acción solo se realiza una vez.</p>
           </div>
 
           <form onSubmit={submit}>
@@ -278,17 +273,17 @@ function Bienvenida({ onSetupComplete }) {
             />
             <ErrorMsg msg={error} />
             <SuccessMsg msg={exito} />
-            <div style={{ marginTop: '8px' }}>
+            <div className="mt-2">
               <SubmitBtn loading={guardando} label="Crear administrador" />
             </div>
           </form>
 
-          <button onClick={() => setPaso('welcome')} style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'inherit', transition: 'color 0.15s' }}
+          <button onClick={() => setPaso('welcome')} className="mt-4 mr-auto mb-0 ml-auto" style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'inherit', transition: 'color 0.15s' }}
             onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
             onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
           >← Volver</button>
 
-          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', textAlign: 'center', marginTop: '24px' }}>
+          <p className="mt-6" style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', textAlign: 'center' }}>
             © 2026 SnackFlow v1.0
           </p>
         </div>
@@ -359,27 +354,26 @@ function RecuperarPassword({ onVolver }) {
       }}>
         <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
 
-          <div style={{ marginBottom: '28px' }}>
-            <div style={{
+          <div className="mb-7">
+            <div className="py-1 px-3.5 mb-4" style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
               background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
               color: 'white', fontSize: '11px', fontWeight: 600,
-              letterSpacing: '1.5px', textTransform: 'uppercase',
-              padding: '5px 14px', borderRadius: '20px', marginBottom: '16px'
+              letterSpacing: '1.5px', textTransform: 'uppercase', borderRadius: '20px'
             }}>
               {paso === 1 ? ' Verificación' : ' Nueva contraseña'}
             </div>
-            <h2 style={{ color: 'white', fontSize: '24px', fontWeight: 700, margin: '0 0 6px' }}>
+            <h2 className="mt-0 mr-0 mb-1.5 ml-0" style={{ color: 'white', fontSize: '24px', fontWeight: 700 }}>
               {paso === 1 ? 'Recuperar acceso' : 'Crea tu nueva contraseña'}
             </h2>
-            <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', margin: 0 }}>
+            <p className="m-0" style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px' }}>
               {paso === 1
                 ? 'Ingresa tu usuario y la clave maestra para continuar.'
                 : `Cuenta: ${form.username} — elige una contraseña segura.`}
             </p>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+          <div className="mb-6" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {[1, 2].map(n => (
               <div key={n} style={{
                 height: '4px', flex: 1, borderRadius: '4px',
@@ -403,7 +397,7 @@ function RecuperarPassword({ onVolver }) {
                   </button>
                 }
               />
-              <div style={{ marginBottom: '8px' }} />
+              <div className="mb-2" />
               <ErrorMsg msg={error} />
               <SubmitBtn loading={cargando} label="Verificar identidad →" />
             </form>
@@ -440,12 +434,12 @@ function RecuperarPassword({ onVolver }) {
           )}
 
           <button onClick={onVolver}
-            style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'inherit', transition: 'color 0.15s' }}
+            className="mt-4 mr-auto mb-0 ml-auto" style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'inherit', transition: 'color 0.15s' }}
             onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.7)'}
             onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
           >← Volver al login</button>
 
-          <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', textAlign: 'center', marginTop: '24px' }}>
+          <p className="mt-6" style={{ color: 'rgba(255,255,255,0.3)', fontSize: '12px', textAlign: 'center' }}>
             © 2026 SnackFlow v1.0
           </p>
         </div>
@@ -466,18 +460,20 @@ function LoginScreen({ onRecuperar }) {
   const change = e => { setForm({ ...form, [e.target.name]: e.target.value }); setError('') }
 
   const submit = async e => {
-    e.preventDefault()
-    if (!form.username || !form.password) { setError('Completa todos los campos.'); return }
-    setCargando(true)
-    try {
-      const res = await api.post('/auth/login', form)
-      localStorage.setItem('access_token', res.data.access_token)
-      localStorage.setItem('usuario', JSON.stringify(res.data.usuario))
-      navigate('/')
-    } catch (err) {
-      setError(err.response?.status === 401 ? 'Usuario o contraseña incorrectos.' : 'Error al conectar con el servidor.')
-    } finally { setCargando(false) }
-  }
+  e.preventDefault()
+  if (!form.username || !form.password) { setError('Completa todos los campos.'); return }
+  setCargando(true)
+  try {
+    const res = await api.post('/auth/login', form)
+    localStorage.setItem('access_token', res.data.access_token)
+    localStorage.setItem('usuario', JSON.stringify(res.data.usuario))
+
+    const rol = res.data.usuario?.rol
+    navigate(rol === 'cocina' ? '/cocina' : '/')
+  } catch (err) {
+    setError(err.response?.status === 401 ? 'Usuario o contraseña incorrectos.' : 'Error al conectar con el servidor.')
+  } finally { setCargando(false) }
+}
 
   return (
     <div style={{
@@ -500,16 +496,15 @@ function LoginScreen({ onRecuperar }) {
       }}>
         <div style={{ width: '100%', maxWidth: '360px', animation: 'fadeUp 0.5s ease forwards' }}>
 
-          <div style={{ marginBottom: '36px' }}>
-            <div style={{
+          <div className="mb-9">
+            <div className="py-1 px-3.5 mb-4" style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
               background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)',
               backdropFilter: 'blur(8px)', color: 'white', fontSize: '11px', fontWeight: 600,
-              letterSpacing: '1.5px', textTransform: 'uppercase',
-              padding: '5px 14px', borderRadius: '20px', marginBottom: '16px'
+              letterSpacing: '1.5px', textTransform: 'uppercase', borderRadius: '20px'
             }}>Bienvenido de nuevo</div>
-            <h2 style={{ color: 'white', fontSize: '26px', fontWeight: 700, margin: '0 0 8px', lineHeight: 1.2 }}>Inicia sesión</h2>
-            <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', margin: 0 }}>Ingresa tus credenciales para continuar</p>
+            <h2 className="mt-0 mr-0 mb-2 ml-0" style={{ color: 'white', fontSize: '26px', fontWeight: 700, lineHeight: 1.2 }}>Inicia sesión</h2>
+            <p className="m-0" style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px' }}>Ingresa tus credenciales para continuar</p>
           </div>
 
           <form onSubmit={submit}>
@@ -523,18 +518,18 @@ function LoginScreen({ onRecuperar }) {
                 </button>
               }
             />
-            <div style={{ marginBottom: '24px' }} />
+            <div className="mb-6" />
             <ErrorMsg msg={error} />
             <SubmitBtn loading={cargando} label="Entrar al sistema" />
           </form>
 
           <button onClick={onRecuperar}
-            style={{ display: 'block', margin: '16px auto 0', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'inherit', transition: 'color 0.15s' }}
+            className="mt-4 mr-auto mb-0 ml-auto" style={{ display: 'block', background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.4)', fontSize: '12px', fontFamily: 'inherit', transition: 'color 0.15s' }}
             onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,0.8)'}
             onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
           >¿Olvidaste tu contraseña?</button>
 
-          <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', textAlign: 'center', marginTop: '32px' }}>
+          <p className="mt-8" style={{ color: 'rgba(255,255,255,0.35)', fontSize: '12px', textAlign: 'center' }}>
             © 2026 SnackFlow v1.0
           </p>
         </div>

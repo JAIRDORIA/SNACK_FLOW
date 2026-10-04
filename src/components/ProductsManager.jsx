@@ -128,22 +128,22 @@ export default function ProductosManager() {
   );
 
   return (
-    <div style={{ padding: "16px" }} className="flex-1 bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="flex-1 bg-gray-50 sm:p-6 lg:p-8 p-4">
 
       {/* HEADER */}
-      <div style={{ marginBottom: "24px" }} className="flex flex-wrap items-center justify-between gap-3 mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div>
-          <p style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#6366f1', fontWeight: 600, textTransform: 'uppercase', marginBottom: '4px' }}>
+          <p className="mb-1" style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#6366f1', fontWeight: 600, textTransform: 'uppercase' }}>
             módulo operativo
           </p>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#000000', margin: 0, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+          <h1 className="m-0" style={{ fontSize: '28px', fontWeight: 700, color: '#000000', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
             Gestión de Productos
           </h1>
         </div>
         <button
           onClick={() => { setShowForm(true); setEditingId(null); setFormData(FORM_INICIAL); }}
-          style={{ padding: '8px 16px' }}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95"
+
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95 py-2 px-4"
         >
           <Plus className="w-4 h-4" />
           <span className="text-sm">Nuevo Producto</span>
@@ -151,25 +151,25 @@ export default function ProductosManager() {
       </div>
 
       {/* KPI CARD */}
-      <div style={{ marginBottom: '32px' }}>
+      <div className="mb-8">
         <div
           className="bg-[#1B1D2E] rounded-2xl flex items-center gap-4 w-full sm:w-auto sm:inline-flex"
           onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.05)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)'; }}
           onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = 'none'; }}
           style={{ transition: 'all 0.2s', minWidth: '260px', maxWidth: '340px' }}
         >
-          <div style={{ margin: '12px 0 12px 14px' }} className="bg-[#13152280] ring-2 ring-indigo-500/30 w-8 h-8 rounded-lg flex items-center justify-center shrink-0">
+          <div className="bg-[#13152280] ring-2 ring-indigo-500/30 w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3.5">
             <Package size={15} className="text-indigo-300" />
           </div>
           <div>
             <p style={{ fontSize: '18px', fontWeight: 800, color: 'white', lineHeight: 1 }}>{totalProductos}</p>
-            <p style={{ marginTop: '3px', fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Productos activos</p>
+            <p className="mt-0.5" style={{ fontSize: '10px', color: 'rgba(255,255,255,0.5)' }}>Productos activos</p>
           </div>
         </div>
       </div>
 
       {error && (
-        <div style={{ marginBottom: '20px' }} className="bg-red-100 border border-red-200 text-red-700 rounded-xl p-3 flex items-center gap-2 text-sm">
+        <div className="bg-red-100 border border-red-200 text-red-700 rounded-xl p-3 flex items-center gap-2 text-sm mb-5">
           <AlertTriangle size={16} />{error}
         </div>
       )}
@@ -177,9 +177,9 @@ export default function ProductosManager() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 items-start">
 
         {showForm && (
-          <div style={{ padding: '24px' }} className="bg-white border border-slate-200 rounded-2xl shadow-sm h-fit xl:sticky top-6">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', margin: 0 }}>
+          <div className="bg-white border border-slate-200 rounded-2xl shadow-sm h-fit xl:sticky top-6 p-6">
+            <div className="mb-5" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 className="m-0" style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b' }}>
                 {editingId ? 'Editar Producto' : 'Registrar Producto'}
               </h3>
               <button onClick={handleCancelar}
@@ -193,7 +193,7 @@ export default function ProductosManager() {
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Nombre */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre *</label>
+                <label className="mb-1.5" style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Nombre *</label>
                 <input
                   type="text"
                   name="nombre"
@@ -204,7 +204,7 @@ export default function ProductosManager() {
                     handleChange({ target: { name: 'nombre', value: valor } })
                   }}
                   required
-                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  className="py-2.5 px-3.5" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)' }}
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none' }}
                 />
@@ -212,51 +212,51 @@ export default function ProductosManager() {
 
               {/* Descripción */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción</label>
+                <label className="mb-1.5" style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Descripción</label>
                 <textarea name="descripcion" placeholder="Descripción opcional"
                   value={formData.descripcion} onChange={handleChange} rows="2"
-                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', resize: 'none', boxSizing: 'border-box' }}
+                  className="py-2.5 px-3.5" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', resize: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
               </div>
 
               {/* Precio al detal */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio al detal *</label>
+                <label className="mb-1.5" style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio al detal *</label>
                 <input type="number" name="precio_detal" placeholder="$ 0"
                   value={formData.precio_detal} onChange={handleChange} required min="0" step="0.01"
-                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  className="py-2.5 px-3.5" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
               </div>
 
               {/* Precio al por mayor */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio al por mayor *</label>
+                <label className="mb-1.5" style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Precio al por mayor *</label>
                 <input type="number" name="precio_almayor" placeholder="$ 0"
                   value={formData.precio_almayor} onChange={handleChange} required min="0" step="0.01"
-                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  className="py-2.5 px-3.5" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
               </div>
 
               {/* Unidades por bandeja */}
               <div>
-                <label style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unidades por bandeja *</label>
+                <label className="mb-1.5" style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', display: 'block', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Unidades por bandeja *</label>
                 <input type="number" name="unidades_por_bandeja" placeholder="Ej: 30"
                   value={formData.unidades_por_bandeja} onChange={handleChange} required min="1"
-                  style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                  className="py-2.5 px-3.5" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                   onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                   onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
               </div>
 
-              <div style={{ display: 'flex', gap: '12px', marginTop: '4px' }}>
+              <div className="mt-1" style={{ display: 'flex', gap: '12px' }}>
                 <button type="submit"
-                  style={{ flex: 1, background: 'linear-gradient(to right, #4f46e5, #7c3aed)', color: 'white', padding: '11px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', border: 'none', cursor: 'pointer' }}>
+                  className="p-2.5" style={{ flex: 1, background: 'linear-gradient(to right, #4f46e5, #7c3aed)', color: 'white', borderRadius: '10px', fontWeight: 600, fontSize: '14px', border: 'none', cursor: 'pointer' }}>
                   {editingId ? 'Actualizar' : 'Guardar Producto'}
                 </button>
                 <button type="button" onClick={handleCancelar}
-                  style={{ background: '#f1f5f9', border: 'none', padding: '11px 16px', borderRadius: '10px', fontWeight: 500, fontSize: '14px', cursor: 'pointer', color: '#475569' }}>
+                  className="py-2.5 px-4" style={{ background: '#f1f5f9', border: 'none', borderRadius: '10px', fontWeight: 500, fontSize: '14px', cursor: 'pointer', color: '#475569' }}>
                   Cancelar
                 </button>
               </div>
@@ -268,11 +268,11 @@ export default function ProductosManager() {
         <div className={showForm ? 'xl:col-span-2' : 'xl:col-span-3'}
           style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)', overflow: 'hidden' }}>
 
-          <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
+          <div className="py-3 px-4" style={{ borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ position: 'relative', maxWidth: '360px' }}>
               <input type="text" placeholder="Buscar producto..." maxLength={50}
                 value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-                style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 16px 10px 40px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+                className="pt-2.5 pr-4 pb-2.5 pl-10" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                 onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                 onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
               <Search size={15} style={{ position: 'absolute', left: '13px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
@@ -291,7 +291,7 @@ export default function ProductosManager() {
                     {label : 'precio al por mayor',align : 'center'},
                     { label: 'Acciones', align: 'center' },
                   ].map(h => (
-                    <th key={h.label} style={{ textAlign: h.align, padding: '10px 16px', fontSize: '11px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <th key={h.label} className="py-2.5 px-4" style={{ textAlign: h.align, fontSize: '11px', fontWeight: 600, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                       {h.label}
                     </th>
                   ))}
@@ -300,7 +300,7 @@ export default function ProductosManager() {
               <tbody>
                 {filteredProductos.length === 0 ? (
                   <tr>
-                    <td colSpan="5" style={{ textAlign: 'center', padding: '48px', color: '#94a3b8', fontSize: '14px' }}>
+                    <td colSpan="5" className="p-12" style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
                       No hay productos registrados
                     </td>
                   </tr>
@@ -309,26 +309,26 @@ export default function ProductosManager() {
                   <tr key={producto.id} style={{ borderBottom: '1px solid #f1f5f9' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
                     onMouseLeave={e => e.currentTarget.style.background = 'white'}>
-                    <td style={{ padding: '12px 16px', fontWeight: 600, color: '#334155', fontSize: '14px' }}>
+                    <td className="py-3 px-4" style={{ fontWeight: 600, color: '#334155', fontSize: '14px' }}>
                       {producto.nombre}
                     </td>
-                    <td style={{ padding: '12px 16px', color: '#64748b', fontSize: '14px', maxWidth: '180px' }}>
+                    <td className="py-3 px-4" style={{ color: '#64748b', fontSize: '14px', maxWidth: '180px' }}>
                       <span style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {producto.descripcion || '—'}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                      <span style={{ background: '#eef2ff', color: '#4f46e5', padding: '3px 10px', borderRadius: '20px', fontSize: '12px', fontWeight: 700 }}>
+                    <td className="py-3 px-4" style={{ textAlign: 'center' }}>
+                      <span className="py-0.5 px-2.5" style={{ background: '#eef2ff', color: '#4f46e5', borderRadius: '20px', fontSize: '12px', fontWeight: 700 }}>
                         {producto.unidades_por_bandeja ?? '—'}
                       </span>
                     </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#334155', fontSize: '14px' }}>
+                    <td className="py-3 px-4" style={{ textAlign: 'right', fontWeight: 700, color: '#334155', fontSize: '14px' }}>
                       ${Number(producto.precio_detal || 0).toLocaleString('es-CO')}
                     </td>
-                    <td style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, color: '#334155', fontSize: '14px' }}>
+                    <td className="py-3 px-4" style={{ textAlign: 'right', fontWeight: 700, color: '#334155', fontSize: '14px' }}>
                       ${Number(producto.precio_mayor || 0).toLocaleString('es-CO')}
                     </td>
-                    <td style={{ padding: '12px 16px' }}>
+                    <td className="py-3 px-4">
                       <div style={{ display: 'flex', justifyContent: 'center', gap: '4px' }}>
                         <button onClick={() => handleEdit(producto)}
                           style={{ width: '34px', height: '34px', borderRadius: '8px', border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -351,8 +351,8 @@ export default function ProductosManager() {
           </div>
 
           <div
-          style={{ padding: "20px 32px" }}
-          className=" border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30"
+
+          className="border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30 py-5 px-8"
         >
           <span className="text-sm">
             Mostrando{" "}
@@ -368,27 +368,25 @@ export default function ProductosManager() {
               <button
                 onClick={() => loadProductos(pagina - 1)}
                 disabled={pagina === 1}
-                className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+                className="border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 py-2.5 px-4"
                 style={{
-                  cursor: pagina === 1 ? "not-allowed" : "pointer",
-                  padding: "10px 16px",
+                  cursor: pagina === 1 ? "not-allowed" : "pointer"
                 }}
               >
                 ← Anterior
               </button>
               <span
-                style={{ paddingLeft: "12px", paddingRight: "12px" }}
-                className="text-sm text-slate-500 px-3 font-medium"
+
+                className="text-sm text-slate-500 font-medium pl-3 pr-3"
               >
                 {pagina} / {productosData.total_paginas}
               </span>
               <button
                 onClick={() => loadProductos(pagina + 1)}
                 disabled={pagina === productosData.total_paginas}
-                className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+                className="border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 py-2.5 px-4"
                 style={{
-                  cursor: pagina === productosData.total_paginas ? "not-allowed" : "pointer",
-                  padding: "10px 16px ",
+                  cursor: pagina === productosData.total_paginas ? "not-allowed" : "pointer"
                 }}
               >
                 Siguiente →
@@ -400,22 +398,22 @@ export default function ProductosManager() {
       </div>
 
       {deleteId && (
-        <div style={{ padding: '16px' }} className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div style={{ width: '100%', maxWidth: '400px', borderRadius: '20px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)', padding: '32px', textAlign: 'center', background: 'white' }}>
-            <div style={{ width: '56px', height: '56px', background: '#fef2f2', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="p-8" style={{ width: '100%', maxWidth: '400px', borderRadius: '20px', boxShadow: '0 25px 50px rgba(0,0,0,0.25)', textAlign: 'center', background: 'white' }}>
+            <div className="mt-0 mr-auto mb-4 ml-auto" style={{ width: '56px', height: '56px', background: '#fef2f2', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AlertTriangle size={28} color="#ef4444" />
             </div>
-            <p style={{ fontWeight: 700, fontSize: '18px', color: '#1e293b', marginBottom: '8px' }}>Eliminar Producto</p>
-            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '24px', lineHeight: 1.6 }}>
+            <p className="mb-2" style={{ fontWeight: 700, fontSize: '18px', color: '#1e293b' }}>Eliminar Producto</p>
+            <p className="mb-6" style={{ color: '#64748b', fontSize: '14px', lineHeight: 1.6 }}>
               ¿Seguro que deseas eliminar <strong style={{ color: '#4f46e5' }}>{deleteNombre}</strong>? Esta acción no se puede deshacer.
             </p>
             <div style={{ display: 'flex', gap: '12px' }}>
               <button onClick={() => { setDeleteId(null); setDeleteNombre(''); }}
-                style={{ flex: 1, background: '#f1f5f9', border: 'none', padding: '11px', borderRadius: '10px', fontWeight: 500, fontSize: '14px', cursor: 'pointer', color: '#475569' }}>
+                className="p-2.5" style={{ flex: 1, background: '#f1f5f9', border: 'none', borderRadius: '10px', fontWeight: 500, fontSize: '14px', cursor: 'pointer', color: '#475569' }}>
                 Cancelar
               </button>
               <button onClick={handleDelete}
-                style={{ flex: 1, background: '#ef4444', color: 'white', border: 'none', padding: '11px', borderRadius: '10px', fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}>
+                className="p-2.5" style={{ flex: 1, background: '#ef4444', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 600, fontSize: '14px', cursor: 'pointer' }}>
                 Eliminar
               </button>
             </div>

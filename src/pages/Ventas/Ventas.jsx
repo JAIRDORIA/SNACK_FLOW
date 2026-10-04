@@ -422,21 +422,20 @@ export default function Ventas() {
     );
 
   return (
-    <div style={{ padding: "32px" }} className="flex-1 bg-gray-50 p-8">
+    <div className="flex-1 bg-gray-50 p-8">
       <div
-        style={{ marginBottom: "32px" }}
+
         className="flex items-center justify-between mb-8"
       >
         <div className="flex items-center gap-3">
           <div>
             <h1
-              style={{
+              className="m-0" style={{
                 fontSize: "28px",
                 fontWeight: 700,
                 color: "#000000",
-                margin: 0,
                 textTransform: "uppercase",
-                letterSpacing: "0.02em",
+                letterSpacing: "0.02em"
               }}
             >
               Gestión De Ventas
@@ -445,8 +444,8 @@ export default function Ventas() {
         </div>
         <button
           onClick={() => setModalNuevaVenta(true)}
-          style={{ padding: "8px 8px" }}
-          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white  rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95"
+
+          className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95 p-2"
         >
           <Plus className="w-4 h-4" />
           <span className="text-x">Nueva Venta</span>
@@ -455,7 +454,7 @@ export default function Ventas() {
 
       {/* ═══ KPI CARDS (Estilo Dashboard) ═══ */}
       <div
-        style={{ marginBottom: "32px" }}
+
         className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-8"
       >
         {/* Monto Total (sin anuladas) */}
@@ -471,8 +470,8 @@ export default function Ventas() {
           }}
         >
           <div
-            style={{ margin: "12px 0px 12px 12px" }}
-            className="bg-[#13152280] ring-2 ring-orange-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+
+            className="bg-[#13152280] ring-2 ring-orange-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
           >
             <DollarSign
               size={16}
@@ -485,8 +484,8 @@ export default function Ventas() {
               ${totalMonto.toLocaleString("es-CO")}
             </p>
             <p
-              style={{ marginTop: "2px" }}
-              className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
+
+              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
             >
               Ingresos totales
             </p>
@@ -506,8 +505,8 @@ export default function Ventas() {
           }}
         >
           <div
-            style={{ margin: "12px 0px 12px 12px" }}
-            className="bg-[#13152280] ring-2 ring-indigo-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+
+            className="bg-[#13152280] ring-2 ring-indigo-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
           >
             <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] lg:w-6 lg:h-6 text-indigo-300" />
           </div>
@@ -516,8 +515,8 @@ export default function Ventas() {
               {total}
             </p>
             <p
-              style={{ marginTop: "2px" }}
-              className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
+
+              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
             >
               Total Ventas
             </p>
@@ -537,8 +536,8 @@ export default function Ventas() {
           }}
         >
           <div
-            style={{ margin: "12px 0px 12px 12px" }}
-            className="bg-[#13152280] ring-2 ring-cyan-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+
+            className="bg-[#13152280] ring-2 ring-cyan-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
           >
             <CheckCheck
               size={16}
@@ -551,8 +550,8 @@ export default function Ventas() {
               {entregadas}
             </p>
             <p
-              style={{ marginTop: "2px" }}
-              className="text-[10px] sm:text-xs text-white/50 mt-0.5 truncate"
+
+              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
             >
               Entregadas
             </p>
@@ -572,8 +571,8 @@ export default function Ventas() {
           }}
         >
           <div
-            style={{ margin: "12px 0px 12px 12px" }}
-            className="bg-[#13152280] ring-2 ring-[#e90e0e]/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+
+            className="bg-[#13152280] ring-2 ring-[#e90e0e]/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
           >
             <Clock3
               size={16}
@@ -586,8 +585,8 @@ export default function Ventas() {
               {pendientes}
             </p>
             <p
-              style={{ marginTop: "2px" }}
-              className="text-[10px] sm:text-xs text-white/50 truncate"
+
+              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
             >
               por entregar
             </p>
@@ -607,8 +606,8 @@ export default function Ventas() {
           }}
         >
           <div
-            style={{ margin: "12px 0px 12px 12px" }}
-            className="bg-[#13152280] ring-2 ring-rose-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0"
+
+            className="bg-[#13152280] ring-2 ring-rose-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
           >
             <XCircle
               size={16}
@@ -621,8 +620,8 @@ export default function Ventas() {
               {anuladas}
             </p>
             <p
-              style={{ marginTop: "2px" }}
-              className="text-[10px] sm:text-xs text-white/50 truncate"
+
+              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
             >
               Anuladas
             </p>
@@ -633,17 +632,12 @@ export default function Ventas() {
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-visible">
         {/* barra busqueda + filtro */}
         <div
-          className=" border-b border-slate-100 flex gap-4 items-center flex-wrap"
-          style={{ padding: "12px" }}
+          className="border-b border-slate-100 flex gap-4 items-center flex-wrap p-3"
+
         >
           <div className="relative flex-1 min-w-[280px] max-w-md">
             <input
-              style={{
-                paddingLeft: "48px",
-                paddingRight: "16px",
-                paddingTop: "12px",
-                paddingBottom: "12px",
-              }}
+              className="pl-12 pr-4 pt-3 pb-3"
               type="text"
               placeholder="Buscar por ID, cliente, fecha o estado..."
               value={busquedaInput}
@@ -664,14 +658,13 @@ export default function Ventas() {
           <div ref={filtroRef} className="relative">
             <button
               onClick={() => setPanelFiltro((p) => !p)}
-              className="flex items-center gap-2.5 px-5 py-3 rounded-xl text-sm font-medium transition-all duration-200"
+              className="flex items-center gap-2.5 rounded-xl text-sm font-medium transition-all duration-200 py-3 px-5"
               style={{
                 border:
                   nFiltros > 0 ? "2px solid #4f46e5" : "1px solid #e2e8f0",
                 background: nFiltros > 0 ? "#eef2ff" : "#fff",
                 color: nFiltros > 0 ? "#4f46e5" : "#64748b",
-                cursor: "pointer",
-                padding: "12px 20px",
+                cursor: "pointer"
               }}
             >
               <SlidersHorizontal size={16} />
@@ -695,18 +688,18 @@ export default function Ventas() {
 
             {panelFiltro && (
               <div
-                style={{ marginTop: "12px", padding: "24px" }}
-                className="absolute top-full mt-3 left-0 bg-white border border-slate-200 rounded-2xl shadow-xl p-6 z-40 min-w-80"
+
+                className="absolute top-full left-0 bg-white border border-slate-200 rounded-2xl shadow-xl z-40 min-w-80 mt-3 p-6"
               >
                 <p
-                  style={{ marginBottom: "16px" }}
+
                   className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4"
                 >
                   Estado
                 </p>
                 <div
-                  style={{ marginBottom: "24px" }}
-                  className="flex flex-col gap-3 "
+
+                  className="flex flex-col gap-3 mb-6"
                 >
                   {Object.entries(ESTADOS_CONFIG).map(([key, cfg]) => (
                     <label
@@ -720,12 +713,11 @@ export default function Ventas() {
                         className="w-4 h-4 accent-indigo-600 rounded"
                       />
                       <span
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium border"
+                        className="inline-flex items-center gap-2 rounded-full text-xs font-medium border py-2 px-3"
                         style={{
-                          padding: "8px 12px",
                           background: cfg.bg,
                           color: cfg.color,
-                          borderColor: cfg.border,
+                          borderColor: cfg.border
                         }}
                       >
                         {cfg.icon}
@@ -736,13 +728,13 @@ export default function Ventas() {
                 </div>
 
                 <p
-                  style={{ marginBottom: "16px" }}
-                  className="text-xs font-bold text-slate-400 uppercase tracking-widest "
+
+                  className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4"
                 >
                   Tipo de Pago
                 </p>
                 <div
-                  style={{ marginBottom: "24px" }}
+
                   className="flex flex-col gap-3 mb-6"
                 >
                   {Object.entries(TIPO_CONFIG).map(([key, cfg]) => (
@@ -757,12 +749,10 @@ export default function Ventas() {
                         className="w-4 h-4 accent-indigo-600 rounded"
                       />
                       <span
-                        className="px-4 py-2 rounded-full text-xs font-medium border border-transparent"
+                        className="rounded-full text-xs font-medium border border-transparent py-2 px-4 py-2 px-4"
                         style={{
-                          padding: "8px 16px",
                           background: cfg.bg,
-                          color: cfg.color,
-                          padding: "8px 16px",
+                          color: cfg.color
                         }}
                       >
                         {cfg.label}
@@ -772,8 +762,8 @@ export default function Ventas() {
                 </div>
 
                 <div
-                  style={{ paddingTop: "16px" }}
-                  className="border-t border-slate-100 pt-4 flex justify-between"
+
+                  className="border-t border-slate-100 flex justify-between pt-4"
                 >
                   <button
                     onClick={limpiarFiltros}
@@ -810,7 +800,7 @@ export default function Ventas() {
                 ].map((h, i) => (
                   <th
                     key={h}
-                    style={{ padding: "16px 24px" }}
+
                     className={`text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider ${i === 0 ? "pl-8" : ""}`}
                   >
                     {h}
@@ -822,9 +812,9 @@ export default function Ventas() {
               {lista.length === 0 ? (
                 <tr>
                   <td
-                    style={{ paddingTop: "80px", paddingBottom: "80px" }}
+
                     colSpan={7}
-                    className="text-center py-20 text-slate-400"
+                    className="text-center text-slate-400 pt-20 pb-20"
                   >
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
@@ -851,28 +841,28 @@ export default function Ventas() {
                       className="border-b border-slate-50 hover:bg-slate-50/30 transition-colors"
                     >
                       <td
-                        style={{ padding: "16px 24px", paddingLeft: "32px" }}
-                        className="px-6 py-4 pl-8"
+
+                        className="py-4 px-6 pl-8"
                       >
                         <span className="font-semibold text-sm text-indigo-600">
                           #{String(v.id_venta).padStart(3, "0")}
                         </span>
                       </td>
                       <td
-                        style={{ padding: "16px 24px" }}
-                        className=" text-slate-500 text-sm whitespace-nowrap"
+
+                        className="text-slate-500 text-sm whitespace-nowrap py-4 px-6"
                       >
                         {formatearFechaColombia(v.fecha_entrega)}
                       </td>
                       <td
-                        style={{ padding: "16px 24px" }}
-                        className="text-slate-700 font-medium text-sm"
+
+                        className="text-slate-700 font-medium text-sm py-4 px-6"
                       >
                         {capitalizarNombre(v.nombre_cliente)}
                       </td>
                       <td
-                        style={{ padding: "16px 24px" }}
-                        className=" text-slate-700 font-semibold text-sm"
+
+                        className="text-slate-700 font-semibold text-sm py-4 px-6"
                       >
                         ${v.total?.toLocaleString("es-CO")}
                       </td>
@@ -880,16 +870,16 @@ export default function Ventas() {
                       <td className="px-6 py-4">
                         {v.saldo_pendiente === 0 ? (
                           <span
-                            style={{ padding: "6px 14px" }}
-                            className="inline-flex items-center gap-1 text-xs px-3.5 py-1.5 rounded-full font-medium bg-emerald-50 text-emerald-600 border border-emerald-200"
+
+                            className="inline-flex items-center gap-1 text-xs rounded-full font-medium bg-emerald-50 text-emerald-600 border border-emerald-200 py-1.5 px-3.5"
                           >
                             <CheckCircle2 size={12} />
                             Pagada
                           </span>
                         ) : (
                           <span
-                            style={{ padding: "6px 14px" }}
-                            className="inline-flex items-center gap-1 text-xs px-3.5 py-1.5 rounded-full font-medium bg-amber-50 text-amber-600 border border-amber-200"
+
+                            className="inline-flex items-center gap-1 text-xs rounded-full font-medium bg-amber-50 text-amber-600 border border-amber-200 py-1.5 px-3.5"
                           >
                             <Clock size={12} />
                             Debe
@@ -897,16 +887,15 @@ export default function Ventas() {
                         )}
                       </td>
                       <td
-                        style={{ padding: "16px 24px" }}
-                        className="px-6 py-4"
+
+                        className="py-4 px-6"
                       >
                         <span
-                          className="inline-flex items-center gap-1.5 text-xs px-3.5 py-1.5 rounded-full font-medium border"
+                          className="inline-flex items-center gap-1.5 text-xs rounded-full font-medium border py-1.5 px-3.5"
                           style={{
                             background: estadoCfg.bg,
                             color: estadoCfg.color,
-                            borderColor: estadoCfg.border,
-                            padding: "6px 14px ",
+                            borderColor: estadoCfg.border
                           }}
                         >
                           {estadoCfg.icon}
@@ -914,7 +903,7 @@ export default function Ventas() {
                         </span>
                       </td>
                       <td
-                        style={{ padding: "22px 14px", paddingRight: "28px" }}
+                        className="py-5 px-3.5 pr-7"
                       >
                         <div className="flex gap-1">
                           <button
@@ -985,8 +974,8 @@ export default function Ventas() {
 
         {/* pie tabla */}
         <div
-          style={{ padding: "20px 32px" }}
-          className=" border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30"
+
+          className="border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30 py-5 px-8"
         >
           <span className="text-sm">
             Mostrando{" "}
@@ -1002,27 +991,25 @@ export default function Ventas() {
               <button
                 onClick={() => fetchVentas(pagina - 1, 20, null, busqueda)}
                 disabled={pagina === 1}
-                className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+                className="border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 py-2.5 px-4"
                 style={{
-                  cursor: pagina === 1 ? "not-allowed" : "pointer",
-                  padding: "10px 16px",
+                  cursor: pagina === 1 ? "not-allowed" : "pointer"
                 }}
               >
                 ← Anterior
               </button>
               <span
-                style={{ paddingLeft: "12px", paddingRight: "12px" }}
-                className="text-sm text-slate-500 px-3 font-medium"
+
+                className="text-sm text-slate-500 font-medium pl-3 pr-3"
               >
                 {pagina} / {total_paginas}
               </span>
               <button
                 onClick={() => fetchVentas(pagina + 1, 20, null, busqueda)}
                 disabled={pagina === total_paginas}
-                className="px-4 py-2.5 border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600"
+                className="border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 py-2.5 px-4"
                 style={{
-                  cursor: pagina === total_paginas ? "not-allowed" : "pointer",
-                  padding: "10px 16px ",
+                  cursor: pagina === total_paginas ? "not-allowed" : "pointer"
                 }}
               >
                 Siguiente →
@@ -1035,28 +1022,28 @@ export default function Ventas() {
       {/* ═══ MODAL CONFIRMAR ANULAR ═══ */}
       {eliminarId && (
         <div
-          style={{ padding: "4px" }}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 "
+
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-1"
         >
           <div
-            style={{ padding: "8px" }}
-            className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-8 text-center"
+
+            className="bg-white rounded-2xl w-full max-w-md shadow-2xl text-center p-2"
           >
             <div
-              style={{ marginBottom: "6px", margin: "0px auto" }}
-              className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center "
+
+              className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mb-1.5 my-0 mx-auto"
             >
               <AlertTriangle size={32} color="#ef4444" />
             </div>
             <p
-              style={{ marginBottom: "3px" }}
-              className="font-bold text-xl text-slate-800 "
+
+              className="font-bold text-xl text-slate-800 mb-0.5"
             >
               ¿Anular venta?
             </p>
             <p
-              style={{ marginBottom: "8px" }}
-              className="text-x text-slate-500  leading-relaxed"
+
+              className="text-x text-slate-500 leading-relaxed mb-2"
             >
               La venta{" "}
               <span className="font-semibold text-indigo-600">
@@ -1068,10 +1055,9 @@ export default function Ventas() {
               <button
                 onClick={() => setEliminarId(null)}
                 disabled={anulando}
-                className="flex-1 py-3 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-all"
+                className="flex-1 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-all py-3 px-0"
                 style={{
-                  cursor: anulando ? "not-allowed" : "pointer",
-                  padding: "12px 0px",
+                  cursor: anulando ? "not-allowed" : "pointer"
                 }}
               >
                 Cancelar
@@ -1079,10 +1065,9 @@ export default function Ventas() {
               <button
                 onClick={handleAnularVenta}
                 disabled={anulando}
-                className="flex-1 py-3 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
+                className="flex-1 border-none rounded-xl bg-rose-500 text-white text-sm font-semibold hover:bg-rose-600 transition-all shadow-sm hover:shadow-md disabled:opacity-50 py-3 px-0"
                 style={{
-                  cursor: anulando ? "not-allowed" : "pointer",
-                  padding: "12px 0px",
+                  cursor: anulando ? "not-allowed" : "pointer"
                 }}
               >
                 {anulando ? "Anulando..." : "Sí, anular"}
@@ -1094,32 +1079,28 @@ export default function Ventas() {
       {/* Modal confirmar entregar */}
       {entregarId && (
         <div
-          style={{ padding: "16px" }}
+
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         >
           <div
-            style={{ padding: "32px" }}
-            className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-8 text-center"
+
+            className="bg-white rounded-2xl w-full max-w-md shadow-2xl text-center p-8"
           >
             <div
-              style={{
-                marginBottom: "24px",
-                marginLeft: "auto",
-                marginRight: "auto",
-              }}
-              className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-6"
+
+              className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center mb-6 m-auto m-auto"
             >
               <CircleCheckBig size={32} className="text-emerald-500" />
             </div>
             <p
-              style={{ marginBottom: "12px" }}
+
               className="font-bold text-xl text-slate-800 mb-3"
             >
               ¿Marcar como entregada?
             </p>
             <p
-              style={{ marginBottom: "32px" }}
-              className="text-sm text-slate-500 mb-8 leading-relaxed"
+
+              className="text-sm text-slate-500 leading-relaxed mb-8"
             >
               La venta{" "}
               <span className="font-semibold text-indigo-600">
@@ -1135,16 +1116,16 @@ export default function Ventas() {
               <button
                 onClick={() => setEntregarId(null)}
                 disabled={entregando}
-                style={{ paddingTop: "12px", paddingBottom: "12px" }}
-                className="flex-1 py-3 border border-slate-300 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-all"
+
+                className="flex-1 border border-slate-300 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-all pt-3 pb-3"
               >
                 Cancelar
               </button>
               <button
                 onClick={() => entregarVenta(entregarId)}
                 disabled={entregando}
-                style={{ paddingTop: "12px", paddingBottom: "12px" }}
-                className="flex-1 py-3 border-none rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-all shadow-sm hover:shadow-md disabled:opacity-70"
+
+                className="flex-1 border-none rounded-xl bg-emerald-500 text-white text-sm font-semibold hover:bg-emerald-600 transition-all shadow-sm hover:shadow-md disabled:opacity-70 pt-3 pb-3"
               >
                 {entregando ? "Guardando..." : "Sí, entregar"}
               </button>
@@ -1156,14 +1137,14 @@ export default function Ventas() {
       {/* ═══ MODAL DETALLE VENTA ═══ */}
       {detalleVenta && (
         <div
-          style={{ padding: "4px" }}
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 "
+
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-1"
         >
           <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden">
             {/* header */}
             <div
-              style={{ padding: "6px 8px" }}
-              className="flex items-center justify-between  border-b border-slate-100"
+
+              className="flex items-center justify-between border-b border-slate-100 py-1.5 px-2"
             >
               <div>
                 <p className="font-bold text-xl text-slate-800">
@@ -1173,7 +1154,7 @@ export default function Ventas() {
                   </span>
                 </p>
                 <p
-                  style={{ marginTop: "4px" }}
+
                   className="text-sm text-slate-500 mt-1"
                 >
                   Cliente:{" "}
@@ -1196,8 +1177,8 @@ export default function Ventas() {
             </div>
 
             <div
-              style={{ padding: "10px" }}
-              className=" flex flex-col gap-8 max-h-[70vh] overflow-y-auto"
+
+              className="flex flex-col gap-8 max-h-[70vh] overflow-y-auto p-2.5"
             >
               {/* info general */}
               <div className="grid grid-cols-3 gap-6">
@@ -1225,18 +1206,18 @@ export default function Ventas() {
                 ].map((item, i) => (
                   <div
                     key={i}
-                    className="rounded-2xl text-center border border-slate-100"
-                    style={{ background: item.bg, padding: "6px" }}
+                    className="rounded-2xl text-center border border-slate-100 p-1.5"
+                    style={{ background: item.bg }}
                   >
                     <p
-                      className="text-x font-semibold text-slate-500  uppercase tracking-wider"
-                      style={{ marginBottom: "2px" }}
+                      className="text-x font-semibold text-slate-500 uppercase tracking-wider mb-0.5"
+
                     >
                       {item.label}
                     </p>
                     <p
                       className="text-2xl font-bold m-0"
-                      style={{ color: item.color, margin: "0px" }}
+                      style={{ color: item.color }}
                     >
                       ${item.value?.toLocaleString("es-CO") ?? "0"}
                     </p>
@@ -1247,8 +1228,8 @@ export default function Ventas() {
               {/* productos */}
               <div>
                 <p
-                  style={{ marginBottom: "16px" }}
-                  className="text-base font-semibold text-slate-700 mb-4 flex items-center gap-3"
+
+                  className="text-base font-semibold text-slate-700 flex items-center gap-3 mb-4"
                 >
                   <span className="w-1.5 h-5 rounded-full bg-indigo-500" />
                   Productos
@@ -1265,8 +1246,8 @@ export default function Ventas() {
                         ].map((h) => (
                           <th
                             key={h}
-                            style={{ padding: "4px 6px" }}
-                            className="text-left  text-xs font-semibold text-slate-400 uppercase tracking-wider"
+
+                            className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider py-1 px-1.5"
                           >
                             {h}
                           </th>
@@ -1278,8 +1259,8 @@ export default function Ventas() {
                         <tr>
                           <td
                             colSpan={4}
-                            style={{ padding: "0px 12px" }}
-                            className="text-center  text-slate-400 text-sm"
+
+                            className="text-center text-slate-400 text-sm py-0 px-3"
                           >
                             Sin productos registrados
                           </td>
@@ -1291,26 +1272,26 @@ export default function Ventas() {
                             className="border-t border-slate-50 hover:bg-slate-50/30 transition-colors"
                           >
                             <td
-                              style={{ padding: "4px 6px" }}
-                              className=" text-sm text-slate-700 font-medium"
+
+                              className="text-sm text-slate-700 font-medium py-1 px-1.5"
                             >
                               {d.nombre_producto}
                             </td>
                             <td
-                              style={{ padding: "4px 6px" }}
-                              className=" text-sm text-slate-500"
+
+                              className="text-sm text-slate-500 py-1 px-1.5"
                             >
                               {d.cantidad}
                             </td>
                             <td
-                              style={{ padding: "4px 6px" }}
-                              className=" text-sm text-slate-500"
+
+                              className="text-sm text-slate-500 py-1 px-1.5"
                             >
                               ${d.precio_unitario?.toLocaleString("es-CO")}
                             </td>
                             <td
-                              style={{ padding: "4px 6px" }}
-                              className=" text-sm font-semibold text-slate-700"
+
+                              className="text-sm font-semibold text-slate-700 py-1 px-1.5"
                             >
                               ${d.subtotal?.toLocaleString("es-CO")}
                             </td>
@@ -1325,8 +1306,8 @@ export default function Ventas() {
               {/* abonos */}
               <div>
                 <p
-                  style={{ marginBottom: "16px" }}
-                  className="text-base font-semibold text-slate-700 mb-4 flex items-center gap-3"
+
+                  className="text-base font-semibold text-slate-700 flex items-center gap-3 mb-4"
                 >
                   <span className="w-1.5 h-5 rounded-full bg-indigo-500" />
                   Historial de abonos
@@ -1339,8 +1320,8 @@ export default function Ventas() {
                           (h) => (
                             <th
                               key={h}
-                              style={{ padding: "4px 6px" }}
-                              className="text-left  text-xs font-semibold text-slate-400 uppercase tracking-wider"
+
+                              className="text-left text-xs font-semibold text-slate-400 uppercase tracking-wider py-1 px-1.5"
                             >
                               {h}
                             </th>
@@ -1365,20 +1346,20 @@ export default function Ventas() {
                             className="border-t border-slate-50 hover:bg-slate-50/30 transition-colors"
                           >
                             <td
-                              style={{ padding: "4px 8px" }}
-                              className="text-sm text-slate-500"
+
+                              className="text-sm text-slate-500 py-1 px-2"
                             >
                               {a.fecha}
                             </td>
                             <td
-                              style={{ padding: "4px 6px" }}
-                              className=" text-sm font-semibold text-green-600"
+
+                              className="text-sm font-semibold text-green-600 py-1 px-1.5"
                             >
                               ${a.monto?.toLocaleString("es-CO")}
                             </td>
-                            <td style={{ padding: "4px 6px" }}>
+                            <td className="py-1 px-1.5">
                               <span
-                                className="text-x  rounded-full font-medium"
+                                className="text-x rounded-full font-medium py-0.5 px-1.5"
                                 style={{
                                   background:
                                     a.medio_pago === "efectivo"
@@ -1387,16 +1368,15 @@ export default function Ventas() {
                                   color:
                                     a.medio_pago === "efectivo"
                                       ? "#15803d"
-                                      : "#1d4ed8",
-                                  padding: "3px 6px",
+                                      : "#1d4ed8"
                                 }}
                               >
                                 {a.medio_pago}
                               </span>
                             </td>
                             <td
-                              style={{ padding: "4px 6px" }}
-                              className=" text-sm text-slate-400"
+
+                              className="text-sm text-slate-400 py-1 px-1.5"
                             >
                               {a.observacion ?? "—"}
                             </td>
@@ -1411,17 +1391,16 @@ export default function Ventas() {
 
             {/* footer */}
             <div
-              style={{ padding: "5px 8px" }}
-              className="border-t border-slate-100 bg-slate-50/50 flex justify-between items-center"
+
+              className="border-t border-slate-100 bg-slate-50/50 flex justify-between items-center py-1 px-2"
             >
               <div className="flex items-center gap-4">
                 <span
-                  className="inline-flex items-center gap-2 text-xs rounded-full font-medium border"
+                  className="inline-flex items-center gap-2 text-xs rounded-full font-medium border py-1 px-1.5"
                   style={{
                     background: ESTADOS_CONFIG[detalleVenta.estado]?.bg,
                     color: ESTADOS_CONFIG[detalleVenta.estado]?.color,
-                    borderColor: ESTADOS_CONFIG[detalleVenta.estado]?.border,
-                    padding: "4px 6px",
+                    borderColor: ESTADOS_CONFIG[detalleVenta.estado]?.border
                   }}
                 >
                   {ESTADOS_CONFIG[detalleVenta.estado]?.icon}
@@ -1435,8 +1414,8 @@ export default function Ventas() {
                 <button
                   onClick={() => verComprobante(detalleVenta.id)}
                   disabled={cargandoComprobante}
-                  className="border border-indigo-200 rounded-xl text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 transition-all flex items-center gap-2"
-                  style={{ cursor: "pointer", padding: "6px 12px" }}
+                  className="border border-indigo-200 rounded-xl text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50 transition-all flex items-center gap-2 py-1.5 px-3"
+                  style={{ cursor: "pointer" }}
                 >
                   {cargandoComprobante ? (
                     <span className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -1447,8 +1426,8 @@ export default function Ventas() {
                 </button>
                 <button
                   onClick={() => setDetalleVenta(null)}
-                  className="border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-all"
-                  style={{ cursor: "pointer", padding: "6px 12px" }}
+                  className="border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-all py-1.5 px-3"
+                  style={{ cursor: "pointer" }}
                 >
                   Cerrar
                 </button>
@@ -1460,14 +1439,14 @@ export default function Ventas() {
       {/* Modal comprobante */}
       {mostrarComprobante && comprobante && (
         <div
-          style={{ padding: "16px" }}
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50  no-print"
+
+          className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 no-print p-4"
         >
           <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden print-container">
             {/* Header del comprobante */}
             <div
-              style={{ padding: "16px 24px" }}
-              className="flex items-center justify-between  border-b border-slate-200 bg-indigo-50 no-print"
+
+              className="flex items-center justify-between border-b border-slate-200 bg-indigo-50 no-print py-4 px-6"
             >
               <div>
                 <h3 className="font-bold text-lg text-slate-800">
@@ -1480,8 +1459,8 @@ export default function Ventas() {
               <div className="flex gap-2 no-print">
                 <button
                   onClick={() => imprimirComprobante(comprobante)}
-                  className="flex items-center gap-2 bg-indigo-600 text-white  rounded-xl text-sm hover:bg-indigo-700 transition-colors"
-                  style={{ padding: "8px 16px" }}
+                  className="flex items-center gap-2 bg-indigo-600 text-white rounded-xl text-sm hover:bg-indigo-700 transition-colors py-2 px-4"
+
                 >
                   <Printer size={16} />
                   Imprimir
@@ -1497,12 +1476,12 @@ export default function Ventas() {
 
             {/* Contenido imprimible */}
             <div
-              style={{ padding: "24px" }}
-              className="p-6 max-h-[70vh] overflow-y-auto print-content"
+
+              className="max-h-[70vh] overflow-y-auto print-content p-6"
             >
               {/* Datos del cliente y venta */}
               <div
-                style={{ marginBottom: "24px" }}
+
                 className="grid grid-cols-2 gap-4 mb-6"
               >
                 <div>
@@ -1541,32 +1520,32 @@ export default function Ventas() {
 
               {/* Detalle de productos */}
               <table
-                style={{ marginBottom: "24px" }}
+
                 className="w-full border-collapse mb-6"
               >
                 <thead>
                   <tr className="bg-slate-100">
                     <th
-                      style={{ padding: "8px 16px" }}
-                      className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase"
+
+                      className="text-left text-xs font-semibold text-slate-500 uppercase py-2 px-4"
                     >
                       Producto
                     </th>
                     <th
-                      style={{ padding: "8px 16px" }}
-                      className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase"
+
+                      className="text-left text-xs font-semibold text-slate-500 uppercase py-2 px-4"
                     >
                       Cantidad
                     </th>
                     <th
-                      style={{ padding: "8px 16px" }}
-                      className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase"
+
+                      className="text-left text-xs font-semibold text-slate-500 uppercase py-2 px-4"
                     >
                       Precio unit.
                     </th>
                     <th
-                      style={{ padding: "8px 16px" }}
-                      className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase"
+
+                      className="text-left text-xs font-semibold text-slate-500 uppercase py-2 px-4"
                     >
                       Subtotal
                     </th>
@@ -1576,26 +1555,26 @@ export default function Ventas() {
                   {comprobante.detalle?.map((item, idx) => (
                     <tr key={idx} className="border-b border-slate-100">
                       <td
-                        style={{ padding: "8px 16px" }}
-                        className="px-4 py-2 text-sm text-slate-700"
+
+                        className="text-sm text-slate-700 py-2 px-4"
                       >
                         {item.nombre_producto}
                       </td>
                       <td
-                        style={{ padding: "8px 16px" }}
-                        className="px-4 py-2 text-sm text-slate-600"
+
+                        className="text-sm text-slate-600 py-2 px-4"
                       >
                         {item.cantidad}
                       </td>
                       <td
-                        style={{ padding: "8px 16px" }}
-                        className="px-4 py-2 text-sm text-slate-600"
+
+                        className="text-sm text-slate-600 py-2 px-4"
                       >
                         ${item.precio_unitario?.toLocaleString("es-CO")}
                       </td>
                       <td
-                        style={{ padding: "8px 16px" }}
-                        className="px-4 py-2 text-sm text-slate-700 font-medium"
+
+                        className="text-sm text-slate-700 font-medium py-2 px-4"
                       >
                         ${item.subtotal?.toLocaleString("es-CO")}
                       </td>
@@ -1608,8 +1587,8 @@ export default function Ventas() {
               <div className="flex justify-end">
                 <div className="w-64">
                   <div
-                    style={{ paddingTop: "8px ", paddingBottom: "8px" }}
-                    className="flex justify-between border-b border-slate-200 "
+
+                    className="flex justify-between border-b border-slate-200 pt-2 pb-2"
                   >
                     <span className="text-sm text-slate-500">Subtotal</span>
                     <span className="text-sm text-slate-800">
@@ -1617,15 +1596,15 @@ export default function Ventas() {
                     </span>
                   </div>
                   <div
-                    style={{ paddingTop: "8px ", paddingBottom: "8px" }}
-                    className="flex justify-between border-b border-slate-200 "
+
+                    className="flex justify-between border-b border-slate-200 pt-2 pb-2"
                   >
                     <span className="text-sm text-slate-500">Descuento</span>
                     <span className="text-sm text-slate-800">$0</span>
                   </div>
                   <div
-                    style={{ paddingTop: "8px ", paddingBottom: "8px" }}
-                    className="flex justify-between py-2"
+
+                    className="flex justify-between pt-2 pb-2"
                   >
                     <span className="font-semibold text-slate-800">Total</span>
                     <span className="font-bold text-indigo-600">
@@ -1637,10 +1616,10 @@ export default function Ventas() {
 
               {/* Abonos si existen */}
               {comprobante.abonos?.length > 0 && (
-                <div style={{ marginTop: "24px" }} className="mt-6">
+                <div className="mt-6">
                   <h4
-                    style={{ marginBottom: "8px" }}
-                    className="text-sm font-semibold text-slate-700 "
+
+                    className="text-sm font-semibold text-slate-700 mb-2"
                   >
                     Abonos registrados
                   </h4>
@@ -1649,20 +1628,20 @@ export default function Ventas() {
                       <thead className="bg-slate-50">
                         <tr>
                           <th
-                            style={{ padding: "8px 16px" }}
-                            className="px-4 py-2 text-xs text-slate-500"
+
+                            className="text-xs text-slate-500 py-2 px-4"
                           >
                             Fecha
                           </th>
                           <th
-                            style={{ padding: "8px 16px" }}
-                            className="px-4 py-2 text-xs text-slate-500"
+
+                            className="text-xs text-slate-500 py-2 px-4"
                           >
                             Monto
                           </th>
                           <th
-                            style={{ padding: "8px 16px" }}
-                            className="px-4 py-2 text-xs text-slate-500"
+
+                            className="text-xs text-slate-500 py-2 px-4"
                           >
                             Medio
                           </th>
@@ -1672,20 +1651,20 @@ export default function Ventas() {
                         {comprobante.abonos.map((abono, i) => (
                           <tr key={i} className="border-t border-slate-100">
                             <td
-                              style={{ padding: "8px 16px" }}
-                              className="px-4 py-2 text-sm"
+
+                              className="text-sm py-2 px-4"
                             >
                               {abono.fecha}
                             </td>
                             <td
-                              style={{ padding: "8px 16px" }}
-                              className="px-4 py-2 text-sm text-green-600"
+
+                              className="text-sm text-green-600 py-2 px-4"
                             >
                               ${abono.monto?.toLocaleString("es-CO")}
                             </td>
                             <td
-                              style={{ padding: "8px 16px" }}
-                              className="px-4 py-2 text-sm"
+
+                              className="text-sm py-2 px-4"
                             >
                               {abono.medio_pago}
                             </td>

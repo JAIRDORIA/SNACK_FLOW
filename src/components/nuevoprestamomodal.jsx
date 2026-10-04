@@ -90,17 +90,17 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div style={{padding:"24px"}} className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-        <h2 style={{marginBottom:"16px"}} className="text-lg font-semibold mb-4">Nuevo préstamo</h2>
+      <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+        <h2 className="text-lg font-semibold mb-4">Nuevo préstamo</h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Cliente</label>
+            <label className="block text-sm font-medium mb-1">Cliente</label>
             <input
               type="text"
               placeholder="Buscar cliente..."
-              style={{padding:"8px 12px"}}
-              className="w-full border rounded px-3 py-2 text-sm"
+
+              className="w-full border rounded text-sm py-2 px-3"
               value={clienteSeleccionado ? clienteSeleccionado.Cli_Nombre : busquedaCliente}
               onChange={(e) => {
                 setClienteSeleccionado(null)
@@ -108,12 +108,12 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
               }}
             />
             {busquedaCliente && !clienteSeleccionado && (
-              <div style={{marginTop:"4px"}} className="border rounded mt-1 max-h-40 overflow-y-auto">
+              <div className="border rounded max-h-40 overflow-y-auto mt-1">
                 {clientesFiltrados.map((c) => (
                   <div
                     key={c.ID_Cliente}
-                    style={{padding:"8px 12px"}}
-                    className="px-3 py-2 text-sm hover:bg-gray-100 cursor-pointer"
+
+                    className="text-sm hover:bg-gray-100 cursor-pointer py-2 px-3"
                     onClick={() => {
                       setClienteSeleccionado(c)
                       setBusquedaCliente('')
@@ -123,30 +123,30 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
                   </div>
                 ))}
                 {clientesFiltrados.length === 0 && (
-                  <div style={{padding:"8px 12px"}} className="px-3 py-2 text-sm text-gray-400">No se encontraron clientes</div>
+                  <div className="text-sm text-gray-400 py-2 px-3">No se encontraron clientes</div>
                 )}
               </div>
             )}
           </div>
 
           <div>
-            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Monto</label>
+            <label className="block text-sm font-medium mb-1">Monto</label>
             <input
               type="number"
               min="1"
               step="1"
-              style={{padding:"8px 12px"}}
-              className="w-full border rounded px-3 py-2 text-sm"
+
+              className="w-full border rounded text-sm py-2 px-3"
               value={monto}
               onChange={(e) => setMonto(e.target.value)}
             />
           </div>
 
           <div>
-            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Medio de pago (con el que se presta)</label>
+            <label className="block text-sm font-medium mb-1">Medio de pago (con el que se presta)</label>
             <select
-            style={{padding:"8px 12px"}}
-              className="w-full border rounded px-3 py-2 text-sm"
+
+              className="w-full border rounded text-sm py-2 px-3"
               value={medioPago}
               onChange={(e) => setMedioPago(e.target.value)}
             >
@@ -156,10 +156,10 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
           </div>
 
           <div>
-            <label style={{marginBottom:"4px"}} className="block text-sm font-medium mb-1">Observación (opcional)</label>
+            <label className="block text-sm font-medium mb-1">Observación (opcional)</label>
             <textarea
-            style={{padding:"8px 12px"}}
-              className="w-full border rounded px-3 py-2 text-sm"
+
+              className="w-full border rounded text-sm py-2 px-3"
               rows={2}
               value={observacion}
               onChange={(e) => setObservacion(e.target.value)}
@@ -171,8 +171,8 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
-              style={{padding:"8px 16px"}}
-              className="px-4 py-2 text-sm rounded border"
+
+              className="text-sm rounded border py-2 px-4"
               onClick={() => { resetForm(); onClose() }}
             >
               Cancelar
@@ -180,8 +180,8 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
             <button
               type="submit"
               disabled={guardando}
-              style={{padding:"8px 16px"}}
-              className="px-4 py-2 text-sm rounded bg-blue-600 text-white disabled:opacity-50"
+
+              className="text-sm rounded bg-blue-600 text-white disabled:opacity-50 py-2 px-4"
             >
               {guardando ? 'Guardando...' : 'Guardar préstamo'}
             </button>

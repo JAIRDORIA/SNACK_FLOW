@@ -40,29 +40,27 @@ function ModalAlerta({ tipo, titulo, mensaje, onConfirmar, onCancelar }) {
   }
   const c = colores[tipo] || colores.warning
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
+    <div className="p-6" style={{ position: 'fixed', inset: 0, zIndex: 2000, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '380px', boxShadow: '0 24px 60px rgba(0,0,0,0.25)', overflow: 'hidden', animation: 'popIn 0.2s ease' }}>
         <style>{`@keyframes popIn { from { opacity:0; transform:scale(0.92); } to { opacity:1; transform:scale(1); } }`}</style>
-        <div style={{ background: c.bg, borderBottom: `1px solid ${c.border}`, padding: '24px', textAlign: 'center' }}>
-          <div style={{ fontSize: '40px', marginBottom: '10px' }}>{c.icono}</div>
-          <h3 style={{ margin: '0 0 6px', color: c.titulo, fontSize: '17px', fontWeight: 700 }}>{titulo}</h3>
-          <p style={{ margin: 0, color: '#6b7280', fontSize: '13px', lineHeight: 1.6 }}>{mensaje}</p>
+        <div className="p-6" style={{ background: c.bg, borderBottom: `1px solid ${c.border}`, textAlign: 'center' }}>
+          <div className="mb-2.5" style={{ fontSize: '40px' }}>{c.icono}</div>
+          <h3 className="mt-0 mr-0 mb-1.5 ml-0" style={{ color: c.titulo, fontSize: '17px', fontWeight: 700 }}>{titulo}</h3>
+          <p className="m-0" style={{ color: '#6b7280', fontSize: '13px', lineHeight: 1.6 }}>{mensaje}</p>
         </div>
 
         {/* botones */}
-        <div style={{ padding: '16px 24px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className="py-4 px-6" style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
           {onCancelar && (
-            <button onClick={onCancelar} style={{
-              background: '#f3f4f6', border: 'none', borderRadius: '8px',
-              padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+            <button onClick={onCancelar} className="py-2.5 px-5" style={{
+              background: '#f3f4f6', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
               cursor: 'pointer', color: '#374151', fontFamily: 'inherit'
             }}>
               Cancelar
             </button>
           )}
-          <button onClick={onConfirmar} style={{
-            background: c.btn, border: 'none', borderRadius: '8px',
-            padding: '10px 20px', fontSize: '13px', fontWeight: 600,
+          <button onClick={onConfirmar} className="py-2.5 px-5" style={{
+            background: c.btn, border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600,
             cursor: 'pointer', color: 'white', fontFamily: 'inherit',
             transition: 'background 0.15s'
           }}
@@ -127,17 +125,17 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
   }
 
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 1500, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+    <div className="p-6" style={{ position: 'fixed', inset: 0, zIndex: 1500, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
       onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
     >
       <div style={{ background: 'white', borderRadius: '16px', width: '100%', maxWidth: '420px', boxShadow: '0 24px 60px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
         {/* Header */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="py-5 px-6" style={{ borderBottom: '1px solid #e5e7eb', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: '#111827' }}>
+            <h3 className="m-0" style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>
               {paso === 1 ? 'Verificar identidad' : `Nueva contraseña — @${usuarioTarget.username}`}
             </h3>
-            <p style={{ margin: '3px 0 0', fontSize: '12px', color: '#6b7280' }}>
+            <p className="mt-0.5 mr-0 mb-0 ml-0" style={{ fontSize: '12px', color: '#6b7280' }}>
               {paso === 1 ? 'Ingresa tu contraseña de administrador para continuar' : 'Ingresa y confirma la nueva contraseña'}
             </p>
           </div>
@@ -147,20 +145,20 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
         </div>
 
         {/* Barra de progreso */}
-        <div style={{ display: 'flex', gap: '6px', padding: '12px 24px 0' }}>
+        <div className="pt-3 pr-6 pb-0 pl-6" style={{ display: 'flex', gap: '6px' }}>
           {[1, 2].map(n => (
             <div key={n} style={{ flex: 1, height: '3px', borderRadius: '3px', background: n <= paso ? '#4f46e5' : '#e5e7eb', transition: 'background 0.3s' }} />
           ))}
         </div>
 
-        <div style={{ padding: '20px 24px 24px' }}>
+        <div className="pt-5 pr-6 pb-6 pl-6">
           {/* Paso 1 — contraseña del admin */}
           {paso === 1 && (
             <>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+              <label className="mb-1.5" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Tu contraseña (Admin principal)
               </label>
-              <div style={{ position: 'relative', marginBottom: '16px' }}>
+              <div className="mb-4" style={{ position: 'relative' }}>
                 <input
                   type={verPassAdmin ? 'text' : 'password'}
                   value={passAdmin}
@@ -176,9 +174,9 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
                   {verPassAdmin ? <EyeOff size={15} color="#9ca3af" /> : <Eye size={15} color="#9ca3af" />}
                 </button>
               </div>
-              {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', color: '#ef4444', fontSize: '13px', marginBottom: '12px' }}>⚠ {error}</div>}
+              {error && <div className="py-2.5 px-3.5 mb-3" style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#ef4444', fontSize: '13px' }}>⚠ {error}</div>}
               <button onClick={verificarAdmin} disabled={cargando}
-                style={{ width: '100%', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', padding: '11px', fontSize: '13px', fontWeight: 600, cursor: cargando ? 'not-allowed' : 'pointer', opacity: cargando ? 0.7 : 1 }}>
+                className="p-2.5" style={{ width: '100%', background: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: cargando ? 'not-allowed' : 'pointer', opacity: cargando ? 0.7 : 1 }}>
                 {cargando ? 'Verificando...' : 'Verificar identidad →'}
               </button>
             </>
@@ -187,10 +185,10 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
           {/* Paso 2 — nueva contraseña */}
           {paso === 2 && (
             <>
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+              <label className="mb-1.5" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Nueva contraseña
               </label>
-              <div style={{ position: 'relative', marginBottom: '14px' }}>
+              <div className="mb-3.5" style={{ position: 'relative' }}>
                 <input
                   type={verNueva ? 'text' : 'password'}
                   value={nuevaPass}
@@ -207,10 +205,10 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
                 </button>
               </div>
 
-              <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>
+              <label className="mb-1.5" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                 Confirmar contraseña
               </label>
-              <div style={{ position: 'relative', marginBottom: '16px' }}>
+              <div className="mb-4" style={{ position: 'relative' }}>
                 <input
                   type={verConfirmar ? 'text' : 'password'}
                   value={confirmar}
@@ -227,15 +225,15 @@ function ModalCambiarPassword({ usuarioTarget, onCerrar, onExito }) {
                 </button>
               </div>
 
-              {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', color: '#ef4444', fontSize: '13px', marginBottom: '12px' }}>⚠ {error}</div>}
+              {error && <div className="py-2.5 px-3.5 mb-3" style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#ef4444', fontSize: '13px' }}>⚠ {error}</div>}
 
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => { setPaso(1); setError(''); setNuevaPass(''); setConfirmar('') }}
-                  style={{ flex: 1, background: '#f3f4f6', border: 'none', borderRadius: '8px', padding: '11px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', color: '#374151' }}>
+                  className="p-2.5" style={{ flex: 1, background: '#f3f4f6', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', color: '#374151' }}>
                   ← Volver
                 </button>
                 <button onClick={guardarNuevaPass} disabled={cargando}
-                  style={{ flex: 2, background: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', padding: '11px', fontSize: '13px', fontWeight: 600, cursor: cargando ? 'not-allowed' : 'pointer', opacity: cargando ? 0.7 : 1 }}>
+                  className="p-2.5" style={{ flex: 2, background: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: cargando ? 'not-allowed' : 'pointer', opacity: cargando ? 0.7 : 1 }}>
                   {cargando ? 'Guardando...' : 'Guardar contraseña'}
                 </button>
               </div>
@@ -370,7 +368,7 @@ function ModalUsuarios({ onCerrar }) {
 
   return (
     <>
-      <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}
+      <div className="p-6" style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         onClick={e => { if (e.target === e.currentTarget) onCerrar() }}
       >
         <div style={{ background: 'white', borderRadius: isMobile ? '5px' : '16px', width: '100%', maxWidth: isMobile ? '100%' : '640px', height: isMobile ? '80vh' : 'auto', maxHeight: isMobile ? '100vh' : '82vh', display: 'flex', flexDirection: 'column', boxShadow: '0 24px 60px rgba(0,0,0,0.3)', overflow: 'hidden' }}>
@@ -382,14 +380,14 @@ function ModalUsuarios({ onCerrar }) {
                 <Users size={18} color="#4f46e5" />
               </div>
               <div>
-                <h2 style={{ margin: 0, fontSize: '16px', fontWeight: 700, color: '#111827' }}>Gestión de Usuarios</h2>
-                <p style={{ margin: 0, fontSize: '12px', color: '#6b7280' }}>Administradores del sistema</p>
+                <h2 className="m-0" style={{ fontSize: '16px', fontWeight: 700, color: '#111827' }}>Gestión de Usuarios</h2>
+                <p className="m-0" style={{ fontSize: '12px', color: '#6b7280' }}>Administradores del sistema</p>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               {esAdminPrincipal && (
                 <button onClick={() => { setMostrarForm(!mostrarForm); setError('') }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '6px', background: mostrarForm ? '#f3f4f6' : '#4f46e5', color: mostrarForm ? '#374151' : 'white', border: 'none', borderRadius: '8px', padding: '8px 14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
+                  className="py-2 px-3.5" style={{ display: 'flex', alignItems: 'center', gap: '6px', background: mostrarForm ? '#f3f4f6' : '#4f46e5', color: mostrarForm ? '#374151' : 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                   <Plus size={14} />{mostrarForm ? 'Cancelar' : 'Nuevo'}
                 </button>
               )}
@@ -400,36 +398,46 @@ function ModalUsuarios({ onCerrar }) {
           </div>
 
           {/* Contenido */}
-          <div style={{ overflowY: 'auto', flex: 1, padding: '20px 24px' }}>
+          <div className="py-5 px-6" style={{ overflowY: 'auto', flex: 1 }}>
 
             {/* Formulario nuevo */}
             {mostrarForm && esAdminPrincipal && (
-              <form onSubmit={crearUsuario} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', marginBottom: '20px' }}>
-                <p style={{ margin: '0 0 16px', fontWeight: 600, color: '#111827', fontSize: '14px' }}>Nuevo administrador</p>
-                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+              <form onSubmit={crearUsuario} className="p-5 mb-5" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px' }}>
+                <p className="mt-0 mr-0 mb-4 ml-0" style={{ fontWeight: 600, color: '#111827', fontSize: '14px' }}>Nuevo Usuario</p>
+                <div className="mb-4" style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '12px' }}>
                   {[{ name: 'nombre', label: 'Nombre', ph: 'Carlos' }, { name: 'apellido', label: 'Apellido', ph: 'Pérez' }].map(f => (
                     <div key={f.name}>
-                      <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>{f.label}</label>
+                      <label className="mb-1.5" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{f.label}</label>
                       <input type="text" name={f.name} value={form[f.name]} onChange={change} placeholder={f.ph} maxLength={30}
-                        style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
+                        className="py-2.5 px-3" style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
                         onFocus={e => e.target.style.borderColor = '#4f46e5'}
                         onBlur={e => e.target.style.borderColor = '#e5e7eb'}
                       />
                     </div>
                   ))}
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Usuario</label>
+                    <label className="mb-1.5" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Rol</label>
+                    <select name="rol" value={form.rol} onChange={change}
+                      className="py-2.5 px-3" style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', cursor: 'pointer' }}
+                    >
+                      
+                      <option value="cocina">Cocina</option>
+                      <option value="admin">Administrador</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="mb-1.5" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Usuario</label>
                     <input type="text" name="username" value={form.username} onChange={change} placeholder="cperez" maxLength={30}
-                      style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
+                      className="py-2.5 px-3" style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
                       onFocus={e => e.target.style.borderColor = '#4f46e5'}
                       onBlur={e => e.target.style.borderColor = '#e5e7eb'}
                     />
                   </div>
                   <div>
-                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Contraseña</label>
+                    <label className="mb-1.5" style={{ display: 'block', fontSize: '11px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Contraseña</label>
                     <div style={{ position: 'relative' }}>
                       <input type={verPass ? 'text' : 'password'} name="password" value={form.password} onChange={change} placeholder="••••••••" maxLength={50}
-                        style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', padding: '10px 40px 10px 12px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
+                        className="pt-2.5 pr-10 pb-2.5 pl-3" style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', transition: 'border 0.15s' }}
                         onFocus={e => e.target.style.borderColor = '#4f46e5'}
                         onBlur={e => e.target.style.borderColor = '#e5e7eb'}
                       />
@@ -439,8 +447,8 @@ function ModalUsuarios({ onCerrar }) {
                     </div>
                   </div>
                 </div>
-                {error && <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px 14px', color: '#ef4444', fontSize: '13px', marginBottom: '12px' }}>⚠ {error}</div>}
-                <button type="submit" disabled={guardando} style={{ background: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '13px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', opacity: guardando ? 0.7 : 1 }}>
+                {error && <div className="py-2.5 px-3.5 mb-3" style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', color: '#ef4444', fontSize: '13px' }}>⚠ {error}</div>}
+                <button type="submit" disabled={guardando} className="py-2.5 px-5" style={{ background: '#4f46e5', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', opacity: guardando ? 0.7 : 1 }}>
                   {guardando ? 'Creando...' : 'Crear usuario'}
                 </button>
               </form>
@@ -448,9 +456,9 @@ function ModalUsuarios({ onCerrar }) {
 
             {/* Lista */}
             {cargando ? (
-              <p style={{ color: '#6b7280', textAlign: 'center', padding: '20px' }}>Cargando...</p>
+              <p className="p-5" style={{ color: '#6b7280', textAlign: 'center' }}>Cargando...</p>
             ) : usuarios.length === 0 ? (
-              <p style={{ color: '#6b7280', textAlign: 'center', padding: '20px' }}>No hay usuarios registrados.</p>
+              <p className="p-5" style={{ color: '#6b7280', textAlign: 'center' }}>No hay usuarios registrados.</p>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {usuarios.map(u => (
@@ -460,11 +468,11 @@ function ModalUsuarios({ onCerrar }) {
                   >
                     {editandoId === u.id ? (
                       // Modo edición
-                      <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'flex-start', gap: '8px', overflow: 'hidden' }}>
+                      <div className="py-3.5 px-4" style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', overflow: 'hidden' }}>
 
                         {/* Ícono lápiz — oculto en móvil */}
                         {!isMobile && (
-                          <div style={{ width: '32px', height: '32px', background: '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '22px' }}>
+                          <div className="mt-5" style={{ width: '32px', height: '32px', background: '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             <Pencil size={13} color="#4f46e5" />
                           </div>
                         )}
@@ -472,22 +480,22 @@ function ModalUsuarios({ onCerrar }) {
                         {/* Grid de campos — ocupa todo el ancho disponible */}
                         <div style={{ flex: 1, minWidth: 0, display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
                           <div>
-                            <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Nombre</label>
+                            <label className="mb-1" style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nombre</label>
                             <input value={editForm.nombre} onChange={e => changeEdit('nombre', e.target.value)} placeholder="Nombre" maxLength={30} style={inputBase} />
                           </div>
                           <div>
-                            <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Apellido</label>
+                            <label className="mb-1" style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Apellido</label>
                             <input value={editForm.apellido} onChange={e => changeEdit('apellido', e.target.value)} placeholder="Apellido" maxLength={30} style={inputBase} />
                           </div>
                           <div>
-                            <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Username</label>
+                            <label className="mb-1" style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Username</label>
                             <input value={editForm.username} onChange={e => changeEdit('username', e.target.value)} placeholder="Username" maxLength={30} style={inputBase} />
                           </div>
                           <div>
-                            <label style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>Contraseña</label>
+                            <label className="mb-1" style={{ display: 'block', fontSize: '10px', fontWeight: 600, color: '#6b7280', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Contraseña</label>
                             <div style={{ display: 'flex', gap: '6px' }}>
                               <input type="password" value="__sin_cambios__" disabled
-                                style={{ flex: 1, minWidth: 0, border: '1.5px solid #e5e7eb', borderRadius: '7px', padding: '8px 10px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', boxSizing: 'border-box', cursor: 'not-allowed', outline: 'none' }}
+                                className="py-2 px-2.5" style={{ flex: 1, minWidth: 0, border: '1.5px solid #e5e7eb', borderRadius: '7px', fontSize: '13px', fontFamily: 'inherit', color: '#9ca3af', background: '#f3f4f6', boxSizing: 'border-box', cursor: 'not-allowed', outline: 'none' }}
                               />
                               {esAdminPrincipal && u.id !== 1 && (
                                 <button type="button" onClick={() => setModalPass({ id: u.id, username: u.username })}
@@ -506,11 +514,11 @@ function ModalUsuarios({ onCerrar }) {
                           {isMobile && (
                             <div style={{ display: 'flex', gap: '8px', gridColumn: '1 / -1' }}>
                               <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit}
-                                style={{ flex: 1, background: '#4f46e5', border: 'none', borderRadius: '7px', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                className="p-2.5" style={{ flex: 1, background: '#4f46e5', border: 'none', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                 <Check size={14} color="white" />
                               </button>
                               <button onClick={() => setEditandoId(null)}
-                                style={{ flex: 1, background: '#f3f4f6', border: 'none', borderRadius: '7px', padding: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                                className="p-2.5" style={{ flex: 1, background: '#f3f4f6', border: 'none', borderRadius: '7px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                                 <X size={14} color="#6b7280" />
                               </button>
                             </div>
@@ -519,7 +527,7 @@ function ModalUsuarios({ onCerrar }) {
 
                         {/* Botones en desktop — columna aparte pero más pequeña */}
                         {!isMobile && (
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0, marginTop: '22px' }}>
+                          <div className="mt-5" style={{ display: 'flex', flexDirection: 'column', gap: '6px', flexShrink: 0 }}>
                             <button onClick={() => guardarEdicion(u.id)} disabled={guardandoEdit}
                               style={{ background: '#4f46e5', border: 'none', borderRadius: '7px', width: '28px', height: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                               <Check size={13} color="white" />
@@ -533,7 +541,7 @@ function ModalUsuarios({ onCerrar }) {
                       </div>
                     ) : (
                       // Modo normal
-                      <div style={{ padding: '12px 16px', display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', gap: isMobile ? '12px' : '0' }}>
+                      <div className="py-3 px-4" style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'center', justifyContent: 'space-between', gap: isMobile ? '12px' : '0' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{ width: '36px', height: '36px', background: u.id === 1 ? '#fef3c7' : '#eef2ff', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                             {u.id === 1
@@ -542,15 +550,15 @@ function ModalUsuarios({ onCerrar }) {
                             }
                           </div>
                           <div>
-                            <p style={{ margin: 0, fontWeight: 600, color: '#111827', fontSize: '14px' }}>
+                            <p className="m-0" style={{ fontWeight: 600, color: '#111827', fontSize: '14px' }}>
                               {u.nombre}
-                              {u.id === 1 && <span style={{ marginLeft: '6px', fontSize: '10px', color: '#d97706', fontWeight: 500 }}>(principal)</span>}
+                              {u.id === 1 && <span className="ml-1.5" style={{ fontSize: '10px', color: '#d97706', fontWeight: 500 }}>(principal)</span>}
                             </p>
-                            <p style={{ margin: 0, color: '#6b7280', fontSize: '12px' }}>@{u.username}</p>
+                            <p className="m-0" style={{ color: '#6b7280', fontSize: '12px' }}>@{u.username}</p>
                           </div>
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ background: '#eef2ff', color: '#4f46e5', fontSize: '11px', fontWeight: 600, padding: '3px 10px', borderRadius: '20px', textTransform: 'capitalize' }}>
+                          <span className="py-0.5 px-2.5" style={{ background: '#eef2ff', color: '#4f46e5', fontSize: '11px', fontWeight: 600, borderRadius: '20px', textTransform: 'capitalize' }}>
                             {u.rol}
                           </span>
                           {esAdminPrincipal && (
@@ -619,12 +627,12 @@ export default function Header({ setSidebarAbierto }) {
 
   const cerrarSesion = () => { localStorage.removeItem('access_token'); navigate('/login') }
 
-  
+
   const paginaActual = nombresPagina[location.pathname] ?? 'Dashboard'
 
   return (
     <>
-      <header style={{ padding: '20px 17px' }} className="bg-white border-b-2 border-gray-300 shadow-sm flex items-center justify-between shrink-0">
+      <header className="bg-white border-b-2 border-gray-300 shadow-sm flex items-center justify-between shrink-0 py-5 px-4">
         <div className="flex items-center gap-4">
           <button className="block lg:hidden" onClick={() => setSidebarAbierto(true)}
             style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -643,36 +651,36 @@ export default function Header({ setSidebarAbierto }) {
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{ position: 'relative' }} ref={dropdownRef}>
-            <button onClick={() => setDropdown(!dropdown)} style={{ display: 'flex', alignItems: 'center', gap: '10px', background: dropdown ? '#e0e7ff' : '#eef2ff', border: `1px solid ${dropdown ? '#a5b4fc' : '#e0e7ff'}`, padding: '6px 12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit' }}>
+            <button onClick={() => setDropdown(!dropdown)} className="py-1.5 px-3" style={{ display: 'flex', alignItems: 'center', gap: '10px', background: dropdown ? '#e0e7ff' : '#eef2ff', border: `1px solid ${dropdown ? '#a5b4fc' : '#e0e7ff'}`, borderRadius: '8px', cursor: 'pointer', transition: 'all 0.15s', fontFamily: 'inherit' }}>
               <div style={{ width: '32px', height: '32px', background: '#4f46e5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <span style={{ color: 'white', fontSize: '12px', fontWeight: 700 }}>
                   {usuario?.nombre?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'AD'}
                 </span>
               </div>
               <div style={{ textAlign: 'left' }}>
-                <p style={{ fontWeight: 600, color: '#111827', fontSize: '14px', margin: 0, lineHeight: 1 }}>{usuario?.nombre || 'Admin'}</p>
-                <p style={{ fontSize: '12px', color: '#818cf8', margin: '3px 0 0 0' }}>Administrador</p>
+                <p className="m-0" style={{ fontWeight: 600, color: '#111827', fontSize: '14px', lineHeight: 1 }}>{usuario?.nombre || 'Admin'}</p>
+                <p className="mt-0.5 mr-0 mb-0 ml-0" style={{ fontSize: '12px', color: '#818cf8' }}>Administrador</p>
               </div>
             </button>
 
             {dropdown && (
               <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, background: 'white', borderRadius: '12px', border: '1px solid #e5e7eb', boxShadow: '0 10px 40px rgba(0,0,0,0.12)', minWidth: '200px', zIndex: 100, overflow: 'hidden', animation: 'fadeDown 0.15s ease' }}>
                 <style>{`@keyframes fadeDown { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }`}</style>
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f3f4f6' }}>
-                  <p style={{ margin: 0, fontWeight: 600, color: '#111827', fontSize: '13px' }}>{usuario?.nombre || 'Admin'}</p>
-                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#6b7280' }}>Administrador</p>
+                <div className="py-3 px-4" style={{ borderBottom: '1px solid #f3f4f6' }}>
+                  <p className="m-0" style={{ fontWeight: 600, color: '#111827', fontSize: '13px' }}>{usuario?.nombre || 'Admin'}</p>
+                  <p className="mt-0.5 mr-0 mb-0 ml-0" style={{ fontSize: '12px', color: '#6b7280' }}>Administrador</p>
                 </div>
-                <div style={{ padding: '6px' }}>
+                <div className="p-1.5">
                   <button onClick={() => { setDropdown(false); setModalUsuarios(true) }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 12px', borderRadius: '8px', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', color: '#374151', transition: 'background 0.15s' }}
+                    className="py-2.5 px-3" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', borderRadius: '8px', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', color: '#374151', transition: 'background 0.15s' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#f3f4f6'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     <Users size={15} color="#4f46e5" /> Gestionar usuarios
                   </button>
-                  <div style={{ height: '1px', background: '#f3f4f6', margin: '4px 0' }} />
+                  <div className="my-1 mx-0" style={{ height: '1px', background: '#f3f4f6' }} />
                   <button onClick={cerrarSesion}
-                    style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', padding: '10px 12px', borderRadius: '8px', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', color: '#ef4444', transition: 'background 0.15s' }}
+                    className="py-2.5 px-3" style={{ display: 'flex', alignItems: 'center', gap: '10px', width: '100%', borderRadius: '8px', background: 'transparent', border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', color: '#ef4444', transition: 'background 0.15s' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#fef2f2'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >

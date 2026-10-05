@@ -19,6 +19,11 @@ export const useNuevaVentaStore = create((set, get) => ({
   fechaEntrega: '',
   horaEntrega: '',
   observacion: '',
+  // Dirección SOLO para esta venta (opcional). No modifica la del cliente.
+  direccionEntrega: '',
+  // Dirección registrada del cliente seleccionado, para poder comparar y no
+  // congelar una copia cuando el admin no la cambió.
+  direccionClienteRegistrada: '',
   detalle: [],
   //conAbono: false,
   //montoAbono: 0,
@@ -156,6 +161,11 @@ export const useNuevaVentaStore = create((set, get) => ({
   setFechaEntrega: (fecha) => set({ fechaEntrega: fecha }),
   setHoraEntrega: (hora) => set({ horaEntrega: hora }),
   setObservacion: (obs) => set({ observacion: obs }),
+  setDireccionEntrega: (dir) => set({ direccionEntrega: dir ?? '' }),
+  // Al cambiar de cliente se limpia la dirección del pedido para no arrastrar
+  // la de un cliente anterior, y se guarda la registrada del nuevo cliente.
+  setDireccionCliente: (dir) =>
+    set({ direccionClienteRegistrada: dir ?? '', direccionEntrega: '' }),
   //setConAbono: (val) => set({ conAbono: val }),
   //setMontoAbono: (monto) => set({ montoAbono: monto }),
   //setMedioPago: (medio) => set({ medioPago: medio }),
@@ -217,6 +227,8 @@ export const useNuevaVentaStore = create((set, get) => ({
       fechaEntrega: '',
       horaEntrega: '',
       observacion: '',
+      direccionEntrega: '',
+      direccionClienteRegistrada: '',
       detalle: [],
       abonosIniciales: [],
       enviando: false,
@@ -227,7 +239,7 @@ export const useNuevaVentaStore = create((set, get) => ({
 
   // Enviar venta
   registrarVenta: async () => {
-    const { clienteId, corteId, fechaEntrega, horaEntrega,observacion, detalle, abonosIniciales } = get()
+    const { clienteId, corteId, fechaEntrega, horaEntrega,observacion, detalle, abonosIniciales, direccionEntrega, direccionClienteRegistrada } = get()
     const total = get().totalVenta()
     const totalRedondeado = Math.round(total * 100) / 100
     const totalAbonado = get().totalAbonado()
@@ -280,6 +292,16 @@ export const useNuevaVentaStore = create((set, get) => ({
         medio_pago: a.medio_pago,
         observacion: a.observacion?.trim() || undefined
       }))
+    }
+
+    // Dirección solo para este pedido. Si viene vacía, o es la misma que la
+    // registrada del cliente (ignorando mayúsculas y espacios extra), NO se
+    // envía: la cocina seguirá usando la dirección del cliente y no se
+    // congela una copia en la venta.
+    const normalizar = (s) => (s || '').trim().toLowerCase().replace(/\s+/g, ' ')
+    const dirPedido = (direccionEntrega || '').trim()
+    if (dirPedido && normalizar(dirPedido) !== normalizar(direccionClienteRegistrada)) {
+      payload.direccion_entrega = dirPedido
     }
 
     try {

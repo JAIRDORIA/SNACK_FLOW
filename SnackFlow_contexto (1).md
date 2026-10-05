@@ -47,7 +47,13 @@ Documento de traspaso para continuar el desarrollo en otra conversación. Proyec
 ### Bug corregido recientemente
 `actualizar_detalle_venta` (edición de una venta pendiente) borraba y reinsertaba `venta_detalle` **sin** `combo_productos`. Cualquier edición de una venta con combo personalizado (aunque fuera de otra línea) borraba su composición sin error visible — el panel de cocina lo mostraba vacío y el inventario no se descontaba bien.
 **Ya corregido en backend:** `obtener_venta_detalle` devuelve `combo_productos` parseado; `actualizar_detalle_venta` lo persiste si `item["productos"]` viene; el controller valida su forma; `useEditarVentaStore.js` ya lo carga y lo reenvía.
-**Pendiente:** la UI de `EditarVentaModal.jsx` todavía no tiene forma de **ver ni editar** la composición de un combo (ni personalizado ni de catálogo) — hay que replicar ahí la UI que ya existe en `nuevaVentaModal.jsx` (estados `mostrarInfoCombo`, `productosEditados`, `precioEditado`).
+**Resuelto en frontend:** `EditarVentaModal.jsx` ya permite **ver y editar la composición** de un combo (de catálogo o personalizado), replicando la UI de `nuevaVentaModal.jsx`:
+- Botón por fila de combo que abre un sub-modal de composición (producto + `cantidad_unidades`, agregar/eliminar filas). No incluye campo de precio: el precio se sigue editando en la tabla principal (`precio_unitario`).
+- Chip "Catálogo" / "Personalizado" junto al nombre del combo (según `productos` sea `null` o un array).
+- Regla: si el combo de catálogo **no** se modifica (o la composición editada equivale a la del catálogo), se queda como catálogo (`combo_id` con valor, sin `productos`). Si la composición cambia, pasa a **personalizado** (`combo_id = null` + `productos`) y eso es lo que se descuenta del inventario. Nunca se envía `combo_id` junto con `productos`.
+- La lógica vive en una acción del store (`actualizarComposicionCombo(index, productos | null)` en `useEditarVentaStore.js`); `guardarCambios` mantiene el mismo contrato de `PUT /ventas/<id>/detalle`.
+- Los nombres de los productos de `combo_productos` se resuelven con la lista `productos` de `useNuevaVentaStore` (el JSON solo trae `producto_id` y `cantidad_unidades`).
+**A verificar:** que el botón de editar (lápiz) en `Ventas.jsx` solo se muestre en ventas `pendiente`. Editar la composición de una venta ya `entregada` no revertiría ni reajustaría el inventario ya descontado.
 
 ## 5. Préstamos a clientes (v2, con abonos parciales)
 
@@ -96,7 +102,15 @@ Marcar "Entregar" desde el panel de cocina **no** descuenta inventario ni cambia
 ### Pendiente del panel
 - Que la sesión de `cocina` no se cierre por inactividad (ver sección 6).
 - Confirmar la duración del JWT para turnos largos (ver sección 6).
-- Decidir dónde/cómo se muestra en `Ventas.jsx` (admin) el aviso de `GET /pedidos-cocina/por-confirmar`.
+
+
+### Aviso "por confirmar" en Ventas.jsx (admin) — resuelto
+- Consume `GET /pedidos-cocina/por-confirmar` (array con `id` de la venta, `nombre_cliente`, `entregada_cocina_at` en UTC y `hora_local` ya en hora Colombia). Función `getPedidosPorConfirmar` en `api/pedidoscocinaapi.js` y store propio (`usePorConfirmarStore.js`), independiente de la lista `ventas` (que está paginada a 20 y filtrada por corte).
+- **Banner** entre el header de Ventas y las KPI cards, solo si hay pedidos por confirmar: hasta 3 ítems con "Ver todos", y un botón "Confirmar" por ítem que reutiliza el modal de entrega existente (`setEntregarId`), sin tocar la lógica de `PUT /ventas/<id>` ni el descuento de inventario.
+- **Chip** "En cocina · {hora_local}" junto al badge de Estado en la fila de cada venta que cocina ya entregó.
+- Refresco silencioso cada ~30 s (pausado con `document.hidden`) y tras entregar o anular una venta.
+- Si la petición falla (por ejemplo 403), el aviso simplemente no se muestra: no hay alertas ni cierre de sesión.
+- **A decidir:** según la regla de acceso, `/pedidos-cocina/*` solo deja pasar a `cocina` y `admin`. Si el rol `cajero` también debe ver el aviso, hay que abrirle `GET /pedidos-cocina/por-confirmar` en el backend.
 
 ---
 

@@ -38,6 +38,7 @@ import useEditarVentaStore from "@/store/useEditarVentaStore";
 import EditarVentaModal from "@/components/EditarVentaModal";
 import { capitalizarNombre } from "@/utils/formatearTexto";
 import { formatearFechaColombia } from "@/utils/formatearFecha";
+import usePorConfirmarStore from "@/store/usePorConfirmarStore";
 
 // ══════════════════════════════════════════
 // CONFIGURACION DE ESTILOS
@@ -75,6 +76,61 @@ const TIPO_CONFIG = {
 };
 
 // ══════════════════════════════════════════
+// AVISO: PEDIDOS ENTREGADOS EN COCINA POR CONFIRMAR
+// ══════════════════════════════════════════
+// El backend guarda `entregada_cocina_at` en UTC; la conversión a hora Colombia
+// se hace solo aquí, al presentar (regla del proyecto). `hora_local` ya viene
+// resuelta por el backend en hora Colombia (HH:mm), así que se usa tal cual.
+// `hora_local` llega del backend en formato militar (HH:mm, 24h). Para mostrarlo
+// en el aviso se convierte a 12 horas con AM/PM. Si no se puede parsear, se
+// devuelve el valor original tal cual.
+const hora12 = (horaLocal) => {
+  if (!horaLocal) return "";
+  const [hStr, mStr] = String(horaLocal).split(":");
+  const horas = Number(hStr);
+  const minutos = Number(mStr);
+  if (isNaN(horas) || isNaN(minutos)) return horaLocal;
+
+  const sufijo = horas >= 12 ? "PM" : "AM";
+  const hora12h = horas % 12 === 0 ? 12 : horas % 12;
+  return `${hora12h}:${String(minutos).padStart(2, "0")} ${sufijo}`;
+};
+
+const fechaColombiaClave = (fechaUtc) => {
+  if (!fechaUtc) return null;
+  try {
+    const fecha = fechaUtc.includes("T")
+      ? new Date(fechaUtc)
+      : new Date(`${fechaUtc} UTC`); // formato MySQL "YYYY-MM-DD HH:MM:SS" es UTC
+    if (isNaN(fecha.getTime())) return null;
+    // en-CA produce YYYY-MM-DD, ideal para comparar claves de día
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Bogota",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(fecha);
+  } catch {
+    return null;
+  }
+};
+
+// Devuelve "Hoy" si el pedido es de hoy, "Ayer" si fue el día anterior y la
+// fecha corta (dd/mm/aaaa) si es más antiguo. Siempre en hora Colombia.
+const etiquetaDiaPedido = (fechaUtc) => {
+  const clave = fechaColombiaClave(fechaUtc);
+  if (!clave) return null;
+
+  const hoy = fechaColombiaClave(new Date().toISOString());
+  if (clave === hoy) return "Hoy";
+
+  const ayer = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  if (clave === fechaColombiaClave(ayer)) return "Ayer";
+
+  return formatearFechaColombia(fechaUtc, false);
+};
+
+// ══════════════════════════════════════════
 // COMPONENTE PRINCIPAL
 // ══════════════════════════════════════════
 export default function Ventas() {
@@ -105,6 +161,52 @@ export default function Ventas() {
   const [entregando, setEntregando] = useState(false);
   const [buscando, setBuscando] = useState(false)
   const debounceRef = useRef(null)
+
+  // ── Aviso de pedidos entregados en cocina por confirmar ──
+  const { pedidos: pedidosPorConfirmar, fetchPorConfirmar } = usePorConfirmarStore();
+  const [modalPorConfirmarOpen, setModalPorConfirmarOpen] = useState(false);
+
+  // El `id` del endpoint /pedidos-cocina/por-confirmar es el id de la venta.
+  // En esta tabla el id visible es `v.id_venta`, pero el `key` usa `v.id`;
+  // se comparan ambos para no depender de cuál expone la respuesta de /ventas/.
+  const esVentaPorConfirmar = (v) =>
+    pedidosPorConfirmar.find(
+      (p) =>
+        String(p.id) === String(v.id_venta) || String(p.id) === String(v.id),
+    );
+
+  // El modal de listado se cierra solo cuando ya no queda nada por confirmar
+  // (p. ej. tras confirmar el último pedido). El polling sigue activo mientras
+  // está abierto, así que un pedido nuevo vuelve a aparecer.
+  useEffect(() => {
+    if (modalPorConfirmarOpen && pedidosPorConfirmar.length === 0) {
+      setModalPorConfirmarOpen(false);
+    }
+  }, [modalPorConfirmarOpen, pedidosPorConfirmar.length]);
+
+  // Cerrar el listado con Escape
+  useEffect(() => {
+    if (!modalPorConfirmarOpen) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") setModalPorConfirmarOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [modalPorConfirmarOpen]);
+
+  // Carga inicial + refresco cada 30 s (silencioso, sin spinner).
+  // Se pausa con la pestaña oculta para no gastar peticiones.
+  useEffect(() => {
+    fetchPorConfirmar({ silent: true });
+
+    const intervalo = setInterval(() => {
+      if (document.hidden) return;
+      fetchPorConfirmar({ silent: true });
+    }, 30000);
+
+    return () => clearInterval(intervalo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearch = (value) => {
     setBusquedaInput(value)
@@ -286,6 +388,7 @@ export default function Ventas() {
     try {
       await axios.put(`/ventas/${id}`, { estado: "entregada" });
       fetchVentas(1, 20, balance.corte_id); // refrescar lista
+      fetchPorConfirmar({ silent: true }); // refrescar aviso de cocina
       setEntregarId(null);
     } catch (err) {
       console.error("Error al entregar venta", err);
@@ -300,6 +403,7 @@ export default function Ventas() {
     try {
       await anularVenta(eliminarId);
       fetchVentas(1, 20, balance.corte_id); // refrescar la lista
+      fetchPorConfirmar({ silent: true }); // refrescar aviso de cocina
       setEliminarId(null);
     } catch (err) {
       console.error("Error al anular venta", err);
@@ -628,6 +732,35 @@ export default function Ventas() {
           </div>
         </div>
       </div>
+
+      {/* ═══ AVISO COMPACTO: PEDIDOS ENTREGADOS EN COCINA POR CONFIRMAR ═══ */}
+      {pedidosPorConfirmar.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl mb-8 p-5">
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center flex-shrink-0">
+              <AlertTriangle size={20} className="text-amber-600" />
+            </div>
+            <div className="flex-1 min-w-[240px]">
+              <p className="text-amber-800 font-bold text-sm">
+                Pedidos entregados por cocina pendientes de actualizar
+              </p>
+              <p className="text-amber-700/90 text-sm mt-0.5">
+                La cocina ya entregó pedidos que siguen pendientes en Ventas.
+                Revisalos y márcalos como entregados.
+              </p>
+            </div>
+            <button
+              onClick={() => setModalPorConfirmarOpen(true)}
+              className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all shadow-md shadow-indigo-500/30 active:scale-95 p-2"
+              style={{ cursor: "pointer" }}
+            >
+              <CheckCheck className="w-4 h-4" />
+              <span className="text-x">Revisar en Ventas</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ═══ TABLA ═══ */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-visible">
         {/* barra busqueda + filtro */}
@@ -901,6 +1034,16 @@ export default function Ventas() {
                           {estadoCfg.icon}
                           {estadoCfg.label}
                         </span>
+                        {(() => {
+                          const porConfirmar = esVentaPorConfirmar(v);
+                          if (!porConfirmar) return null;
+                          return (
+                            <span className="inline-flex items-center gap-1 text-[10px] rounded-full font-medium bg-amber-50 text-amber-700 border border-amber-200 mt-1 py-1 px-2.5">
+                              <CheckCheck size={11} />
+                              En cocina · {hora12(porConfirmar.hora_local)}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td
                         className="py-5 px-3.5 pr-7"
@@ -1076,11 +1219,78 @@ export default function Ventas() {
           </div>
         </div>
       )}
+      {/* ═══ MODAL: PEDIDOS ENTREGADOS EN COCINA POR CONFIRMAR ═══ */}
+      {modalPorConfirmarOpen && pedidosPorConfirmar.length > 0 && (
+        <div
+          onClick={() => setModalPorConfirmarOpen(false)}
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[55] p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden"
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 py-4 px-6">
+              <h2 className="font-bold text-lg text-slate-800">
+                {pedidosPorConfirmar.length} pedido
+                {pedidosPorConfirmar.length === 1 ? "" : "s"} entregado
+                {pedidosPorConfirmar.length === 1 ? "" : "s"} en cocina por
+                confirmar
+              </h2>
+              <button
+                onClick={() => setModalPorConfirmarOpen(false)}
+                className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-100 transition-colors"
+                style={{ border: "none", background: "transparent", cursor: "pointer" }}
+              >
+                <X size={20} color="#64748b" />
+              </button>
+            </div>
+
+            <div className="max-h-[70vh] overflow-y-auto p-4 flex flex-col gap-2">
+              {pedidosPorConfirmar.map((p) => {
+                const etiquetaDia = etiquetaDiaPedido(p.entregada_cocina_at);
+                return (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between gap-3 flex-wrap bg-amber-50 border border-amber-100 rounded-xl px-3 py-2"
+                  >
+                    <div className="flex items-center gap-2 flex-wrap min-w-0">
+                      <span className="font-semibold text-sm text-indigo-600">
+                        #{String(p.id).padStart(3, "0")}
+                      </span>
+                      <span className="text-slate-400 text-xs">·</span>
+                      <span className="text-slate-700 font-medium text-sm truncate">
+                        {capitalizarNombre(p.nombre_cliente)}
+                      </span>
+                      <span className="text-slate-400 text-xs">·</span>
+                      <span className="text-amber-700 text-xs font-medium">
+                        Entregado {hora12(p.hora_local)}
+                      </span>
+                      {etiquetaDia && (
+                        <span className="inline-flex items-center text-[10px] rounded-full font-semibold bg-amber-100 text-amber-700 border border-amber-200 px-2 py-0.5">
+                          {etiquetaDia}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setEntregarId(p.id)}
+                      className="text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 rounded-lg transition-colors py-1.5 px-3"
+                      style={{ cursor: "pointer" }}
+                    >
+                      Confirmar
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Modal confirmar entregar */}
       {entregarId && (
         <div
 
-          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4"
         >
           <div
 

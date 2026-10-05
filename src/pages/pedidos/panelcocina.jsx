@@ -5,6 +5,46 @@ import { usePedidosCocinaStore } from '../../store/Usepedidoscocinastore';
 const POLLING_MS = 30000;
 const MESES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
 
+// ══════════════════════════════════════════
+// ALERTAS DE TIEMPO
+// ══════════════════════════════════════════
+// Minutos que faltan para la hora de entrega → color de la card.
+// Ajustar aquí si el negocio cambia los umbrales.
+const UMBRAL_NARANJA_MIN = 60; // 60 min o menos (y más de 30) -> naranja
+const UMBRAL_ROJO_MIN = 30; // 30 min o menos (o ya pasó la hora) -> rojo + titileo
+const TICK_RELOJ_MS = 30000; // cada cuánto se recalcula el tiempo restante
+
+// Minutos que faltan para la entrega. Devuelve null si no se puede calcular
+// (sin hora definida, fecha inválida, etc.).
+const minutosRestantes = (pedido, ahora) => {
+  const horaEntrega = pedido?.hora_entrega;
+  // El sistema guarda "00:00" cuando el admin no definió hora: no se alerta.
+  if (!horaEntrega || String(horaEntrega).slice(0, 5) === '00:00') return null;
+  const fechaUtc = pedido?.fecha_entrega;
+  if (!fechaUtc) return null;
+
+  // "YYYY-MM-DD HH:mm:ss" viene en UTC. Se arma la ISO con T/Z porque
+  // new Date("YYYY-MM-DD HH:mm:ss") se interpretaría en la zona del dispositivo.
+  const iso = String(fechaUtc).includes('T')
+    ? String(fechaUtc)
+    : `${String(fechaUtc).replace(' ', 'T')}Z`;
+  const ms = Date.parse(iso);
+  if (Number.isNaN(ms)) return null;
+
+  return (ms - ahora) / 60000;
+};
+
+// Nivel de alerta de un pedido: 'normal' | 'naranja' | 'rojo'
+const nivelAlerta = (pedido, ahora) => {
+  if (!pedido || pedido.estado !== 'pendiente') return 'normal'; // ya entregada por cocina
+  if (pedido.entregada_cocina_at) return 'normal';
+  const faltan = minutosRestantes(pedido, ahora);
+  if (faltan === null) return 'normal';
+  if (faltan <= UMBRAL_ROJO_MIN) return 'rojo'; // incluye atrasados (faltan < 0)
+  if (faltan <= UMBRAL_NARANJA_MIN) return 'naranja';
+  return 'normal';
+};
+
 const fmtCOP = (n) =>
   new Intl.NumberFormat('es-CO', {
     style: 'currency',
@@ -55,7 +95,7 @@ const usuarioActual = () => {
 };
 
 const FOCO = 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-500';
-const ETIQUETA = 'text-[10px] font-semibold uppercase tracking-wider text-[#8a90ad]';
+const ETIQUETA = 'text-[10px] font-semibold uppercase tracking-wider text-[#0f1226]';
 
 /* ---------- Piezas pequeñas ---------- */
 
@@ -75,9 +115,9 @@ function DatosCliente({ pedido }) {
   return (
     <span className="flex min-w-0 flex-col">
       <strong className="text-sm">{pedido.nombre_cliente}</strong>
-      {pedido.celular && <small className="text-xs text-[#8a90ad]">📞 {pedido.celular}</small>}
+      {pedido.celular && <small className="text-xs text-[#0f1226]">📞 {pedido.celular}</small>}
       {pedido.direccion && (
-        <small className="break-words text-xs text-[#8a90ad]">📍 {pedido.direccion}</small>
+        <small className="break-words text-xs text-[#0f1226]">📍 {pedido.direccion}</small>
       )}
     </span>
   );
@@ -97,40 +137,60 @@ function Hora({ pedido }) {
   );
 }
 
-function Saldo({ valor, etiqueta, grande = false }) {
+function Saldo({ valor, etiqueta, grande = false, compacto = false }) {
   const pagado = !valor || valor <= 0;
   if (pagado) {
     return (
-      <div className="flex items-center justify-between rounded-xl bg-green-100 px-3.5 py-3 text-[13px] text-green-800">
+      <div
+        className={`flex items-center justify-between rounded-xl bg-green-100 text-green-800 ${
+          compacto ? 'px-3 py-1.5 text-[12px]' : 'px-3.5 py-3 text-[13px]'
+        }`}
+      >
         <span>{etiqueta}</span>
-        <strong className="text-base">Pagado</strong>
+        <strong className={compacto ? 'text-[15px]' : 'text-base'}>Pagado</strong>
       </div>
     );
   }
   return (
-    <div className="flex items-center justify-between rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 px-3.5 py-3 text-[13px] text-white">
+    <div
+      className={`flex items-center justify-between rounded-xl bg-gradient-to-br from-indigo-600 to-indigo-500 text-white ${
+        compacto ? 'px-3 py-1.5 text-[12px]' : 'px-3.5 py-3 text-[13px]'
+      }`}
+    >
       <span>{etiqueta}</span>
-      <strong className={grande ? 'text-[26px]' : 'text-xl'}>{fmtCOP(valor)}</strong>
+      <strong className={compacto ? 'text-[15px]' : grande ? 'text-[26px]' : 'text-xl'}>
+        {fmtCOP(valor)}
+      </strong>
     </div>
   );
 }
 
 /* ---------- Productos de un pedido (card y modal comparten esta lista) ---------- */
 
-function ItemsPedido({ items, expandirTodo = false }) {
+// `grande` = true agranda las letras (se usa en el modal de detalle).
+// Las cards lo dejan en false y mantienen su tamaño actual.
+function ItemsPedido({ items, expandirTodo = false, grande = false }) {
   const [abiertos, setAbiertos] = useState({});
   const alternar = (id) => setAbiertos((a) => ({ ...a, [id]: !a[id] }));
 
+  // Tamaños según el contexto
+  const txItem = grande ? 'text-[17px]' : 'text-sm'; // nombre del producto / combo
+  const txComp = grande ? 'text-[16px]' : 'text-[13px]'; // composición del combo
+  const txCant = grande ? 'text-[15px]' : 'text-[13px]'; // badge ×cantidad
+  const txChip = grande ? 'text-[12px]' : 'text-[10px]'; // chip COMBO
+  const txFlecha = grande ? 'text-sm' : 'text-xs'; // flecha del combo
+  const hFlecha = grande ? 'h-6 w-6' : 'h-5 w-5';
+
   return (
-    <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+    <ul className={`m-0 flex list-none flex-col p-0 ${grande ? 'gap-2' : 'gap-1.5'}`}>
       {items.map((it) => {
         if (it.tipo !== 'combo') {
           return (
-            <li key={it.id} className="flex items-center gap-2 text-sm">
-              <span className="h-1.5 w-1.5 flex-none rounded-full bg-cyan-500" />
+            <li key={it.id} className={`flex items-center gap-2 ${txItem}`}>
+              <span className={`flex-none rounded-full bg-cyan-500 ${grande ? 'h-2 w-2' : 'h-1.5 w-1.5'}`} />
               <span>{it.nombre}</span>
               {it.cantidad > 1 && (
-                <span className="ml-auto text-[13px] font-bold text-indigo-600">×{it.cantidad}</span>
+                <span className={`ml-auto font-bold text-indigo-600 ${txCant}`}>×{it.cantidad}</span>
               )}
             </li>
           );
@@ -144,31 +204,31 @@ function ItemsPedido({ items, expandirTodo = false }) {
               onClick={() => !expandirTodo && alternar(it.id)}
               aria-expanded={!!abierto}
               disabled={expandirTodo}
-              className={`flex w-full items-center gap-2 text-left text-sm font-semibold disabled:cursor-default ${FOCO}`}
+              className={`flex w-full items-center gap-2 text-left font-semibold disabled:cursor-default ${FOCO} ${txItem}`}
             >
               <span
                 aria-hidden="true"
-                className={`grid h-5 w-5 flex-none place-items-center rounded-md bg-indigo-100 text-xs text-indigo-600 transition-transform motion-reduce:transition-none ${
+                className={`grid flex-none place-items-center rounded-md bg-indigo-100 text-indigo-600 transition-transform motion-reduce:transition-none ${hFlecha} ${txFlecha} ${
                   abierto ? 'rotate-0' : '-rotate-90'
                 }`}
               >
                 ▾
               </span>
-              <span className="rounded-md bg-violet-100 px-1.5 py-0.5 text-[10px] font-bold text-violet-700">
+              <span className={`rounded-md bg-violet-100 px-1.5 py-0.5 font-bold text-violet-700 ${txChip}`}>
                 COMBO{it.personalizado ? ' · PERSONALIZADO' : ''}
               </span>
               <span>{it.nombre}</span>
               {it.cantidad > 1 && (
-                <span className="ml-auto text-[13px] font-bold text-indigo-600">×{it.cantidad}</span>
+                <span className={`ml-auto font-bold text-indigo-600 ${txCant}`}>×{it.cantidad}</span>
               )}
             </button>
             {abierto && (
-              <ul className="m-0 ml-7 mt-1.5 flex list-none flex-col gap-1 rounded-lg bg-[#f6f7ff] p-2.5">
+              <ul className={`m-0 mt-1.5 flex list-none flex-col rounded-lg bg-[#f6f7ff] p-2.5 ${grande ? 'ml-8 gap-1.5' : 'ml-7 gap-1'}`}>
                 {comps.length === 0 && (
-                  <li className="text-[13px] text-[#8a90ad]">Sin detalle de composición</li>
+                  <li className={txComp}>Sin detalle de composición</li>
                 )}
                 {comps.map((c) => (
-                  <li key={c.producto_id} className="flex justify-between text-[13px] text-[#3b4067]">
+                  <li key={c.producto_id} className={`flex justify-between ${txComp}`}>
                     <span>{c.nombre.trim()}</span>
                     <span className="font-bold text-indigo-600">×{c.unidades_total ?? c.unidades}</span>
                   </li>
@@ -184,9 +244,61 @@ function ItemsPedido({ items, expandirTodo = false }) {
 
 /* ---------- Tarjeta ---------- */
 
-function TarjetaPedido({ pedido, entregando, onPedirConfirmacion, onAbrir }) {
+function TarjetaPedido({ pedido, ahora, entregando, onPedirConfirmacion, onAbrir }) {
+  const nivel = nivelAlerta(pedido, ahora);
+  const faltan = minutosRestantes(pedido, ahora);
+
+  // Chip de texto de apoyo (no depender solo del color).
+  let chip = null;
+  if (nivel !== 'normal') {
+    const esRojo = nivel === 'rojo';
+    const atrasado = faltan !== null && faltan < 0;
+    const texto = atrasado
+      ? 'Atrasado'
+      : `Faltan ${Math.max(0, Math.ceil(faltan))} min`;
+    chip = (
+      <span
+        className={`self-start rounded-full border px-2.5 py-0.5 text-[11px] font-bold ${
+          esRojo
+            ? 'alerta-cocina-parpadeo border-red-400 bg-red-100 text-red-700'
+            : 'border-orange-300 bg-orange-50 text-orange-700'
+        }`}
+      >
+        {texto}
+      </span>
+    );
+  }
+
   return (
-    <article className="overflow-hidden rounded-2xl bg-white shadow-md shadow-indigo-950/10">
+    <article
+      className={`relative overflow-hidden rounded-2xl bg-white shadow-md shadow-indigo-950/10 ${
+        nivel === 'naranja' ? 'border-2 border-orange-500' : 'border-2 border-transparent'
+      }`}
+    >
+      {/* Titileo SOLO del borde: overlay absoluto para no hacer parpadear el contenido.
+          La animación se define aquí mismo para no tocar tailwind.config. */}
+      {nivel === 'rojo' && (
+        <>
+          <style>{`
+            @keyframes alertaCocinaParpadeo {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.1; }
+            }
+            .alerta-cocina-parpadeo {
+              animation: alertaCocinaParpadeo 0.7s steps(1, end) infinite;
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .alerta-cocina-parpadeo { animation: none; }
+            }
+          `}</style>
+          <div
+            aria-hidden="true"
+            className="alerta-cocina-parpadeo pointer-events-none absolute inset-0 z-10 rounded-2xl border-4 border-red-500"
+            style={{ boxShadow: '0 0 0 1px rgba(239,68,68,0.9), 0 0 14px 2px rgba(239,68,68,0.55)' }}
+          />
+        </>
+      )}
+
       <div className="h-1 bg-gradient-to-r from-indigo-600 to-cyan-500" />
 
       <div className="flex justify-between px-4 pb-2.5 pt-3.5">
@@ -194,9 +306,12 @@ function TarjetaPedido({ pedido, entregando, onPedirConfirmacion, onAbrir }) {
           <span className={ETIQUETA}>Pedido #{pedido.id}</span>
           <Hora pedido={pedido} />
         </div>
-        <span className="self-start rounded-full bg-orange-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700">
-          Pendiente
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span className="self-start rounded-full bg-orange-50 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700">
+            Pendiente
+          </span>
+          {chip}
+        </div>
       </div>
 
       <button
@@ -268,7 +383,13 @@ function ModalDetalle({ pedido, entregando, onPedirConfirmacion, onCerrar }) {
         aria-modal="true"
         aria-label={`Detalle del pedido ${pedido.id}`}
         onClick={(e) => e.stopPropagation()}
-        className="flex max-h-[92vh] w-full max-w-md flex-col overflow-hidden rounded-[18px] bg-white"
+        className="flex max-h-[88vh] w-full flex-col overflow-hidden rounded-[18px] bg-white"
+        style={{
+          zoom: 1.200,
+          // sin que el modal se salga de la pantalla: el ancho se limita a
+          // (100vw - padding del overlay) ya escalado.
+          maxWidth: 'min(42rem, calc((100vw - 2rem) / 1.3125))',
+        }}
       >
         <div className="flex justify-between px-5 pb-3 pt-[18px]">
           <div>
@@ -279,23 +400,28 @@ function ModalDetalle({ pedido, entregando, onPedirConfirmacion, onCerrar }) {
             type="button"
             onClick={onCerrar}
             aria-label="Cerrar"
-            className={`self-start text-base text-[#8a90ad] ${FOCO}`}
+            className={`self-start text-base text-[#0f1226] ${FOCO}`}
           >
             ✕
           </button>
         </div>
 
-        <div className="flex flex-col gap-3.5 overflow-y-auto px-5 pb-2">
-          <div className="flex items-center gap-2.5 rounded-xl border border-[#e4e7f3] bg-[#fafbff] px-4 py-3">
+        <div className="flex min-h-0 flex-1 flex-col gap-3 px-5 pb-2">
+          <div className="flex items-center gap-2.5 rounded-xl border border-[#e4e7f3] bg-[#fafbff] px-4 py-2.5">
             <Avatar nombre={pedido.nombre_cliente} />
             <DatosCliente pedido={pedido} />
           </div>
 
-          <Saldo valor={pedido.saldo_pendiente} etiqueta="Total a cobrar" grande />
+          <Saldo valor={pedido.saldo_pendiente} etiqueta="Total a cobrar" compacto />
 
-          <div className="flex flex-col gap-1.5">
-            <span className={ETIQUETA}>Productos</span>
-            <ItemsPedido items={pedido.items} expandirTodo />
+          {/* Los productos y la composición del combo son lo que más se mira:
+              esta sección se queda con todo el alto sobrante y scrollea sola,
+              así el cliente y el total quedan siempre visibles. */}
+          <div className="flex min-h-0 flex-1 flex-col gap-1.5">
+            <span className="text-[13px] font-semibold uppercase tracking-wider text-[#0f1226]">Productos</span>
+            <div className="min-h-0 flex-1 overflow-y-auto">
+              <ItemsPedido items={pedido.items} expandirTodo grande />
+            </div>
           </div>
 
           {pedido.observacion && (
@@ -360,7 +486,7 @@ function ModalConfirmarEntrega({ pedido, entregando, onConfirmar, onCerrar }) {
             <DatosCliente pedido={pedido} />
           </div>
 
-          <p className="text-sm text-[#3b4067]">
+          <p className="text-sm text-[#0f1226]">
             ¿Confirmas que este pedido ya fue entregado? Se registrará en cocina y no se podrá
             deshacer desde este panel.
           </p>
@@ -371,7 +497,7 @@ function ModalConfirmarEntrega({ pedido, entregando, onConfirmar, onCerrar }) {
             type="button"
             disabled={entregando}
             onClick={onCerrar}
-            className={`flex-1 rounded-xl border border-[#e4e7f3] bg-white px-4 py-3 text-sm font-semibold text-[#3b4067] hover:bg-[#f6f7fc] disabled:cursor-not-allowed disabled:opacity-60 ${FOCO}`}
+            className={`flex-1 rounded-xl border border-[#e4e7f3] bg-white px-4 py-3 text-sm font-semibold text-[#0f1226] hover:bg-[#f6f7fc] disabled:cursor-not-allowed disabled:opacity-60 ${FOCO}`}
           >
             Cancelar
           </button>
@@ -406,6 +532,15 @@ export default function PanelCocina() {
 
   const [detalleId, setDetalleId] = useState(null);
   const [confirmarId, setConfirmarId] = useState(null);
+
+  // Reloj propio para las alertas de tiempo: se recalcula cada 30 s para que
+  // las cards cambien de color solas, sin recargar. Es independiente del
+  // polling de pedidos.
+  const [ahora, setAhora] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setAhora(Date.now()), TICK_RELOJ_MS);
+    return () => clearInterval(t);
+  }, []);
 
   // Carga inicial + polling. Se pausa con la pestaña oculta y se refresca al volver.
   useEffect(() => {
@@ -499,10 +634,10 @@ export default function PanelCocina() {
 
       <main className="grid grid-cols-1 items-start gap-[18px] px-3.5 pb-10 pt-5 sm:px-6 md:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]">
         {cargando && data.pedidos.length === 0 && (
-          <p className="col-span-full py-16 text-center text-[#8a90ad]">Cargando pedidos…</p>
+          <p className="col-span-full py-16 text-center text-[#0f1226]">Cargando pedidos…</p>
         )}
         {!cargando && data.pedidos.length === 0 && (
-          <p className="col-span-full py-16 text-center text-[#8a90ad]">
+          <p className="col-span-full py-16 text-center text-[#0f1226]">
             No hay pedidos pendientes para esta fecha.
           </p>
         )}
@@ -510,6 +645,7 @@ export default function PanelCocina() {
           <TarjetaPedido
             key={p.id}
             pedido={p}
+            ahora={ahora}
             entregando={!!entregando[p.id]}
             onPedirConfirmacion={setConfirmarId}
             onAbrir={setDetalleId}

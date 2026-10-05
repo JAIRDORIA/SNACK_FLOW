@@ -7,3 +7,9 @@ export const getPedidosCocina = (fecha) =>
 
 export const entregarPedidoCocina = (id) =>
   api.put(`/pedidos-cocina/${id}/entregar`);
+
+// Ventas que cocina ya marcó como entregadas y el admin aún no confirma.
+// El backend las devuelve de la más reciente a la más antigua (puede incluir
+// días anteriores). `hora_local` ya viene en hora Colombia (HH:mm).
+export const getPedidosPorConfirmar = () =>
+  api.get('/pedidos-cocina/por-confirmar');

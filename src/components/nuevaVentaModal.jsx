@@ -54,11 +54,16 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     eliminarAbonoInicial,
     modificarAbonoInicial,
     totalAbonado,
-    pagarCompleto
+    pagarCompleto,
+    direccionEntrega,
+    direccionClienteRegistrada,
+    setDireccionEntrega,
+    setDireccionCliente
   } = useNuevaVentaStore();
   const { balance, fetchBalance } = useBalanceStore();
   const [clienteNombre, setClienteNombre] = useState('')
   const [clienteIdentificacion, setClienteIdentificacion] = useState('')
+  const [editandoDireccion, setEditandoDireccion] = useState(false)
 
   const selectProductoRef = useRef(null);
   const [textoBusqueda, setTextoBusqueda] = useState("");
@@ -103,6 +108,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       cargarCombos();
       fetchBalance();
       setCrearClienteOpen(false);
+      setEditandoDireccion(false);
     }
   }, [open]);
   useEffect(() => {
@@ -205,6 +211,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
         setClienteId(encontrado.ID_Cliente);
         setClienteNombre(encontrado.Cli_Nombre);
         setClienteIdentificacion(encontrado.Cli_identificacion || "S/N");
+        setDireccionCliente(encontrado.Cli_Direccion || "");
+        setEditandoDireccion(false);
         setTextoBusquedaCliente(
           `${encontrado.Cli_Nombre} - ${encontrado.Cli_identificacion || "S/N"}`,
         );
@@ -212,6 +220,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
         // Sin coincidencia en la búsqueda, se conserva lo capturado del form.
         setClienteNombre(clienteCreado?.Cli_Nombre || "");
         setClienteIdentificacion(identificacion || "S/N");
+        setDireccionCliente(clienteCreado?.Cli_Direccion || "");
+        setEditandoDireccion(false);
         setTextoBusquedaCliente(
           `${clienteCreado?.Cli_Nombre || ""} - ${identificacion || "S/N"}`,
         );
@@ -221,6 +231,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     } catch {
       setClienteNombre(clienteCreado?.Cli_Nombre || "");
       setClienteIdentificacion(identificacion || "S/N");
+      setDireccionCliente(clienteCreado?.Cli_Direccion || "");
+      setEditandoDireccion(false);
       setTextoBusquedaCliente(
         `${clienteCreado?.Cli_Nombre || ""} - ${identificacion || "S/N"}`,
       );
@@ -316,7 +328,13 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                         .slice(0, 30); // Máximo 30 caracteres
                       setTextoBusquedaCliente(valor);
                       setSeleccionado(false);
-                      if (clienteId) setClienteId("");
+                      if (clienteId) {
+                        setClienteId("");
+                        // Al deseleccionar el cliente no debe quedar la
+                        // dirección del pedido del cliente anterior.
+                        setDireccionCliente("");
+                        setEditandoDireccion(false);
+                      }
                     }}
 
                     className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
@@ -338,6 +356,10 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                                 setClienteId(c.ID_Cliente);
                                 setClienteNombre(c.Cli_Nombre)                         // ← nuevo
                                 setClienteIdentificacion(c.Cli_identificacion || 'S/N') // ← nuevo
+                                // Dirección registrada del cliente: con ella se
+                                // precarga el campo y se compara antes de enviar.
+                                setDireccionCliente(c.Cli_Direccion || '')
+                                setEditandoDireccion(false)
                                 setTextoBusquedaCliente(
                                   `${c.Cli_Nombre} - ${c.Cli_identificacion || "S/N"}`,
                                 );
@@ -367,9 +389,71 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 </div>
 
                 {clienteId && (
-                  <p className="text-xs text-indigo-600 mt-1">
-                    Cliente seleccionado: {clienteNombre} ({clienteIdentificacion})
-                  </p>
+                  <div className="mt-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="text-xs text-indigo-600">
+                        Cliente seleccionado: {clienteNombre} ({clienteIdentificacion})
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (editandoDireccion) {
+                            setEditandoDireccion(false);
+                            return;
+                          }
+                          // Al abrir, se precarga la dirección registrada del
+                          // cliente (o la que el admin ya haya escrito).
+                          if (!direccionEntrega) {
+                            setDireccionEntrega(direccionClienteRegistrada || "");
+                          }
+                          setEditandoDireccion(true);
+                        }}
+                        className="text-xs text-indigo-600 hover:underline bg-transparent border-none p-0"
+                        style={{ cursor: "pointer" }}
+                      >
+                        {direccionClienteRegistrada ? "Cambiar dirección" : "Agregar dirección"}
+                      </button>
+                    </div>
+
+                    {editandoDireccion && (
+                      <div className="mt-2 border border-slate-300 rounded-lg p-3">
+                        <label className="block text-xs text-slate-500 mb-1">
+                          Dirección de este pedido
+                        </label>
+                        <input
+                          type="text"
+                          maxLength={255}
+                          value={direccionEntrega}
+                          onChange={(e) => setDireccionEntrega(e.target.value)}
+                          placeholder="Calle 123 #45-67"
+                          className="w-full border border-slate-300 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
+                        />
+                        <p className="text-xs text-slate-400 mt-1">
+                          Solo aplica a este pedido. No cambia la dirección registrada del cliente.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDireccionEntrega("");
+                            setEditandoDireccion(false);
+                          }}
+                          className="text-xs text-slate-500 hover:text-slate-700 hover:underline mt-1 bg-transparent border-none p-0"
+                          style={{ cursor: "pointer" }}
+                        >
+                          Restablecer
+                        </button>
+                      </div>
+                    )}
+
+                    {!editandoDireccion &&
+                      direccionEntrega.trim() &&
+                      direccionEntrega.trim().toLowerCase() !==
+                        (direccionClienteRegistrada || "").trim().toLowerCase() && (
+                        <span className="inline-block text-xs rounded-lg font-medium bg-amber-50 text-amber-700 border border-amber-200 mt-1 py-1 px-2.5">
+                          Dirección del pedido: {direccionEntrega}
+                        </span>
+                      )}
+                  </div>
                 )}
               </div>
               <div>

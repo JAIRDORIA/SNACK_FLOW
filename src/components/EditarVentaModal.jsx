@@ -1,6 +1,6 @@
 import { useEffect, useRef, useMemo, useState } from 'react'
 import {
-  X, Plus, Trash2, AlertCircle, Loader2, CheckCircle2
+  X, Plus, Trash2, AlertCircle, Loader2, CheckCircle2, Layers
 } from 'lucide-react'
 import useEditarVentaStore from '@/store/useEditarVentaStore'
 import useNuevaVentaStore from '@/store/useNuevaVentaStore' // para acceder a la lista de productos
@@ -11,7 +11,8 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
     cargando, error, exito,
     cargarVenta, setFechaEntrega, setHoraEntrega,
     modificarProducto, eliminarProducto,
-    totalActual, guardarCambios, reset, agregarItem
+    totalActual, guardarCambios, reset, agregarItem,
+    actualizarComposicionCombo
   } = useEditarVentaStore()
 
   // Para el selector de productos (usamos el store de nueva venta que ya tiene los productos)
@@ -20,6 +21,17 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
   const [itemSeleccionado, setItemSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(1)
   const [selectValue, setSelectValue] = useState('');
+
+  // ── Sub-modal de composición de combo ──
+  const [compoIndex, setCompoIndex] = useState(null)      // índice de la fila que se edita
+  const [compoProductos, setCompoProductos] = useState([]) // [{ producto_id, cantidad_unidades }]
+  const [compoError, setCompoError] = useState('')
+
+  const cerrarComposicion = () => {
+    setCompoIndex(null)
+    setCompoProductos([])
+    setCompoError('')
+  }
 
   useEffect(() => {
     if (open) {
@@ -60,6 +72,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
     if (ok) {
       onVentaEditada?.()
       setTimeout(() => {
+        cerrarComposicion()
         onClose()
       }, 1000)
     }
@@ -71,10 +84,98 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
     return [...prods, ...combs]
   }, [productos, combos])
 
+  // ── Composición de combos ──
+  // Una línea es "personalizada" cuando trae su propia composición (array).
+  // Si `productos` es null/undefined es de catálogo: su composición vive en
+  // el catálogo de combos y hay que resolverla por `combo_id`.
+  const esComboPersonalizado = (item) => Array.isArray(item.productos)
+
+  // composición de catálogo: combos[i].productos trae
+  // { producto_id, cantidad_unidades, nombre | nombre_producto }
+  const composicionDeCatalogo = (comboId) => {
+    const combo = combos.find(c => c.id === comboId)
+    return Array.isArray(combo?.productos) ? combo.productos : []
+  }
+
+  // Normaliza cualquier composición a [{ producto_id: Number, cantidad_unidades: Number }]
+  const normalizarComposicion = (lista) =>
+    (lista || [])
+      .filter(p => p && p.producto_id)
+      .map(p => ({
+        producto_id: Number(p.producto_id),
+        cantidad_unidades: Number(p.cantidad_unidades),
+      }))
+
+  const abrirComposicion = (index) => {
+    const item = detalle[index]
+    if (!item) return
+    const base = esComboPersonalizado(item)
+      ? item.productos
+      : composicionDeCatalogo(item.combo_id)
+    setCompoProductos(
+      normalizarComposicion(base).map(p => ({ ...p })),
+    )
+    setCompoError('')
+    setCompoIndex(index)
+  }
+
+  // Compara dos composiciones como mapa producto_id -> suma de unidades,
+  // sin importar el orden ni filas repetidas.
+  const composicionesEquivalentes = (a, b) => {
+    const mapa = (lista) =>
+      normalizarComposicion(lista).reduce((acc, p) => {
+        acc[p.producto_id] = (acc[p.producto_id] || 0) + p.cantidad_unidades
+        return acc
+      }, {})
+    const ma = mapa(a)
+    const mb = mapa(b)
+    const clavesA = Object.keys(ma)
+    const clavesB = Object.keys(mb)
+    if (clavesA.length !== clavesB.length) return false
+    return clavesA.every(k => ma[k] === mb[k])
+  }
+
+  const guardarComposicion = () => {
+    const item = detalle[compoIndex]
+    if (!item) return
+
+    const editada = normalizarComposicion(compoProductos)
+
+    if (editada.length === 0 || editada.some(p => !Number.isInteger(p.cantidad_unidades) || p.cantidad_unidades < 1)) {
+      setCompoError('Agrega al menos un producto con cantidad de unidades entera mayor o igual a 1.')
+      return
+    }
+
+    // Combo de catálogo que no se modificó: se queda como catálogo.
+    if (!esComboPersonalizado(item)) {
+      const catalogo = composicionDeCatalogo(item.combo_id)
+      if (composicionesEquivalentes(editada, catalogo)) {
+        actualizarComposicionCombo(compoIndex, null)
+        cerrarComposicion()
+        return
+      }
+    }
+
+    // Se modificó (o ya era personalizado): pasa a personalizado con combo_id = null.
+    actualizarComposicionCombo(compoIndex, editada)
+    cerrarComposicion()
+  }
+
+  const itemEnComposicion = compoIndex !== null ? detalle[compoIndex] : null
+
+  // Cierra el modal principal limpiando también el sub-modal de composición,
+  // para que no queden restos entre una venta y otra.
+  const cerrarTodo = () => {
+    cerrarComposicion()
+    reset()
+    onClose()
+  }
+
   if (!open) return null
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <>
+      <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
 
         {/* Header */}
@@ -83,7 +184,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
             Editar Venta #{String(ventaId).padStart(3, '0')}
           </h2>
           <button
-            onClick={() => { reset(); onClose() }}
+            onClick={cerrarTodo}
             className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200 transition-colors"
           >
             <X size={20} color="#64748b" />
@@ -173,12 +274,24 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
                     {detalle.map((item, i) => (
                       <tr key={i} className="border-t border-slate-100 hover:bg-indigo-50/30">
                         <td className="text-slate-700 py-2 px-4">
-                          <input
-                            type="text"
-                            value={item.nombre_producto}
-                            onChange={e => modificarProducto(i, 'nombre_producto', e.target.value)}
-                            className="w-full border-none bg-transparent focus:outline-none"
-                          />
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={item.nombre_producto}
+                              onChange={e => modificarProducto(i, 'nombre_producto', e.target.value)}
+                              className="w-full border-none bg-transparent focus:outline-none"
+                            />
+                            {item.tipo === 'combo' && (
+                              <span
+                                className={`shrink-0 inline-flex items-center text-[10px] rounded-full font-medium border py-0.5 px-2 ${esComboPersonalizado(item)
+                                  ? 'bg-indigo-50 text-indigo-600 border-indigo-200'
+                                  : 'bg-slate-50 text-slate-500 border-slate-200'
+                                  }`}
+                              >
+                                {esComboPersonalizado(item) ? 'Personalizado' : 'Catálogo'}
+                              </span>
+                            )}
+                          </div>
                         </td>
                         <td className="text-center py-2 px-4">
                           <input
@@ -205,9 +318,21 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
                           ${(item.cantidad * item.precio_unitario).toLocaleString('es-CO')}
                         </td>
                         <td className="text-center py-2 px-4">
-                          <button className="p-1" onClick={() => eliminarProducto(i)} className="text-rose-500 hover:bg-rose-100 p-1 rounded">
-                            <Trash2 size={14} />
-                          </button>
+                          <div className="flex items-center justify-center gap-1">
+                            {item.tipo === 'combo' && (
+                              <button
+                                type="button"
+                                title="Ver / editar composición"
+                                onClick={() => abrirComposicion(i)}
+                                className="text-slate-500 hover:bg-slate-100 p-1 rounded"
+                              >
+                                <Layers size={14} />
+                              </button>
+                            )}
+                            <button className="p-1" onClick={() => eliminarProducto(i)} className="text-rose-500 hover:bg-rose-100 p-1 rounded">
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}
@@ -249,7 +374,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
           </span>
           <div className="flex gap-2">
             <button
-              onClick={() => { reset(); onClose() }}
+              onClick={cerrarTodo}
               disabled={cargando}
 
               className="border border-slate-300 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 transition-colors py-2 px-5"
@@ -268,6 +393,127 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+
+      {/* ═══ SUB-MODAL: COMPOSICIÓN DEL COMBO ═══ */}
+      {itemEnComposicion && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-800">
+                Composición de {itemEnComposicion.nombre_producto}
+              </h3>
+              <button
+                onClick={cerrarComposicion}
+                className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center"
+              >
+                <X size={18} color="#64748b" />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs text-slate-500">
+                Las cantidades son en <strong>unidades</strong> por combo.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setCompoProductos([
+                    ...compoProductos,
+                    { producto_id: '', cantidad_unidades: 1 },
+                  ])
+                }}
+                className="text-indigo-600 text-sm hover:underline"
+              >
+                + Agregar producto
+              </button>
+            </div>
+
+            {compoProductos.length > 0 ? (
+              <div className="border border-slate-200 rounded-xl overflow-hidden">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50">
+                      <th className="text-left text-xs text-slate-500 uppercase py-2 px-3">Producto</th>
+                      <th className="text-center text-xs text-slate-500 uppercase w-24 py-2 px-3">Unidades</th>
+                      <th className="w-10 py-2 px-3"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {compoProductos.map((prod, i) => (
+                      <tr key={i} className="border-t border-slate-100">
+                        <td className="py-1 px-3">
+                          <select
+                            value={prod.producto_id || ''}
+                            onChange={(e) => {
+                              const nuevos = [...compoProductos]
+                              nuevos[i] = { ...nuevos[i], producto_id: e.target.value ? Number(e.target.value) : '' }
+                              setCompoProductos(nuevos)
+                            }}
+                            className="w-full border border-slate-200 rounded text-sm p-1.5"
+                          >
+                            <option value="">Seleccionar producto...</option>
+                            {productos.map(p => (
+                              <option key={p.id} value={p.id}>{p.nombre}</option>
+                            ))}
+                          </select>
+                        </td>
+                        <td className="py-1 px-3">
+                          <input
+                            type="number"
+                            min="1"
+                            step="1"
+                            value={prod.cantidad_unidades}
+                            onChange={(e) => {
+                              const nuevos = [...compoProductos]
+                              nuevos[i] = { ...nuevos[i], cantidad_unidades: Number(e.target.value) }
+                              setCompoProductos(nuevos)
+                            }}
+                            className="w-20 text-center border border-slate-200 rounded text-sm p-1.5"
+                          />
+                        </td>
+                        <td className="text-center py-1 px-3">
+                          <button
+                            type="button"
+                            title="Eliminar fila"
+                            onClick={() => setCompoProductos(compoProductos.filter((_, j) => j !== i))}
+                            className="text-rose-500 hover:bg-rose-100 p-1 rounded"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400">No hay productos en la composición.</p>
+            )}
+
+            {compoError && (
+              <div className="flex items-center gap-2 text-sm text-rose-600 bg-rose-50 rounded-lg mt-3 p-2.5">
+                <AlertCircle size={16} /> {compoError}
+              </div>
+            )}
+
+            <div className="flex gap-2 justify-end mt-4">
+              <button
+                onClick={cerrarComposicion}
+                className="border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 py-2 px-4"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={guardarComposicion}
+                className="bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 py-2 px-4"
+              >
+                Guardar composición
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

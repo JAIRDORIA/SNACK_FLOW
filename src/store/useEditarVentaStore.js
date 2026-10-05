@@ -57,6 +57,25 @@ const useEditarVentaStore = create((set, get) => ({
       return { detalle }
     })
   },
+  // Actualizar la composicion de un combo del detalle.
+  // - productos = null  -> se queda como combo de catalogo (combo_id intacto).
+  // - productos = array -> combo personalizado (combo_id = null).
+  // Nunca deben coexistir combo_id con valor y productos.
+  actualizarComposicionCombo: (index, productos) => {
+    set((state) => {
+      const detalle = [...state.detalle]
+      const item = detalle[index]
+      if (!item) return { detalle }
+
+      const esPersonalizado = Array.isArray(productos) && productos.length > 0
+      detalle[index] = {
+        ...item,
+        productos: esPersonalizado ? productos : null,
+        combo_id: esPersonalizado ? null : item.combo_id,
+      }
+      return { detalle }
+    })
+  },
   // Agregar nuevo producto
   agregarItem: (item) => {
     set((state) => ({ detalle: [...state.detalle, item] }))

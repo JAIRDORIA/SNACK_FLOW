@@ -134,7 +134,7 @@ const etiquetaDiaPedido = (fechaUtc) => {
 // COMPONENTE PRINCIPAL
 // ══════════════════════════════════════════
 export default function Ventas() {
-  const { ventas, total, pagina, total_paginas, cargando, error, fetchVentas } =
+  const { ventas, total, pagina, total_paginas, cargando, error, fetchVentas, filtros, setFiltros, resetFiltros } =
     useVentasStore();
 
   const [detalleVenta, setDetalleVenta] = useState(null);
@@ -148,8 +148,6 @@ export default function Ventas() {
   const [cargandoComprobante, setCargandoComprobante] = useState(false);
   const [mostrarComprobante, setMostrarComprobante] = useState(false);
   const [panelFiltro, setPanelFiltro] = useState(false);
-  const [filtroEstados, setFiltroEstados] = useState([]);
-  const [filtroTipos, setFiltroTipos] = useState([]);
   const filtroRef = useRef(null);
   const [modalNuevaVenta, setModalNuevaVenta] = useState(false);
   const { cargarAbonos, getMedioPago } = useAbonosStore();
@@ -214,7 +212,7 @@ export default function Ventas() {
     debounceRef.current = setTimeout(async () => {
       setBusqueda(value)
       setBuscando(true)                          // Activa spinner local
-      await fetchVentas(1, 20, null, value, { silent: true }) // Búsqueda silenciosa
+      await fetchVentas(1, 20, balance?.corte_id, value, { silent: true }) // Búsqueda silenciosa
       setBuscando(false)                         // Desactiva spinner local
     }, 300)
   }
@@ -358,18 +356,30 @@ export default function Ventas() {
   }, []);
 
   const toggleEstado = (v) =>
-    setFiltroEstados((p) =>
-      p.includes(v) ? p.filter((x) => x !== v) : [...p, v],
-    );
+    setFiltros({
+      ...filtros,
+      estados: filtros.estados.includes(v)
+        ? filtros.estados.filter((x) => x !== v)
+        : [...filtros.estados, v],
+    });
   const toggleTipo = (v) =>
-    setFiltroTipos((p) =>
-      p.includes(v) ? p.filter((x) => x !== v) : [...p, v],
-    );
-  const limpiarFiltros = () => {
-    setFiltroEstados([]);
-    setFiltroTipos([]);
+    setFiltros({
+      ...filtros,
+      tipos_pago: filtros.tipos_pago.includes(v)
+        ? filtros.tipos_pago.filter((x) => x !== v)
+        : [...filtros.tipos_pago, v],
+    });
+  // Aplicar: recarga desde la página 1 con los filtros seleccionados (servidor).
+  const aplicarFiltros = () => {
+    setPanelFiltro(false);
+    fetchVentas(1, 20, balance?.corte_id, busqueda, { silent: true });
   };
-  const nFiltros = filtroEstados.length + filtroTipos.length;
+  // Limpiar: reinicia los filtros en el store y recarga.
+  const limpiarFiltros = () => {
+    resetFiltros();
+    fetchVentas(1, 20, balance?.corte_id, busqueda, { silent: true });
+  };
+  const nFiltros = filtros.estados.length + filtros.tipos_pago.length;
 
   const verDetalle = async (id) => {
     setCargandoDetalle(true);
@@ -387,7 +397,8 @@ export default function Ventas() {
     setEntregando(true);
     try {
       await axios.put(`/ventas/${id}`, { estado: "entregada" });
-      fetchVentas(1, 20, balance.corte_id); // refrescar lista
+      // Refresco silencioso conservando página, búsqueda y filtros.
+      fetchVentas(pagina, 20, balance?.corte_id, busqueda, { silent: true });
       fetchPorConfirmar({ silent: true }); // refrescar aviso de cocina
       setEntregarId(null);
     } catch (err) {
@@ -402,7 +413,8 @@ export default function Ventas() {
     setAnulando(true);
     try {
       await anularVenta(eliminarId);
-      fetchVentas(1, 20, balance.corte_id); // refrescar la lista
+      // Refresco silencioso conservando página, búsqueda y filtros.
+      fetchVentas(pagina, 20, balance?.corte_id, busqueda, { silent: true });
       fetchPorConfirmar({ silent: true }); // refrescar aviso de cocina
       setEliminarId(null);
     } catch (err) {
@@ -413,40 +425,15 @@ export default function Ventas() {
     }
   };
 
-  const lista = ventas.filter((v) => {
-
-    const matchE =
-      filtroEstados.length === 0 || filtroEstados.includes(v.estado);
-
-    const medioPagoActual = getMedioPago(v.id_venta);
-    let matchT = false;
-
-
-
-    if (filtroTipos.length === 0) {
-      matchT = true; // sin filtros activos → mostrar todo
-    } else {
-      // Si "deben" está marcado, mostrar ventas con saldo pendiente > 0
-      if (filtroTipos.includes('deben') && v.saldo_pendiente > 0) {
-        matchT = true;
-      }
-      // Si el medio de pago real está en los filtros, mostrar
-      const medioPagoActual = getMedioPago(v.id_venta);
-      if (filtroTipos.includes(medioPagoActual)) {
-        matchT = true;
-      }
-    }
-
-    return matchE && matchT;
-  });
-  // Debería devolver la nueva función con 'saldo_pendiente > 0'
+  // El filtrado (estado / tipo de pago) y el paginado los resuelve el backend
+  // desde `filtros`; aquí solo se renderiza la página recibida.
 
   useEffect(() => {
-    if (lista.length > 0) {
-      const ids = lista.map((v) => v.id_venta);
+    if (ventas.length > 0) {
+      const ids = ventas.map((v) => v.id_venta);
       cargarAbonos(ids);
     }
-  }, [lista]);
+  }, [ventas]);
 
   const ventasActivas = ventas.filter((v) => v.estado !== "anulada");
   const ventasAnuladas = ventas.filter((v) => v.estado === "anulada");
@@ -841,7 +828,7 @@ export default function Ventas() {
                     >
                       <input
                         type="checkbox"
-                        checked={filtroEstados.includes(key)}
+                        checked={filtros.estados.includes(key)}
                         onChange={() => toggleEstado(key)}
                         className="w-4 h-4 accent-indigo-600 rounded"
                       />
@@ -877,7 +864,7 @@ export default function Ventas() {
                     >
                       <input
                         type="checkbox"
-                        checked={filtroTipos.includes(key)}
+                        checked={filtros.tipos_pago.includes(key)}
                         onChange={() => toggleTipo(key)}
                         className="w-4 h-4 accent-indigo-600 rounded"
                       />
@@ -906,7 +893,7 @@ export default function Ventas() {
                     Limpiar filtros
                   </button>
                   <button
-                    onClick={() => setPanelFiltro(false)}
+                    onClick={aplicarFiltros}
                     className="text-sm font-semibold text-indigo-600 bg-transparent border-none cursor-pointer hover:text-indigo-700 transition-colors"
                   >
                     Aplicar
@@ -942,7 +929,7 @@ export default function Ventas() {
               </tr>
             </thead>
             <tbody>
-              {lista.length === 0 ? (
+              {ventas.length === 0 ? (
                 <tr>
                   <td
 
@@ -954,7 +941,9 @@ export default function Ventas() {
                         <Search size={28} className="text-slate-300" />
                       </div>
                       <p className="text-sm font-medium">
-                        No se encontraron ventas
+                        {nFiltros > 0 || busqueda
+                          ? "Sin ventas para estos filtros"
+                          : "No se encontraron ventas"}
                       </p>
                       <p className="text-x text-slate-400">
                         Intenta ajustar los filtros o la búsqueda
@@ -963,7 +952,7 @@ export default function Ventas() {
                   </td>
                 </tr>
               ) : (
-                lista.map((v, i) => {
+                ventas.map((v, i) => {
                   const medioPago = getMedioPago(v.id_venta);
                   const tipoCfg = TIPO_CONFIG[medioPago] ?? TIPO_CONFIG.otro;
                   const estadoCfg =
@@ -1123,7 +1112,7 @@ export default function Ventas() {
           <span className="text-sm">
             Mostrando{" "}
             <strong className="text-slate-700 font-semibold">
-              {lista.length}
+              {ventas.length}
             </strong>{" "}
             de <strong className="text-slate-700 font-semibold">{total}</strong>{" "}
             ventas
@@ -1132,7 +1121,7 @@ export default function Ventas() {
           {total_paginas > 1 && (
             <div className="flex items-center gap-2">
               <button
-                onClick={() => fetchVentas(pagina - 1, 20, null, busqueda)}
+                onClick={() => fetchVentas(pagina - 1, 20, balance?.corte_id, busqueda)}
                 disabled={pagina === 1}
                 className="border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 py-2.5 px-4"
                 style={{
@@ -1148,7 +1137,7 @@ export default function Ventas() {
                 {pagina} / {total_paginas}
               </span>
               <button
-                onClick={() => fetchVentas(pagina + 1, 20, null, busqueda)}
+                onClick={() => fetchVentas(pagina + 1, 20, balance?.corte_id, busqueda)}
                 disabled={pagina === total_paginas}
                 className="border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 py-2.5 px-4"
                 style={{

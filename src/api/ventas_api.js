@@ -1,10 +1,15 @@
 import api from "./axios";
 
 // listar ventas con paginacion
-export const getVentas = (pagina = 1, limite = 20, corte_id = null, q = '') => {
+// `filtros` = { estados, tipos_pago }: CSV en minúscula (ej. "pendiente,entregada").
+// Solo se envía cada grupo si trae algo marcado.
+export const getVentas = (pagina = 1, limite = 20, corte_id = null, q = '', filtros = {}) => {
+    const { estados = '', tipos_pago = '' } = filtros
     let url = `/ventas/?pagina=${pagina}&limite=${limite}`
     if (corte_id) url += `&corte_id=${corte_id}`
     if (q) url += `&q=${encodeURIComponent(q)}`
+    if (estados) url += `&estados=${estados}`
+    if (tipos_pago) url += `&tipos_pago=${tipos_pago}`
     return api.get(url)
 }
 

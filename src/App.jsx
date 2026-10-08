@@ -18,15 +18,15 @@ import useInactivityTimer from './hooks/useInactivityTimer'
 import Auditoria from '@/pages/auditoria/Auditoria'
 import Prestamos from './pages/prestamos/prestamos'
 import PanelCocina from './pages/pedidos/panelcocina'
-//import PanelCocina from '@/pages/cocina/PanelCocina' // lo armamos en el siguiente paso
+import PanelProduccion from '@/pages/produccion/panelproduccion'
 
 function RutaProtegida({ children, rolesPermitidos }) {
   const token = localStorage.getItem('access_token')
   // El rol se lee SIEMPRE (antes del hook, para respetar las reglas de hooks).
-  // Sin usuario o con rol desconocido el temporizador queda activo; solo se
-  // desactiva para el rol 'cocina', que mantiene su pantalla abierta todo el turno.
+  // Sin usuario o con rol desconocido el temporizador queda activo; se desactiva
+  // para 'cocina' y 'produccion', que mantienen su pantalla abierta todo el turno.
   const rol = JSON.parse(localStorage.getItem('usuario') || 'null')?.rol
-  useInactivityTimer(undefined, rol !== 'cocina')
+  useInactivityTimer(undefined, rol !== 'cocina' && rol !== 'produccion')
 
   if (!token) return <Navigate to="/login" replace />
 
@@ -39,6 +39,7 @@ function RutaProtegida({ children, rolesPermitidos }) {
 
   if (!rolesPermitidos.includes(rol)) {
     if (rol === 'cocina') return <Navigate to="/cocina" replace />
+    if (rol === 'produccion') return <Navigate to="/produccion" replace />
     return <Navigate to="/" replace />
   }
 }
@@ -72,10 +73,20 @@ function App() {
           }
         />
 
+        {/* Panel de producción: sin Layout, sin sidebar, sin modulos de SnackFlow */}
+        <Route
+          path="/produccion"
+          element={
+            <RutaProtegida rolesPermitidos={['produccion']}>
+              <PanelProduccion />
+            </RutaProtegida>
+          }
+        />
+
         <Route
           path="/"
           element={
-            <RutaProtegida rolesPermitidos={['admin', 'cajero']}>
+            <RutaProtegida rolesPermitidos={['admin']}>
               <RequireCorte>
                 <Layout />
               </RequireCorte>

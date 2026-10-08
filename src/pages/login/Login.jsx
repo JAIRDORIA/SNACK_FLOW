@@ -469,7 +469,9 @@ function LoginScreen({ onRecuperar }) {
     localStorage.setItem('usuario', JSON.stringify(res.data.usuario))
 
     const rol = res.data.usuario?.rol
-    navigate(rol === 'cocina' ? '/cocina' : '/')
+    if (rol === 'cocina') navigate('/cocina')
+    else if (rol === 'produccion') navigate('/produccion')
+    else navigate('/')
   } catch (err) {
     setError(err.response?.status === 401 ? 'Usuario o contraseña incorrectos.' : 'Error al conectar con el servidor.')
   } finally { setCargando(false) }

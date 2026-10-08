@@ -421,8 +421,9 @@ function ModalUsuarios({ onCerrar }) {
                       className="py-2.5 px-3" style={{ width: '100%', boxSizing: 'border-box', border: '1.5px solid #e5e7eb', borderRadius: '8px', fontSize: '13px', outline: 'none', fontFamily: 'inherit', color: '#111827', cursor: 'pointer' }}
                     >
                       
-                      <option value="cocina">Cocina</option>
                       <option value="admin">Administrador</option>
+                      <option value="cocina">Cocina</option>
+                      <option value="produccion">Producción</option>
                     </select>
                   </div>
                   <div>

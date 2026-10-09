@@ -429,7 +429,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                           className="w-full border border-slate-300 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
                         />
                         <p className="text-xs text-slate-400 mt-1">
-                          Solo aplica a este pedido. No cambia la dirección registrada del cliente.
+                          {direccionClienteRegistrada
+                            ? "Solo aplica a este pedido. No cambia la dirección registrada del cliente."
+                            : "Este cliente no tiene dirección registrada: se guardará como su dirección."}
                         </p>
                         <button
                           type="button"

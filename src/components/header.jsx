@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
-import { Calendar, LogOut, Users, Plus, X, Eye, EyeOff, Trash2, Shield, Pencil, Check, Menu, Lock } from 'lucide-react'
+import { Calendar, LogOut, Users, Plus, X, Eye, EyeOff, Trash2, Shield, Pencil, Check, Menu, Lock, PanelLeftOpen, PanelLeftClose } from 'lucide-react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import useDashboardStore from '@/store/useDashboardStore'
 import api from '@/api/axios'
@@ -608,7 +608,7 @@ function ModalUsuarios({ onCerrar }) {
 }
 
 // Header principal
-export default function Header({ setSidebarAbierto }) {
+export default function Header({ setSidebarAbierto, sidebarColapsado, setSidebarColapsado }) {
   const isMobile = useIsMobile()
   const usuario = JSON.parse(localStorage.getItem('usuario'))
   const { balance, fetchDashboard } = useDashboardStore()
@@ -635,11 +635,33 @@ export default function Header({ setSidebarAbierto }) {
     <>
       <header className="bg-white border-b-2 border-gray-300 shadow-sm flex items-center justify-between shrink-0 py-5 px-4">
         <div className="flex items-center gap-4">
-          <button className="block lg:hidden" onClick={() => setSidebarAbierto(true)}
-            style={{ border: 'none', background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {/* Menú móvil: solo celular/tablet (en escritorio el sidebar siempre
+              está visible). El `display` va en clases, no inline, para que
+              `lg:hidden` sí lo oculte en pantalla ancha. */}
+          <button
+            className="flex lg:hidden cursor-pointer items-center justify-center"
+            onClick={() => setSidebarAbierto(true)}
+            aria-label="Abrir menú"
+            style={{ border: 'none', background: 'transparent' }}
+          >
             <Menu size={24} />
           </button>
+
+          {/* Panel: fija el sidebar abierto o lo deja como riel de iconos.
+              Va entre el logo del sidebar y el título del módulo. */}
+          <button
+            type="button"
+            onClick={() => setSidebarColapsado(v => !v)}
+            aria-label={sidebarColapsado ? 'Fijar menú abierto' : 'Colapsar menú'}
+            aria-pressed={!sidebarColapsado}
+            title={sidebarColapsado ? 'Fijar menú abierto' : 'Colapsar menú'}
+            className="hidden lg:flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-gray-200 text-gray-600 transition-colors hover:bg-gray-100 hover:text-indigo-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          >
+            {sidebarColapsado ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+          </button>
+
           <span className="text-base md:text-lg lg:text-xl text-indigo-600 font-bold">{paginaActual}</span>
+
           <div className="hidden md:block" style={{ width: '1px', height: '35px', background: '#8e8f94' }} />
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '6px', fontSize: '14px' }}>
             <Calendar size={16} color="#9ca3af" />

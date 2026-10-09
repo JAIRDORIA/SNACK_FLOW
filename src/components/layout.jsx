@@ -5,6 +5,9 @@ import Header from "./header";
 
 export default function Layout() {
   const [sidebarAbierto, setSidebarAbierto] = useState(false);
+  // Colapso del sidebar en escritorio (riel de iconos). Arranca colapsado y lo
+  // comparten header y sidebar; el botón pin del header lo fija abierto.
+  const [sidebarColapsado, setSidebarColapsado] = useState(true);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -20,11 +23,14 @@ export default function Layout() {
       <Sidebar
         sidebarAbierto={sidebarAbierto}
         setSidebarAbierto={setSidebarAbierto}
+        sidebarColapsado={sidebarColapsado}
       />
 
       <div className="flex flex-col flex-1 overflow-hidden">
         <Header
           setSidebarAbierto={setSidebarAbierto}
+          sidebarColapsado={sidebarColapsado}
+          setSidebarColapsado={setSidebarColapsado}
         />
 
         <main className="flex-1 overflow-y-auto p-4">

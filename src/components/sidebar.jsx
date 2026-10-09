@@ -17,6 +17,7 @@ import {
   LogOut,
   FileText,
   HandCoins,
+  HardHat,
 } from 'lucide-react'
 
 import RutaAdminPrincipal from '@/components/RutaAdminPrincipal'
@@ -34,6 +35,7 @@ const menuPrincipal = [
   { id: 'compras', label: 'Compras', icon: ShoppingBag, path: '/compras' },
   { id: 'clientes', label: 'Clientes', icon: Users, path: '/clientes' },
   { id: 'proveedores', label: 'Proveedores', icon: Truck, path: '/proveedores' },
+  { id: 'empleados', label: 'Empleados', icon: HardHat, path: '/empleados' },
   { id: 'balance', label: 'Balance', icon: Scale, path: '/balance' },
   { id: 'abonos', label: 'Abonos', icon: DollarSign, path: '/abonos' },
   { id: 'prestamos', label: 'Prestamos', icon:  HandCoins, path: '/prestamos' },

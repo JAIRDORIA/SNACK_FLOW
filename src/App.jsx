@@ -19,6 +19,7 @@ import Auditoria from '@/pages/auditoria/Auditoria'
 import Prestamos from './pages/prestamos/prestamos'
 import PanelCocina from './pages/pedidos/panelcocina'
 import PanelProduccion from '@/pages/produccion/panelproduccion'
+import Empleados from '@/pages/empleados/Empleados'
 
 function RutaProtegida({ children, rolesPermitidos }) {
   const token = localStorage.getItem('access_token')
@@ -105,6 +106,7 @@ function App() {
           <Route path="abonos" element={<Abonos />} />
           <Route path="prestamos" element={<Prestamos />} />
           <Route path="proveedores" element={<Proveedores />} />
+          <Route path="empleados" element={<Empleados />} />
           <Route path="auditoria" element={<Auditoria />} />
         </Route>
 

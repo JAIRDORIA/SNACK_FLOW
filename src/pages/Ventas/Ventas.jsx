@@ -15,7 +15,6 @@ import {
   SlidersHorizontal,
   ChevronDown,
   Info,
-  TrendingUp,
   DollarSign,
   Clock3,
   ShoppingBag,
@@ -39,6 +38,7 @@ import EditarVentaModal from "@/components/EditarVentaModal";
 import { capitalizarNombre } from "@/utils/formatearTexto";
 import { formatearFechaColombia } from "@/utils/formatearFecha";
 import usePorConfirmarStore from "@/store/usePorConfirmarStore";
+import KpiCard from "@/components/KpiCard";
 
 // ══════════════════════════════════════════
 // CONFIGURACION DE ESTILOS
@@ -67,12 +67,13 @@ const ESTADOS_CONFIG = {
   },
 };
 
+// Tipos de pago REALES. No se incluyen pseudo-estados como "error" (fallo de
+// red al cargar abonos) ni "debe" (saldo, no un medio de pago): mostrarlos en la
+// tabla o en el filtro los hacía pasar por formas de pago válidas.
 const TIPO_CONFIG = {
   efectivo: { bg: "#f0fdf4", color: "#15803d", label: "Efectivo" },
   transferencia: { bg: "#eff6ff", color: "#1d4ed8", label: "Transferencia" },
   otro: { bg: "#f9fafb", color: "#6b7280", label: "Otro" },
-  deben: { bg: "#f3f4f6", color: "#9ca3af", label: "Deben" },
-  error: { bg: "#fee2e2", color: "#b91c1c", label: "Error" },
 };
 
 // ══════════════════════════════════════════
@@ -446,44 +447,6 @@ export default function Ventas() {
     (v) => v.estado === "entregada",
   ).length;
   const anuladas = ventasAnuladas.length;
-  const statCards = [
-    {
-      label: "Total Ventas",
-      value: ventasActivas.length,
-      icon: TrendingUp,
-      ring: "ring-indigo-500/40",
-      iconCol: "text-indigo-300",
-    },
-    {
-      label: "Monto Total",
-      value: totalMonto,
-      icon: DollarSign,
-      ring: "ring-emerald-500/40",
-      iconCol: "text-emerald-300",
-      isCurrency: true,
-    },
-    {
-      label: "Pendientes",
-      value: pendientes,
-      icon: Clock,
-      ring: "ring-amber-500/40",
-      iconCol: "text-amber-300",
-    },
-    {
-      label: "Entregadas",
-      value: entregadas,
-      icon: CheckCircle2,
-      ring: "ring-emerald-500/40",
-      iconCol: "text-emerald-300",
-    },
-    {
-      label: "Anuladas",
-      value: anuladas,
-      icon: XCircle,
-      ring: "ring-rose-500/40",
-      iconCol: "text-rose-300",
-    },
-  ];
 
   if (cargando)
     return (
@@ -543,183 +506,49 @@ export default function Ventas() {
         </button>
       </div>
 
-      {/* ═══ KPI CARDS (Estilo Dashboard) ═══ */}
-      <div
-
-        className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-8"
-      >
-        {/* Monto Total (sin anuladas) */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-
-            className="bg-[#13152280] ring-2 ring-orange-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
-          >
-            <DollarSign
-              size={16}
-              className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]"
-              color="#fb923c"
-            />
-          </div>
-          <div className="min-w-0">
-            <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-white truncate">
-              ${totalMonto.toLocaleString("es-CO")}
-            </p>
-            <p
-
-              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
-            >
-              Ingresos totales
-            </p>
-          </div>
-        </div>
-
-        {/* Total Ventas (activas) */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-
-            className="bg-[#13152280] ring-2 ring-indigo-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
-          >
-            <ShoppingBag className="w-4 h-4 sm:w-[18px] sm:h-[18px] lg:w-6 lg:h-6 text-indigo-300" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
-              {total}
-            </p>
-            <p
-
-              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
-            >
-              Total Ventas
-            </p>
-          </div>
-        </div>
-
-        {/* Entregadas */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-
-            className="bg-[#13152280] ring-2 ring-cyan-400/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
-          >
-            <CheckCheck
-              size={16}
-              className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]"
-              color="#22d3ee"
-            />
-          </div>
-          <div className="min-w-0">
-            <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
-              {entregadas}
-            </p>
-            <p
-
-              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
-            >
-              Entregadas
-            </p>
-          </div>
-        </div>
-
-        {/* Pendientes */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-
-            className="bg-[#13152280] ring-2 ring-[#e90e0e]/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
-          >
-            <Clock3
-              size={16}
-              className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]"
-              color="#e90e0e"
-            />
-          </div>
-          <div className="min-w-0">
-            <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
-              {pendientes}
-            </p>
-            <p
-
-              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
-            >
-              por entregar
-            </p>
-          </div>
-        </div>
-
-        {/* Anuladas (nueva tarjeta) */}
-        <div
-          className="bg-[#1B1D2E] rounded-2xl flex items-center gap-2 sm:gap-4 hover:scale-[1.02] transition-all p-3 sm:p-4 lg:p-5"
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = "scale(1.05)";
-            e.currentTarget.style.boxShadow = "0 20px 40px rgba(0,0,0,0.3)";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = "scale(1)";
-            e.currentTarget.style.boxShadow = "none";
-          }}
-        >
-          <div
-
-            className="bg-[#13152280] ring-2 ring-rose-500/40 w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 rounded-xl flex items-center justify-center shrink-0 mt-3 mr-0 mb-3 ml-3"
-          >
-            <XCircle
-              size={16}
-              className="sm:w-[18px] sm:h-[18px] lg:w-[22px] lg:h-[22px]"
-              color="#f43f5e"
-            />
-          </div>
-          <div className="min-w-0">
-            <p className="text-lg sm:text-2xl lg:text-3xl text-white truncate">
-              {anuladas}
-            </p>
-            <p
-
-              className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5"
-            >
-              Anuladas
-            </p>
-          </div>
-        </div>
+      {/* ═══ KPI CARDS ═══ */}
+      {/* KpiCard muestra la cifra completa sin recortarla y ajusta su tamaño
+          según la longitud: antes un monto grande se cortaba con puntos
+          suspensivos. La rejilla baja a 3 columnas en tablet para dar aire. */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-8">
+        <KpiCard
+          label="Ingresos totales"
+          value={totalMonto}
+          icon={DollarSign}
+          ring="ring-orange-400/40"
+          iconCol="text-orange-300"
+          currency
+          compact
+        />
+        <KpiCard
+          label="Total ventas"
+          value={total}
+          icon={ShoppingBag}
+          ring="ring-indigo-500/40"
+          iconCol="text-indigo-300"
+        />
+        <KpiCard
+          label="Entregadas"
+          value={entregadas}
+          icon={CheckCheck}
+          ring="ring-cyan-400/40"
+          iconCol="text-cyan-300"
+        />
+        <KpiCard
+          label="Por entregar"
+          value={pendientes}
+          icon={Clock3}
+          ring="ring-amber-400/40"
+          iconCol="text-amber-300"
+        />
+        <KpiCard
+          label="Anuladas"
+          value={anuladas}
+          icon={XCircle}
+          ring="ring-rose-500/40"
+          iconCol="text-rose-300"
+        />
       </div>
-
       {/* ═══ AVISO COMPACTO: PEDIDOS ENTREGADOS EN COCINA POR CONFIRMAR ═══ */}
       {pedidosPorConfirmar.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl mb-8 p-5">
@@ -905,25 +734,30 @@ export default function Ventas() {
         </div>
 
         {/* tabla */}
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
+        {/* Estilo "Data-Dense Dashboard" (ui-ux-pro-max): filas de 56px, cabecera
+            sticky, hover por fila, tipografía tabular alineada y jerarquía por
+            color en montos. Densidad media-alta para escaneo rápido. */}
+        <div className="overflow-x-auto overflow-y-visible">
+          <table className="w-full min-w-[880px] border-separate border-spacing-0 text-sm">
             <thead>
-              <tr className="bg-slate-50/80">
+              <tr>
                 {[
-                  "ID Venta",
-                  "Fecha de Entrega",
-                  "Cliente",
-                  "Total",
-                  "Pagada",
-                  "Estado",
-                  "Acciones",
-                ].map((h, i) => (
+                  { label: "Venta", align: "left" },
+                  { label: "Cliente", align: "left" },
+                  { label: "Entrega", align: "left" },
+                  { label: "Total", align: "right" },
+                  { label: "Pago", align: "left" },
+                  { label: "Estado", align: "left" },
+                  { label: "Acciones", align: "right" },
+                ].map((col) => (
                   <th
-                    key={h}
-
-                    className={`text-left px-6 py-4 text-xs font-semibold text-slate-400 uppercase tracking-wider ${i === 0 ? "pl-8" : ""}`}
+                    key={col.label}
+                    scope="col"
+                    className={`sticky top-0 z-10 bg-slate-50/95 backdrop-blur-sm border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider px-4 py-3 ${
+                      col.align === "right" ? "text-right" : "text-left"
+                    }`}
                   >
-                    {h}
+                    {col.label}
                   </th>
                 ))}
               </tr>
@@ -931,21 +765,17 @@ export default function Ventas() {
             <tbody>
               {ventas.length === 0 ? (
                 <tr>
-                  <td
-
-                    colSpan={7}
-                    className="text-center text-slate-400 pt-20 pb-20"
-                  >
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
-                        <Search size={28} className="text-slate-300" />
+                  <td colSpan={7} className="px-4 py-24">
+                    <div className="flex flex-col items-center gap-3 text-center">
+                      <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center">
+                        <Search size={26} className="text-slate-300" />
                       </div>
-                      <p className="text-sm font-medium">
+                      <p className="text-sm font-semibold text-slate-600">
                         {nFiltros > 0 || busqueda
                           ? "Sin ventas para estos filtros"
                           : "No se encontraron ventas"}
                       </p>
-                      <p className="text-x text-slate-400">
+                      <p className="text-xs text-slate-400">
                         Intenta ajustar los filtros o la búsqueda
                       </p>
                     </div>
@@ -953,147 +783,157 @@ export default function Ventas() {
                 </tr>
               ) : (
                 ventas.map((v, i) => {
+                  // No se hace fallback a 'otro': si el medio de pago no es un
+                  // tipo real (p. ej. 'error' por fallo de red o 'sin_pago'),
+                  // simplemente no se pinta la insignia.
                   const medioPago = getMedioPago(v.id_venta);
-                  const tipoCfg = TIPO_CONFIG[medioPago] ?? TIPO_CONFIG.otro;
+                  const tipoCfg = TIPO_CONFIG[medioPago];
                   const estadoCfg =
                     ESTADOS_CONFIG[v.estado] ?? ESTADOS_CONFIG.pendiente;
+                  const esAnulada = v.estado === "anulada";
                   return (
                     <tr
                       key={v.id}
-                      className="border-b border-slate-50 hover:bg-slate-50/30 transition-colors"
+                      /* Zebra sutil + hover: ayuda a seguir la fila en horizontal */
+                      className={`group transition-colors ${
+                        i % 2 === 1 ? "bg-slate-50/40" : "bg-white"
+                      } ${esAnulada ? "opacity-60" : ""} hover:bg-indigo-50/50`}
                     >
-                      <td
-
-                        className="py-4 px-6 pl-8"
-                      >
-                        <span className="font-semibold text-sm text-indigo-600">
+                      <td className="px-4 py-3 border-b border-slate-100 whitespace-nowrap">
+                        <span className="inline-flex items-center font-semibold text-[13px] text-indigo-600 tabular-nums">
                           #{String(v.id_venta).padStart(3, "0")}
                         </span>
                       </td>
-                      <td
-
-                        className="text-slate-500 text-sm whitespace-nowrap py-4 px-6"
-                      >
+                      <td className="px-4 py-3 border-b border-slate-100 max-w-[240px]">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span
+                            aria-hidden="true"
+                            className="w-7 h-7 shrink-0 rounded-full bg-indigo-100 text-indigo-600 text-[11px] font-bold flex items-center justify-center uppercase"
+                          >
+                            {String(v.nombre_cliente || "?")
+                              .trim()
+                              .charAt(0)}
+                          </span>
+                          <span
+                            className={`text-[13px] font-medium text-slate-700 truncate ${
+                              esAnulada ? "line-through" : ""
+                            }`}
+                            title={capitalizarNombre(v.nombre_cliente)}
+                          >
+                            {capitalizarNombre(v.nombre_cliente)}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 border-b border-slate-100 text-[13px] text-slate-500 whitespace-nowrap tabular-nums">
                         {formatearFechaColombia(v.fecha_entrega)}
                       </td>
-                      <td
-
-                        className="text-slate-700 font-medium text-sm py-4 px-6"
-                      >
-                        {capitalizarNombre(v.nombre_cliente)}
-                      </td>
-                      <td
-
-                        className="text-slate-700 font-semibold text-sm py-4 px-6"
-                      >
-                        ${v.total?.toLocaleString("es-CO")}
-                      </td>
-                      {/* Columna Pagada */}
-                      <td className="px-6 py-4">
-                        {v.saldo_pendiente === 0 ? (
-                          <span
-
-                            className="inline-flex items-center gap-1 text-xs rounded-full font-medium bg-emerald-50 text-emerald-600 border border-emerald-200 py-1.5 px-3.5"
-                          >
-                            <CheckCircle2 size={12} />
-                            Pagada
-                          </span>
-                        ) : (
-                          <span
-
-                            className="inline-flex items-center gap-1 text-xs rounded-full font-medium bg-amber-50 text-amber-600 border border-amber-200 py-1.5 px-3.5"
-                          >
-                            <Clock size={12} />
-                            Debe
-                          </span>
-                        )}
-                      </td>
-                      <td
-
-                        className="py-4 px-6"
-                      >
-                        <span
-                          className="inline-flex items-center gap-1.5 text-xs rounded-full font-medium border py-1.5 px-3.5"
-                          style={{
-                            background: estadoCfg.bg,
-                            color: estadoCfg.color,
-                            borderColor: estadoCfg.border
-                          }}
-                        >
-                          {estadoCfg.icon}
-                          {estadoCfg.label}
+                      <td className="px-4 py-3 border-b border-slate-100 text-right whitespace-nowrap">
+                        <span className="text-[13px] font-semibold text-slate-800 tabular-nums">
+                          ${v.total?.toLocaleString("es-CO")}
                         </span>
-                        {(() => {
-                          const porConfirmar = esVentaPorConfirmar(v);
-                          if (!porConfirmar) return null;
-                          return (
-                            <span className="inline-flex items-center gap-1 text-[10px] rounded-full font-medium bg-amber-50 text-amber-700 border border-amber-200 mt-1 py-1 px-2.5">
-                              <CheckCheck size={11} />
-                              En cocina · {hora12(porConfirmar.hora_local)}
-                            </span>
-                          );
-                        })()}
                       </td>
-                      <td
-                        className="py-5 px-3.5 pr-7"
-                      >
-                        <div className="flex gap-1">
-                          <button
-                            title="Ver detalle"
-                            onClick={() => verDetalle(v.id_venta)}
-                            className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-indigo-50"
+                      {/* Columna Pago */}
+                      <td className="px-4 py-3 border-b border-slate-100 whitespace-nowrap">
+                        <div className="flex flex-col items-start gap-1">
+                          {v.saldo_pendiente === 0 ? (
+                            <span className="inline-flex items-center gap-1.5 text-[11px] rounded-full font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 py-1 px-2.5">
+                              <CheckCircle2 size={12} aria-hidden="true" />
+                              Pagada
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-[11px] rounded-full font-semibold bg-amber-50 text-amber-700 border border-amber-200 py-1 px-2.5">
+                              <Clock size={12} aria-hidden="true" />
+                              Debe ${(v.saldo_pendiente ?? 0).toLocaleString("es-CO")}
+                            </span>
+                          )}
+                          {/* Medio de pago real. Si el valor es un pseudo-estado
+                              ('error' por fallo de red, 'sin_pago', 'debe') o no
+                              está en TIPO_CONFIG, no se muestra nada. */}
+                          {tipoCfg && (
+                            <span
+                              className="inline-flex items-center text-[10px] rounded-full font-semibold py-0.5 px-2"
+                              style={{ background: tipoCfg.bg, color: tipoCfg.color }}
+                            >
+                              {tipoCfg.label}
+                            </span>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 border-b border-slate-100">
+                        <div className="flex flex-col items-start gap-1">
+                          <span
+                            className="inline-flex items-center gap-1.5 text-[11px] rounded-full font-semibold border py-1 px-2.5"
                             style={{
-                              border: "none",
-                              background: "transparent",
-                              cursor: "pointer",
+                              background: estadoCfg.bg,
+                              color: estadoCfg.color,
+                              borderColor: estadoCfg.border,
                             }}
                           >
-                            <Info size={16} color="#4f46e5" />
+                            <span aria-hidden="true">{estadoCfg.icon}</span>
+                            {estadoCfg.label}
+                          </span>
+                          {(() => {
+                            const porConfirmar = esVentaPorConfirmar(v);
+                            if (!porConfirmar) return null;
+                            return (
+                              <span className="inline-flex items-center gap-1 text-[10px] rounded-full font-semibold bg-amber-50 text-amber-700 border border-amber-200 py-0.5 px-2">
+                                <CheckCheck size={11} aria-hidden="true" />
+                                En cocina · {hora12(porConfirmar.hora_local)}
+                              </span>
+                            );
+                          })()}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 border-b border-slate-100">
+                        {/* Acciones: siempre visibles en desktop, con foco visible
+                            para teclado (requisito de accesibilidad del skill). */}
+                        <div className="flex items-center justify-end gap-1">
+                          <button
+                            type="button"
+                            title="Ver detalle"
+                            aria-label={`Ver detalle de la venta ${v.id_venta}`}
+                            onClick={() => verDetalle(v.id_venta)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-500 transition-all hover:bg-indigo-600 hover:border-indigo-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-1 cursor-pointer"
+                          >
+                            <Info size={15} />
                           </button>
                           {v.estado === "pendiente" && (
                             <button
+                              type="button"
                               title="Editar"
+                              aria-label={`Editar la venta ${v.id_venta}`}
                               onClick={() => {
                                 cargarVenta(v.id_venta); // ← carga los datos en el store
                                 setEditarModalOpen(true); // ← abre el modal
                               }}
-                              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-amber-50"
-                              style={{
-                                border: "none",
-                                background: "transparent",
-                                cursor: "pointer",
-                              }}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-500 transition-all hover:bg-amber-500 hover:border-amber-500 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 cursor-pointer"
                             >
-                              <Pencil size={16} color="#f59e0b" />
+                              <Pencil size={15} />
                             </button>
                           )}
                           {/* Botón de entregar (solo pendientes) */}
                           {v.estado === "pendiente" && (
                             <button
+                              type="button"
                               title="Marcar como entregada"
+                              aria-label={`Marcar como entregada la venta ${v.id_venta}`}
                               onClick={() => setEntregarId(v.id_venta)}
-                              className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-emerald-50"
-                              style={{
-                                border: "none",
-                                background: "transparent",
-                                cursor: "pointer",
-                              }}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-500 transition-all hover:bg-emerald-600 hover:border-emerald-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 cursor-pointer"
                             >
-                              <CircleCheckBig size={16} color="#10b981" />
+                              <CircleCheckBig size={15} />
                             </button>
                           )}
-                          <button
-                            title="Anular"
-                            onClick={() => setEliminarId(v.id_venta)}
-                            className="w-9 h-9 rounded-lg flex items-center justify-center transition-colors hover:bg-red-50"
-                            style={{
-                              border: "none",
-                              background: "transparent",
-                              cursor: "pointer",
-                            }}
-                          >
-                            <Trash2 size={16} color="#ef4444" />
-                          </button>
+                          {!esAnulada && (
+                            <button
+                              type="button"
+                              title="Anular"
+                              aria-label={`Anular la venta ${v.id_venta}`}
+                              onClick={() => setEliminarId(v.id_venta)}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-500 transition-all hover:bg-rose-600 hover:border-rose-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-1 cursor-pointer"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -1105,44 +945,34 @@ export default function Ventas() {
         </div>
 
         {/* pie tabla */}
-        <div
-
-          className="border-t border-slate-100 flex justify-between items-center text-sm text-slate-500 bg-slate-50/30 py-5 px-8"
-        >
-          <span className="text-sm">
+        <div className="border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-3 text-sm text-slate-500 bg-slate-50/60 px-5 py-4">
+          <span className="text-[13px]">
             Mostrando{" "}
-            <strong className="text-slate-700 font-semibold">
+            <strong className="text-slate-700 font-semibold tabular-nums">
               {ventas.length}
             </strong>{" "}
-            de <strong className="text-slate-700 font-semibold">{total}</strong>{" "}
+            de <strong className="text-slate-700 font-semibold tabular-nums">{total}</strong>{" "}
             ventas
           </span>
 
           {total_paginas > 1 && (
             <div className="flex items-center gap-2">
               <button
+                type="button"
                 onClick={() => fetchVentas(pagina - 1, 20, balance?.corte_id, busqueda)}
                 disabled={pagina === 1}
-                className="border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 py-2.5 px-4"
-                style={{
-                  cursor: pagina === 1 ? "not-allowed" : "pointer"
-                }}
+                className="border border-slate-200 rounded-xl text-[13px] bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 transition-all font-medium text-slate-600 py-2 px-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
               >
                 ← Anterior
               </button>
-              <span
-
-                className="text-sm text-slate-500 font-medium pl-3 pr-3"
-              >
+              <span className="text-[13px] text-slate-500 font-medium px-2 tabular-nums">
                 {pagina} / {total_paginas}
               </span>
               <button
+                type="button"
                 onClick={() => fetchVentas(pagina + 1, 20, balance?.corte_id, busqueda)}
                 disabled={pagina === total_paginas}
-                className="border border-slate-200 rounded-xl text-sm bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 py-2.5 px-4"
-                style={{
-                  cursor: pagina === total_paginas ? "not-allowed" : "pointer"
-                }}
+                className="border border-slate-200 rounded-xl text-[13px] bg-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-100 transition-all font-medium text-slate-600 py-2 px-3.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer"
               >
                 Siguiente →
               </button>

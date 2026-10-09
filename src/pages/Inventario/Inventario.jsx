@@ -9,6 +9,7 @@ import { putInventario, putInventarioCantidades } from '@/api/inventario_api'
 import { postProduccion, getProducciones } from '@/api/producciones_api'
 import { getProductos } from '@/api/productos_api'
 import { formatearFechaColombia, formatearFechaCorta } from '@/utils/formatearFecha'
+import AvisoProduccionPendiente from '@/components/produccion/AvisoProduccionPendiente'
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768)
@@ -698,6 +699,11 @@ export default function Inventario() {
           </div>
         </div>
       )}
+
+      {/* ═══ AVISO: PRODUCCIONES DE EMPLEADOS PENDIENTES DE VALIDAR ═══ */}
+      {/* Justo debajo de la alerta de stock mínimo y arriba de la tabla de
+          productos. Solo se renderiza (y solo consulta) con rol admin. */}
+      <AvisoProduccionPendiente />
 
       {/* tabla */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-visible">

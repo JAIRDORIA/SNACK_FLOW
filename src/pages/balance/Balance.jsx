@@ -7,6 +7,7 @@ import useBalanceStore from '@/store/useBalanceStore'
 import { getVentaDetalle, anularVenta } from '@/api/ventas_api'
 import { exportarAExcel } from '@/utils/exportarExcel'
 import { formatearFechaColombia } from '@/utils/formatearFecha'
+import KpiCard from '@/components/KpiCard'
 export default function Balance() {
   const {
     balance, historial,
@@ -137,24 +138,22 @@ export default function Balance() {
         )}
       </div>
 
-      {/* KPIs - responsive: 2 columnas en móvil, 4 en escritorio */}
+      {/* KPIs - responsive: 2 columnas en móvil, 4 en escritorio.
+          Cada tarjeta usa KpiCard, que muestra la cifra completa sin recortarla
+          y ajusta el tamaño de fuente según su longitud (guía del skill: nunca
+          recortar texto en cajas de ancho/alto fijo). */}
       <div style={{marginBottom: 'clamp(24px, 3vw, 32px)'}} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 lg:mb-8">
-        {kpiCards.map((card) => {
-          const Icon = card.icon
-          return (
-            <div key={card.label} style={{padding: 'clamp(12px, 2vw, 20px)'}} className="bg-[#1B1D2E] rounded-2xl p-3 sm:p-4 lg:p-5 flex items-center gap-3 sm:gap-4 hover:scale-[1.02] transition-transform">
-              <div className={`bg-[#13152280] ring-2 ${card.ring} w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0`}>
-                <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${card.iconCol}`} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-lg sm:text-2xl lg:text-3xl font-bold text-white truncate">
-                  ${card.value.toLocaleString('es-CO')}
-                </p>
-                <p className="text-[10px] sm:text-xs text-white/50 truncate mt-0.5">{card.label}</p>
-              </div>
-            </div>
-          )
-        })}
+        {kpiCards.map((card) => (
+          <KpiCard
+            key={card.label}
+            label={card.label}
+            value={card.value}
+            icon={card.icon}
+            ring={card.ring}
+            iconCol={card.iconCol}
+            currency
+          />
+        ))}
       </div>
 
       {/* Resumen del próximo corte */}

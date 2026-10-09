@@ -306,6 +306,22 @@ export const useNuevaVentaStore = create((set, get) => ({
 
     try {
       await api.post('/ventas/', payload, { headers: { 'Content-Type': 'application/json' } })
+
+      // Regla backend: si el cliente NO tenía dirección registrada y se envió
+      // direccion_entrega, esa dirección quedó guardada también en el cliente.
+      // Reflejarlo en la lista en caché para que no siga mostrándose "sin dirección".
+      if (payload.direccion_entrega && !(direccionClienteRegistrada || '').trim()) {
+        const idCliente = Number(clienteId)
+        set({
+          clientes: get().clientes.map((c) =>
+            Number(c.id ?? c.ID_Cliente) === idCliente
+              ? { ...c, direccion: dirPedido, Cli_Direccion: dirPedido }
+              : c
+          ),
+          direccionClienteRegistrada: dirPedido,
+        })
+      }
+
       set({ enviando: false, exito: true })
       return true
     } catch (err) {

@@ -67,13 +67,23 @@ const ESTADOS_CONFIG = {
   },
 };
 
-// Tipos de pago REALES. No se incluyen pseudo-estados como "error" (fallo de
-// red al cargar abonos) ni "debe" (saldo, no un medio de pago): mostrarlos en la
-// tabla o en el filtro los hacía pasar por formas de pago válidas.
+// Tipos de pago REALES: se usan para la insignia de cada venta en la tabla.
+// No se incluyen pseudo-estados como "error" (fallo de red al cargar abonos) ni
+// "debe" (saldo, no un medio de pago): mostrarlos en la tabla los haría pasar
+// por formas de pago válidas.
 const TIPO_CONFIG = {
   efectivo: { bg: "#f0fdf4", color: "#15803d", label: "Efectivo" },
   transferencia: { bg: "#eff6ff", color: "#1d4ed8", label: "Transferencia" },
   otro: { bg: "#f9fafb", color: "#6b7280", label: "Otro" },
+};
+
+// Opciones del panel de FILTROS. Además de los medios reales incluye "Deben",
+// que el backend sí soporta en `tipos_pago` (equivale a saldo_pendiente > 0;
+// ver back_delis/services/ventas_services.py). Va en un mapa aparte para que
+// NO se pinte como medio de pago en las filas de la tabla.
+const FILTRO_TIPO_CONFIG = {
+  ...TIPO_CONFIG,
+  deben: { bg: "#fffbeb", color: "#b45309", label: "Deben" },
 };
 
 // ══════════════════════════════════════════
@@ -686,7 +696,7 @@ export default function Ventas() {
 
                   className="flex flex-col gap-3 mb-6"
                 >
-                  {Object.entries(TIPO_CONFIG).map(([key, cfg]) => (
+                  {Object.entries(FILTRO_TIPO_CONFIG).map(([key, cfg]) => (
                     <label
                       key={key}
                       className="flex items-center gap-3 cursor-pointer"

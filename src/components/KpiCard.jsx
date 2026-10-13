@@ -31,6 +31,9 @@ import { formatoMoneda, formatoCompacto, clasesPorLongitud } from '@/utils/forma
  * @param {boolean}  compact   Si true, abrevia cifras >= 1.000.000; el valor
  *                             exacto queda en el tooltip.
  * @param {string}   hint      Texto secundario opcional.
+ * @param {boolean}  cargando  Si true y aún no hay `value`, muestra un skeleton
+ *                             en lugar de un $0 falso. Con valor previo, este
+ *                             se conserva.
  */
 export default function KpiCard({
   label,
@@ -41,8 +44,11 @@ export default function KpiCard({
   currency = false,
   compact = false,
   hint,
+  cargando = false,
 }) {
   const Icono = icon;
+  // `null`/`undefined` = todavía no hay cifra: no se inventa un $0.
+  const sinValor = value === null || value === undefined;
 
   const numero = compact ? formatoCompacto(value) : formatoMoneda(value);
   const texto = currency ? `$${numero}` : numero;
@@ -65,15 +71,33 @@ export default function KpiCard({
       </div>
 
       {/* Cifra: completa, con tamaño adaptativo y sin recortar. */}
-      <p
-        className={`font-bold text-white tabular-nums leading-none m-0 break-words ${clasesPorLongitud(
-          texto,
-        )}`}
-        title={completo}
-        aria-label={`${label}: ${completo}`}
-      >
-        {texto}
-      </p>
+      {sinValor ? (
+        cargando ? (
+          <div role="status" aria-label={`${label}: cargando`}>
+            <div
+              className="h-6 sm:h-7 lg:h-[26px] w-24 rounded-md bg-white/10 animate-pulse"
+              aria-hidden="true"
+            />
+          </div>
+        ) : (
+          <p
+            className="font-bold text-white/40 leading-none m-0 text-lg sm:text-2xl lg:text-[26px]"
+            aria-label={`${label}: sin datos`}
+          >
+            —
+          </p>
+        )
+      ) : (
+        <p
+          className={`font-bold text-white tabular-nums leading-none m-0 break-words ${clasesPorLongitud(
+            texto,
+          )}`}
+          title={completo}
+          aria-label={`${label}: ${completo}`}
+        >
+          {texto}
+        </p>
+      )}
 
       {hint && <p className="text-[10px] text-white/40 m-0 leading-tight">{hint}</p>}
     </div>

@@ -145,7 +145,7 @@ const etiquetaDiaPedido = (fechaUtc) => {
 // COMPONENTE PRINCIPAL
 // ══════════════════════════════════════════
 export default function Ventas() {
-  const { ventas, total, pagina, total_paginas, cargando, error, fetchVentas, filtros, setFiltros, resetFiltros } =
+  const { ventas, total, pagina, total_paginas, cargando, error, fetchVentas, filtros, setFiltros, resetFiltros, ingresosCorte, cargandoIngresos, cargarIngresosCorte } =
     useVentasStore();
 
   const [detalleVenta, setDetalleVenta] = useState(null);
@@ -357,6 +357,14 @@ export default function Ventas() {
     }
   }, [balance]);
 
+  // El KPI "Ingresos totales" no sale del listado: se pide al montar y de nuevo
+  // tras cada acción que mueve dinero (ver entregarVenta, handleAnularVenta,
+  // onVentaCreada y onVentaEditada).
+  useEffect(() => {
+    cargarIngresosCorte();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     const fn = (e) => {
       if (filtroRef.current && !filtroRef.current.contains(e.target))
@@ -410,6 +418,7 @@ export default function Ventas() {
       await axios.put(`/ventas/${id}`, { estado: "entregada" });
       // Refresco silencioso conservando página, búsqueda y filtros.
       fetchVentas(pagina, 20, balance?.corte_id, busqueda, { silent: true });
+      cargarIngresosCorte(); // refrescar el KPI de ingresos del corte
       fetchPorConfirmar({ silent: true }); // refrescar aviso de cocina
       setEntregarId(null);
     } catch (err) {
@@ -426,6 +435,7 @@ export default function Ventas() {
       await anularVenta(eliminarId);
       // Refresco silencioso conservando página, búsqueda y filtros.
       fetchVentas(pagina, 20, balance?.corte_id, busqueda, { silent: true });
+      cargarIngresosCorte(); // refrescar el KPI de ingresos del corte
       fetchPorConfirmar({ silent: true }); // refrescar aviso de cocina
       setEliminarId(null);
     } catch (err) {
@@ -449,7 +459,6 @@ export default function Ventas() {
   const ventasActivas = ventas.filter((v) => v.estado !== "anulada");
   const ventasAnuladas = ventas.filter((v) => v.estado === "anulada");
 
-  const totalMonto = ventasActivas.reduce((acc, v) => acc + (v.total || 0), 0);
   const pendientes = ventasActivas.filter(
     (v) => v.estado === "pendiente",
   ).length;
@@ -523,7 +532,8 @@ export default function Ventas() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-8">
         <KpiCard
           label="Ingresos totales"
-          value={totalMonto}
+          value={ingresosCorte}
+          cargando={cargandoIngresos}
           icon={DollarSign}
           ring="ring-orange-400/40"
           iconCol="text-orange-300"
@@ -1723,6 +1733,7 @@ export default function Ventas() {
         onClose={() => setModalNuevaVenta(false)}
         onVentaCreada={() => {
           fetchVentas(1, 20, balance?.corte_id);
+          cargarIngresosCorte(); // la venta puede traer abonos iniciales
           setModalNuevaVenta(false);
         }}
       />
@@ -1731,6 +1742,7 @@ export default function Ventas() {
         onClose={() => setEditarModalOpen(false)}
         onVentaEditada={() => {
           fetchVentas(1, 20, balance?.corte_id);
+          cargarIngresosCorte(); // la edición puede alterar abonos/total
           setEditarModalOpen(false);
         }}
       />

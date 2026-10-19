@@ -1,14 +1,19 @@
 import { useState } from 'react'
 import { usePrestamosStore } from '../store/Useprestamosstore'
+import MedioPagoSelector, {
+  medioPagoValido,
+  payloadMedioPago,
+} from '@/components/MedioPagoSelector'
 
 export default function AbonarPrestamoModal({ prestamo, onClose, onSuccess }) {
   const { abonar } = usePrestamosStore()
-  const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
 
   const [monto, setMonto] = useState(String(prestamo.saldo_pendiente))
-  const [medioPago, setMedioPago] = useState('efectivo')
+  const [medioPago, setMedioPago] = useState({ medio_pago: 'efectivo', medio_pago_id: null })
   const [observacion, setObservacion] = useState('')
   const [error, setError] = useState('')
+  // Error de la cuenta de transferencia: se muestra bajo el selector.
+  const [errorMedioPago, setErrorMedioPago] = useState('')
   const [guardando, setGuardando] = useState(false)
 
   if (!prestamo) return null
@@ -27,16 +32,16 @@ export default function AbonarPrestamoModal({ prestamo, onClose, onSuccess }) {
       setError(`El abono no puede superar el saldo pendiente ($${prestamo.saldo_pendiente.toLocaleString('es-CO')})`)
       return
     }
-    if (!usuario?.id) {
-      setError('No se pudo identificar el usuario actual')
+    if (!medioPagoValido(medioPago)) {
+      setErrorMedioPago('Selecciona la cuenta de transferencia')
       return
     }
 
     setGuardando(true)
+    setErrorMedioPago('')
     const resultado = await abonar(prestamo.id, {
-      usuario_id: usuario.id,
       monto: montoNum,
-      medio_pago: medioPago,
+      ...payloadMedioPago(medioPago),
       observacion: observacion || null,
     })
     setGuardando(false)
@@ -89,15 +94,15 @@ export default function AbonarPrestamoModal({ prestamo, onClose, onSuccess }) {
 
           <div>
             <label className="block text-sm font-medium mb-1">Medio de pago</label>
-            <select
-
-              className="w-full border rounded text-sm py-2 px-3"
+            <MedioPagoSelector
               value={medioPago}
-              onChange={(e) => setMedioPago(e.target.value)}
-            >
-              <option value="efectivo">Efectivo</option>
-              <option value="transferencia">Transferencia</option>
-            </select>
+              onChange={(value) => {
+                setMedioPago(value)
+                if (errorMedioPago) setErrorMedioPago('')
+              }}
+              disabled={guardando}
+              error={errorMedioPago}
+            />
           </div>
 
           <div>

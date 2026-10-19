@@ -36,6 +36,53 @@ const ESTADO_CFG = {
   },
 }
 
+// Medio de pago con el que se prestó: verde para efectivo, azul para
+// transferencia (con el nombre de la cuenta).
+const MEDIO_CFG = {
+  efectivo: { bg: '#f0fdf4', color: '#15803d', border: '#bbf7d0' },
+  transferencia: { bg: '#eff6ff', color: '#1d4ed8', border: '#bfdbfe' },
+}
+
+const capitalizar = (texto) => {
+  const valor = String(texto ?? '').trim()
+  if (!valor) return '—'
+  return valor.charAt(0).toUpperCase() + valor.slice(1)
+}
+
+function MedioPagoBadge({ prestamo }) {
+  const esEfectivo = prestamo?.medio_pago === 'efectivo'
+  const cfg = MEDIO_CFG[prestamo?.medio_pago] ?? {
+    bg: '#f8fafc',
+    color: '#475569',
+    border: '#e2e8f0',
+  }
+  // Efectivo siempre se muestra como "Efectivo"; en transferencia, el nombre
+  // de la cuenta y, si viene vacío, el medio capitalizado.
+  const etiqueta = esEfectivo
+    ? 'Efectivo'
+    : (prestamo?.medio_pago_nombre || '').trim() || capitalizar(prestamo?.medio_pago)
+
+  return (
+    <div className="flex flex-col items-start gap-1 min-w-0">
+      <span
+        className="inline-flex items-center max-w-[180px] text-[11px] rounded-full font-semibold border py-1 px-2.5"
+        style={{ background: cfg.bg, color: cfg.color, borderColor: cfg.border }}
+        title={etiqueta}
+      >
+        <span className="truncate min-w-0">{etiqueta}</span>
+      </span>
+      {prestamo?.estado === 'pagado' && prestamo?.medio_pago_pago_nombre && (
+        <span
+          className="block max-w-[180px] truncate text-[11px] text-slate-500"
+          title={`Pagado con: ${prestamo.medio_pago_pago_nombre}`}
+        >
+          Pagado con: {prestamo.medio_pago_pago_nombre}
+        </span>
+      )}
+    </div>
+  )
+}
+
 export default function Prestamos() {
   const { prestamos, loading, error, filtroEstado, setFiltroEstado, fetchPrestamos } =
     usePrestamosStore()
@@ -102,7 +149,7 @@ export default function Prestamos() {
   const termino = busqueda.trim().toLowerCase()
   const prestamosFiltrados = termino
     ? prestamos.filter((p) =>
-        [p.cliente_nombre, p.observacion, String(p.id)]
+        [p.cliente_nombre, p.observacion, p.medio_pago_nombre, String(p.id)]
           .filter(Boolean)
           .some((campo) => String(campo).toLowerCase().includes(termino)),
       )
@@ -119,7 +166,7 @@ export default function Prestamos() {
         type="search"
         value={busqueda}
         onChange={(e) => setBusqueda(e.target.value)}
-        placeholder="Buscar por cliente u observación..."
+        placeholder="Buscar por cliente, observación o medio..."
         aria-label="Buscar préstamos"
         className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-[13px] outline-none text-slate-700 bg-white focus:border-indigo-400 focus:ring-3 focus:ring-indigo-50 transition-all placeholder:text-slate-400"
       />
@@ -228,12 +275,13 @@ export default function Prestamos() {
 
         {/* ── Tabla (sm y superior) ── */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="w-full min-w-[900px] border-separate border-spacing-0 text-sm">
+          <table className="w-full min-w-[1020px] border-separate border-spacing-0 text-sm">
             <thead>
               <tr>
                 {[
                   { label: 'Cliente', align: 'left' },
                   { label: 'Monto prestado', align: 'right' },
+                  { label: 'Medio', align: 'left' },
                   { label: 'Abonado', align: 'right' },
                   { label: 'Saldo pendiente', align: 'right' },
                   { label: 'Observación', align: 'left' },
@@ -256,7 +304,7 @@ export default function Prestamos() {
             <tbody>
               {loading && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-16 text-center">
+                  <td colSpan={9} className="px-4 py-16 text-center">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-8 h-8 border-[3px] border-indigo-500 border-t-transparent rounded-full animate-spin" />
                       <p className="text-[13px] text-slate-500 font-medium m-0">
@@ -269,7 +317,7 @@ export default function Prestamos() {
 
               {!loading && prestamosFiltrados.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-24">
+                  <td colSpan={9} className="px-4 py-24">
                     <div className="flex flex-col items-center gap-3 text-center">
                       <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center">
                         <Wallet size={26} className="text-slate-300" aria-hidden="true" />
@@ -317,6 +365,9 @@ export default function Prestamos() {
                       </td>
                       <td className="px-4 py-3 border-b border-slate-100 text-right whitespace-nowrap text-[13px] font-semibold text-slate-800 tabular-nums">
                         ${p.monto?.toLocaleString('es-CO')}
+                      </td>
+                      <td className="px-4 py-3 border-b border-slate-100 whitespace-nowrap">
+                        <MedioPagoBadge prestamo={p} />
                       </td>
                       <td className="px-4 py-3 border-b border-slate-100 text-right whitespace-nowrap text-[13px] font-medium text-emerald-700 tabular-nums">
                         ${p.total_abonado?.toLocaleString('es-CO')}
@@ -448,6 +499,15 @@ export default function Prestamos() {
                         </p>
                       </div>
                     ))}
+                  </div>
+
+                  <div className="flex items-start justify-between gap-3">
+                    <span className="text-[10px] text-slate-500 uppercase tracking-wide mt-1">
+                      Medio
+                    </span>
+                    <div className="min-w-0 flex flex-col items-end">
+                      <MedioPagoBadge prestamo={p} />
+                    </div>
                   </div>
 
                   {p.observacion && (

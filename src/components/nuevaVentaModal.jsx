@@ -13,8 +13,7 @@ import useBalanceStore from "@/store/useBalanceStore";
 import { formatearFechaColombia } from "@/utils/formatearFecha";
 import { getClientes } from "@/api/clientes_api";
 import CrearClienteModal from "@/components/CrearClienteModal";
-
-const MEDIOS_PAGO = ["efectivo", "transferencia", "otro"];
+import MedioPagoSelector, { medioPagoValido } from "@/components/MedioPagoSelector";
 
 export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const {
@@ -53,6 +52,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     agregarAbonoInicial,
     eliminarAbonoInicial,
     modificarAbonoInicial,
+    cambiarMedioPagoAbono,
     totalAbonado,
     pagarCompleto,
     direccionEntrega,
@@ -64,6 +64,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [clienteNombre, setClienteNombre] = useState('')
   const [clienteIdentificacion, setClienteIdentificacion] = useState('')
   const [editandoDireccion, setEditandoDireccion] = useState(false)
+  // Errores por fila de abono (índice → mensaje). Se pasan al selector.
+  const [erroresAbonos, setErroresAbonos] = useState([])
 
   const selectProductoRef = useRef(null);
   const [textoBusqueda, setTextoBusqueda] = useState("");
@@ -109,6 +111,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       fetchBalance();
       setCrearClienteOpen(false);
       setEditandoDireccion(false);
+      setErroresAbonos([]);
     }
   }, [open]);
   useEffect(() => {
@@ -170,7 +173,46 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     document.getElementById("cantidad-producto").value = "1";
   };
 
+  // Cambia el medio de pago de una fila y limpia su error si lo tenía.
+  const cambiarMedioAbono = (index, value) => {
+    cambiarMedioPagoAbono(index, value);
+    setErroresAbonos((prev) => {
+      if (!prev[index]) return prev;
+      const nuevos = [...prev];
+      nuevos[index] = "";
+      return nuevos;
+    });
+  };
+
+  const agregarFilaAbono = () => {
+    agregarAbonoInicial();
+    setErroresAbonos([]);
+  };
+
+  const eliminarFilaAbono = (index) => {
+    eliminarAbonoInicial(index);
+    // Los índices cambian: se limpian los errores para no mostrarlos en otra fila.
+    setErroresAbonos([]);
+  };
+
+  const handlePagarCompleto = () => {
+    pagarCompleto();
+    setErroresAbonos([]);
+  };
+
   const handleRegistrar = async () => {
+    // Validación por fila: una transferencia con monto debe tener cuenta.
+    const errores = abonosIniciales.map((abono) =>
+      Number(abono.monto) > 0 && !medioPagoValido(abono)
+        ? "Selecciona la cuenta de transferencia"
+        : "",
+    );
+    if (errores.some(Boolean)) {
+      setErroresAbonos(errores);
+      return;
+    }
+    setErroresAbonos([]);
+
     const ok = await registrarVenta();
     if (ok) {
       onVentaCreada?.();
@@ -898,7 +940,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 Abonos iniciales
               </h3>
               <button
-                onClick={agregarAbonoInicial}
+                onClick={agregarFilaAbono}
 
                 className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-colors"
               >
@@ -906,7 +948,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 Agregar abono
               </button>
               <button
-                onClick={pagarCompleto}
+                onClick={handlePagarCompleto}
 
                 className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium transition-colors py-1.5 px-3"
               >
@@ -931,86 +973,94 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               <div
                 key={index}
 
-                className="grid grid-cols-1 md:grid-cols-3 gap-2 bg-slate-50 rounded-xl border border-slate-200 mb-2 p-3"
+                className="bg-slate-50 rounded-xl border border-slate-200 mb-2 p-3"
               >
-                <div>
-                  <label
-
-                    className="block text-xs text-slate-500 mb-1"
-                  >
-                    Monto
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max={totalVenta()}
-                    value={montosLocales[index] ?? ""}
-                    onChange={(e) => {
-                      const nuevos = [...montosLocales];
-                      nuevos[index] = e.target.value;
-                      setMontosLocales(nuevos);
-                    }}
-                    onBlur={() => {
-                      const val = parseFloat(montosLocales[index]) || 0;
-                      const clamped = Math.min(Math.max(val, 0), totalVenta());
-                      modificarAbonoInicial(index, "monto", clamped);
-                    }}
-
-                    className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
-                  />
-                </div>
-                <div>
-                  <label
-
-                    className="block text-xs text-slate-500 mb-1"
-                  >
-                    Medio de pago
-                  </label>
-                  <select
-                    value={abono.medio_pago}
-                    onChange={(e) =>
-                      modificarAbonoInicial(index, "medio_pago", e.target.value)
-                    }
-
-                    className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
-                  >
-                    {MEDIOS_PAGO.map((medio) => (
-                      <option key={medio} value={medio}>
-                        {medio.charAt(0).toUpperCase() + medio.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex items-end gap-2">
-                  <div className="flex-1">
+                {/* Monto y observación en la primera línea */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
                     <label
 
                       className="block text-xs text-slate-500 mb-1"
                     >
-                      Observación
+                      Monto
                     </label>
                     <input
-                      type="text"
-                      value={abono.observacion}
-                      onChange={(e) =>
-                        modificarAbonoInicial(
-                          index,
-                          "observacion",
-                          e.target.value,
-                        )
-                      }
-                      placeholder="Opcional"
+                      type="number"
+                      min="0"
+                      max={totalVenta()}
+                      value={montosLocales[index] ?? ""}
+                      onChange={(e) => {
+                        const nuevos = [...montosLocales];
+                        nuevos[index] = e.target.value;
+                        setMontosLocales(nuevos);
+                      }}
+                      onBlur={() => {
+                        const val = parseFloat(montosLocales[index]) || 0;
+                        const clamped = Math.min(Math.max(val, 0), totalVenta());
+                        modificarAbonoInicial(index, "monto", clamped);
+                        // Si la fila ya no tiene monto, su error deja de aplicar.
+                        if (clamped === 0) {
+                          setErroresAbonos((prev) => {
+                            if (!prev[index]) return prev;
+                            const nuevos = [...prev];
+                            nuevos[index] = "";
+                            return nuevos;
+                          });
+                        }
+                      }}
 
                       className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
                     />
                   </div>
-                  <button
-                    onClick={() => eliminarAbonoInicial(index)}
+                  <div className="flex items-end gap-2">
+                    <div className="flex-1">
+                      <label
 
-                    className="text-rose-500 hover:bg-rose-100 rounded-lg p-2"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+                        className="block text-xs text-slate-500 mb-1"
+                      >
+                        Observación
+                      </label>
+                      <input
+                        type="text"
+                        value={abono.observacion}
+                        onChange={(e) =>
+                          modificarAbonoInicial(
+                            index,
+                            "observacion",
+                            e.target.value,
+                          )
+                        }
+                        placeholder="Opcional"
+
+                        className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => eliminarFilaAbono(index)}
+                      aria-label="Quitar abono"
+                      title="Quitar abono"
+
+                      className="min-h-[38px] min-w-[38px] flex items-center justify-center text-rose-500 hover:bg-rose-100 rounded-lg p-2"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Medio de pago en su propia línea */}
+                <div className="mt-3">
+                  <p className="block text-xs text-slate-500 m-0 mb-1">
+                    Medio de pago
+                  </p>
+                  <MedioPagoSelector
+                    value={{
+                      medio_pago: abono.medio_pago,
+                      medio_pago_id: abono.medio_pago_id ?? null,
+                    }}
+                    onChange={(value) => cambiarMedioAbono(index, value)}
+                    error={erroresAbonos[index]}
+                  />
                 </div>
               </div>
             ))}

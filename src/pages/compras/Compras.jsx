@@ -3,11 +3,14 @@ import {
   Plus, Search, Pencil, Trash2, X,
   AlertTriangle, ShoppingBag, DollarSign,
   Calendar, Truck, SlidersHorizontal, ChevronDown,Loader2,
-  TrendingDown, BarChart3, CheckCircle2, FileText, Info, CreditCard
+  TrendingDown, BarChart3, CheckCircle2, FileText, Info
 } from 'lucide-react'
 import useComprasStore from '@/store/useComprasStore'
 import useProveedoresStore from '@/store/useProveedoresStore'
 import useDashboardStore from '@/store/useDashboardStore'
+import useMediosPagoStore from '@/store/useMediosPagoStore'
+import MedioPagoSelector, { medioPagoValido } from '@/components/MedioPagoSelector'
+import MedioPagoBadge from '@/components/MedioPagoBadge'
 
 // ── ESTILOS RESPONSIVE ──
 const responsiveStyles = `
@@ -69,6 +72,8 @@ const responsiveStyles = `
 // MODAL COMPRA
 // ══════════════════════════════════════════
 function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
+  const { cuentas, cargado: cuentasCargadas, cargarCuentas } = useMediosPagoStore()
+
   const [form, setForm] = useState({
     id_proveedor: compra?.id_proveedor || '',
     descripcion: compra?.descripcion || '',
@@ -76,10 +81,51 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
     fecha_compra: compra?.fecha_compra
       ? compra.fecha_compra.slice(0, 10)
       : new Date().toISOString().slice(0, 10),
-    medio_pago: compra?.medio_pago || 'efectivo'
+  })
+
+  // Medio de pago separado del resto del formulario.
+  const [medio, setMedio] = useState(() => {
+    if (compra?.medio_pago !== 'transferencia') {
+      return { medio_pago: 'efectivo', medio_pago_id: null }
+    }
+    const idOriginal = compra?.medio_pago_id ?? null
+    const existe = idOriginal != null && cuentas.some(c => Number(c.id) === Number(idOriginal))
+    // Cuenta de sistema o inactiva: se deja sin cuenta (histórico).
+    if (cuentasCargadas && !existe) return { medio_pago: 'transferencia', medio_pago_id: null }
+    return { medio_pago: 'transferencia', medio_pago_id: idOriginal }
   })
   const [guardando, setGuardando] = useState(false)
   const [errForm, setErrForm] = useState(null)
+  const [errorMedio, setErrorMedio] = useState('')
+  // Evita que la normalización del histórico pise una elección del usuario.
+  const medioTocadoRef = useRef(false)
+
+  useEffect(() => {
+    cargarCuentas()
+  }, [cargarCuentas])
+
+  const esTransferenciaOriginal = compra?.medio_pago === 'transferencia'
+  const idOriginal = compra?.medio_pago_id ?? null
+  const cuentaAsignable =
+    idOriginal != null && cuentas.some(c => Number(c.id) === Number(idOriginal))
+  // Cuenta de sistema "sin asignar" o cuenta ahora inactiva. Mientras las
+  // cuentas no hayan cargado solo se puede afirmar si la compra no trae id.
+  const esHistorico =
+    Boolean(compra) &&
+    esTransferenciaOriginal &&
+    !cuentaAsignable &&
+    (idOriginal == null || cuentasCargadas)
+
+  useEffect(() => {
+    if (!esHistorico || medioTocadoRef.current) return
+    setMedio({ medio_pago: 'transferencia', medio_pago_id: null })
+  }, [esHistorico])
+
+  const cambiarMedio = (value) => {
+    medioTocadoRef.current = true
+    setMedio(value)
+    if (errorMedio) setErrorMedio('')
+  }
 
   const handleChange = (e) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -89,12 +135,22 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
     if (!form.costo_total || isNaN(Number(form.costo_total)) || Number(form.costo_total) <= 0) {
       setErrForm('Ingresa un costo total válido.'); return
     }
-    setGuardando(true); setErrForm(null)
+    if (!medioPagoValido(medio, esHistorico)) {
+      setErrorMedio('Selecciona la cuenta de transferencia.'); return
+    }
+    setGuardando(true); setErrForm(null); setErrorMedio('')
     try {
-      await onGuardar({ ...form, id_proveedor: Number(form.id_proveedor), costo_total: Number(form.costo_total) })
+      await onGuardar(
+        { ...form, id_proveedor: Number(form.id_proveedor), costo_total: Number(form.costo_total) },
+        medio,
+      )
       onClose()
     } catch (err) {
-      setErrForm(err.response?.data?.mensaje || 'Error al guardar la compra.')
+      setErrForm(
+        err.response?.data?.mensaje ||
+        err.response?.data?.error ||
+        'Error al guardar la compra.'
+      )
     } finally { setGuardando(false) }
   }
 
@@ -194,17 +250,21 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
             <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Medio de pago <span style={{ color: '#f43f5e' }}>*</span>
             </label>
-            <div style={{ position: 'relative' }}>
-              <CreditCard size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-              <ChevronDown size={14} color="#cbd5e1" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-              <select name="medio_pago" value={form.medio_pago} onChange={handleChange}
-                style={{ ...inputBase, appearance: 'none', cursor: 'pointer', paddingRight: '36px' }}
-                onFocus={focusIn} onBlur={focusOut}>
-                <option value="efectivo">Efectivo</option>
-                <option value="transferencia">Transferencia</option>
-                <option value="otro">Otro</option>
-              </select>
-            </div>
+            {esHistorico && (
+              <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 6px' }}>
+                Cuenta actual:{' '}
+                <strong style={{ color: '#0f172a' }}>
+                  {compra?.medio_pago_nombre || '—'}
+                </strong>
+              </p>
+            )}
+            <MedioPagoSelector
+              value={medio}
+              onChange={cambiarMedio}
+              disabled={guardando}
+              error={errorMedio}
+              permitirHistorico={esHistorico}
+            />
           </div>
 
 
@@ -337,9 +397,9 @@ export default function Compras() {
   const abrirCrear = () => { setCompraEditar(null); setModalFormOpen(true) }
   const abrirEditar = (c) => { setCompraEditar(c); setModalFormOpen(true) }
   const cerrarForm = () => { setModalFormOpen(false); setCompraEditar(null) }
-  const handleGuardar = async (data) => {
-    if (compraEditar) await editarCompra(compraEditar.id_compra, data)
-    else await crearCompra(data)
+  const handleGuardar = async (data, medioPago) => {
+    if (compraEditar) await editarCompra(compraEditar.id_compra, data, medioPago)
+    else await crearCompra(data, medioPago)
   }
 
   if (cargando && compras.length === 0) return (
@@ -480,7 +540,10 @@ export default function Compras() {
                     {c.fecha_compra}
                   </td>
                   <td className="py-4 px-6" style={{ fontSize: '14px', color: '#475569' }}>
-                    {c.medio_pago || <span style={{ color: '#cbd5e1' }}>—</span>}
+                    <MedioPagoBadge
+                      medioPago={c.medio_pago}
+                      nombre={c.medio_pago_nombre}
+                    />
                   </td>
                   <td className="py-4 px-6">
                     <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
@@ -527,9 +590,18 @@ export default function Compras() {
                   <span className="card-value">{c.descripcion}</span>
                 </div>
               )}
-              <div className="card-row mb-0">
+              <div className="card-row">
                 <span className="card-label">Costo</span>
                 <span className="card-value" style={{ fontWeight: 700, color: '#0f172a', fontSize: '15px' }}>{fmt(c.costo_total || 0)}</span>
+              </div>
+              <div className="card-row mb-0">
+                <span className="card-label">Medio de pago</span>
+                <span className="card-value">
+                  <MedioPagoBadge
+                    medioPago={c.medio_pago}
+                    nombre={c.medio_pago_nombre}
+                  />
+                </span>
               </div>
               <div className="mt-2.5 pt-2.5" style={{ borderTop: '1px solid #f1f5f9', fontSize: '12px', color: '#94a3b8' }}>
                 {fmtFecha(c.fecha_compra)}

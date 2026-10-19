@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import {
   Wallet, CreditCard, DollarSign, TrendingUp, Clock, Calendar, Info, AlertTriangle, Download,
-  AlertCircle, CheckCircle2, Loader2, X, Trash2, Search,ShoppingCart
+  AlertCircle, CheckCircle2, Loader2, X, Trash2, Search,ShoppingCart, ChevronRight
 } from 'lucide-react'
 import useBalanceStore from '@/store/useBalanceStore'
 import { getVentaDetalle, anularVenta } from '@/api/ventas_api'
 import { exportarAExcel } from '@/utils/exportarExcel'
 import { formatearFechaColombia } from '@/utils/formatearFecha'
 import KpiCard from '@/components/KpiCard'
+import SaldosCuentasModal from '@/components/SaldosCuentasModal'
 export default function Balance() {
   const {
     balance, historial,
@@ -34,13 +35,19 @@ export default function Balance() {
   }, [])
 
   // Calcular KPIs
-  const efectivo = balance?.total_efectivo ?? 0
-  const transferencias = balance?.total_transferencia ?? 0
-  const totalCaja = balance?.dinero_caja_real ?? 0
+  // Campos nuevos de /cortes/balance con respaldo a los antiguos, para no
+  // romper con un backend que todavía no los devuelva.
+  const efectivo = balance?.efectivo_caja ?? balance?.total_efectivo ?? 0
+  const transferencias = balance?.transferencia_cuentas ?? balance?.total_transferencia ?? 0
+  const totalCaja = balance?.dinero_caja_total ?? balance?.dinero_caja_real ?? 0
   const totalVentas = balance?.total_ventas ?? 0
   const saldoPendiente = balance?.saldo_pendiente_ventas ?? 0
   const saldoInicial = balance?.saldo_inicial ?? 0
   const total_compras = balance?.total_compras ?? 0
+
+  // Modal de saldos de cuentas (se abre desde la card Transferencias).
+  const [mostrarSaldosCuentas, setMostrarSaldosCuentas] = useState(false)
+  const abrirSaldosCuentas = () => setMostrarSaldosCuentas(true)
 
   // Tarjetas KPI
   const kpiCards = [
@@ -48,7 +55,20 @@ export default function Balance() {
     { label: 'Total en Compras', value: total_compras, icon: ShoppingCart, ring: 'ring-fuchsia-500/40', iconCol: 'text-fuchsia-300' },
     { label: 'Saldo inicial', value: saldoInicial, icon: Wallet, ring: 'ring-slate-500/40', iconCol: 'text-slate-300' },
     { label: 'Efectivo en caja', value: efectivo, icon: Wallet, ring: 'ring-amber-500/40', iconCol: 'text-amber-300' },
-    { label: 'Transferencias', value: transferencias, icon: CreditCard, ring: 'ring-violet-500/40', iconCol: 'text-violet-300' },
+    {
+      label: 'Transferencias',
+      value: transferencias,
+      icon: CreditCard,
+      ring: 'ring-violet-500/40',
+      iconCol: 'text-violet-300',
+      onClick: abrirSaldosCuentas,
+      accion: (
+        <>
+          Ver cuentas
+          <ChevronRight size={13} aria-hidden="true" />
+        </>
+      ),
+    },
     { label: 'Ventas del corte', value: totalVentas, icon: TrendingUp, ring: 'ring-indigo-500/40', iconCol: 'text-indigo-300' },
     { label: 'Saldo pendiente', value: saldoPendiente, icon: Clock, ring: 'ring-rose-500/40', iconCol: 'text-rose-300' },
     { label: 'Deuda cortes anteriores', value: balance?.saldo_pendiente_anteriores ?? 0, icon: Clock, ring: 'ring-rose-500/40', iconCol: 'text-rose-300' },
@@ -151,6 +171,8 @@ export default function Balance() {
             icon={card.icon}
             ring={card.ring}
             iconCol={card.iconCol}
+            onClick={card.onClick}
+            accion={card.accion}
             currency
           />
         ))}
@@ -379,7 +401,7 @@ export default function Balance() {
                     ${detalleCorte.totalCompras.toLocaleString('es-CO')}
                   </p>
                 </div>
-                <div className="p-3" className={`p-3 sm:p-4 rounded-xl text-center ${detalleCorte.utilidad >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                <div  className={`p-3 sm:p-4 rounded-xl text-center ${detalleCorte.utilidad >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>
                   <p  className="text-xs text-slate-500 mb-1">Utilidad</p>
                   <p className={`text-lg sm:text-xl font-bold ${detalleCorte.utilidad >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                     ${detalleCorte.utilidad.toLocaleString('es-CO')}
@@ -608,7 +630,7 @@ export default function Balance() {
                   <p className="text-xs text-slate-500">Abonado</p>
                   <p className="text-lg sm:text-xl font-bold text-emerald-600">${detalleVentaFuturo.total_abonado?.toLocaleString('es-CO')}</p>
                 </div>
-                <div  className="p-3" className={`p-3 sm:p-4 rounded-xl text-center ${detalleVentaFuturo.saldo_pendiente > 0 ? 'bg-amber-50' : 'bg-emerald-50'}`}>
+                <div   className={`p-3 sm:p-4 rounded-xl text-center ${detalleVentaFuturo.saldo_pendiente > 0 ? 'bg-amber-50' : 'bg-emerald-50'}`}>
                   <p className="text-xs text-slate-500">Saldo pendiente</p>
                   <p className={`text-lg sm:text-xl font-bold ${detalleVentaFuturo.saldo_pendiente > 0 ? 'text-amber-600' : 'text-emerald-600'}`}>
                     ${detalleVentaFuturo.saldo_pendiente?.toLocaleString('es-CO')}
@@ -661,6 +683,13 @@ export default function Balance() {
             </div>
           </div>
         </div>
+      )}
+
+      {mostrarSaldosCuentas && (
+        <SaldosCuentasModal
+          onClose={() => setMostrarSaldosCuentas(false)}
+          onActualizado={() => fetchBalance(true)}
+        />
       )}
     </div>
   )

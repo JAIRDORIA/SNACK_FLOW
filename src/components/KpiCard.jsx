@@ -45,6 +45,9 @@ export default function KpiCard({
   compact = false,
   hint,
   cargando = false,
+  // Opcionales: si se pasa `onClick`, la tarjeta se comporta como botón.
+  onClick,
+  accion,
 }) {
   const Icono = icon;
   // `null`/`undefined` = todavía no hay cifra: no se inventa un $0.
@@ -56,8 +59,11 @@ export default function KpiCard({
   // aunque en pantalla se muestre abreviada.
   const completo = currency ? `$${formatoMoneda(value)}` : formatoMoneda(value);
 
-  return (
-    <div className="bg-[#1B1D2E] rounded-2xl p-3 sm:p-4 lg:p-5 flex flex-col gap-2 sm:gap-3 hover:scale-[1.02] transition-transform min-w-0">
+  const clasesBase =
+    'bg-[#1B1D2E] rounded-2xl p-3 sm:p-4 lg:p-5 flex flex-col gap-2 sm:gap-3 hover:scale-[1.02] transition-transform min-w-0';
+
+  const contenido = (
+    <>
       {/* Fila superior: icono + etiqueta, para dejarle la línea entera a la cifra. */}
       <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
         <div
@@ -100,6 +106,26 @@ export default function KpiCard({
       )}
 
       {hint && <p className="text-[10px] text-white/40 m-0 leading-tight">{hint}</p>}
-    </div>
+
+      {accion && (
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-300">
+          {accion}
+        </span>
+      )}
+    </>
+  );
+
+  if (!onClick) {
+    return <div className={clasesBase}>{contenido}</div>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${clasesBase} w-full text-left cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400 focus-visible:ring-offset-2 focus-visible:ring-offset-gray-50`}
+    >
+      {contenido}
+    </button>
   );
 }

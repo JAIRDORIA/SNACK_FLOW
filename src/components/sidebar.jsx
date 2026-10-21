@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, useLocation,Route,Routes } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import {
   ShoppingCart,
   ShoppingBag,
@@ -14,40 +14,63 @@ import {
   List,
   Grid,
   Layers,
-  LogOut,
   FileText,
   HandCoins,
   HardHat,
   Landmark,
 } from 'lucide-react'
 
-import RutaAdminPrincipal from '@/components/RutaAdminPrincipal'
-import Auditoria from '@/pages/auditoria/Auditoria'
-
-<Route path="/auditoria" element={
-  <RutaAdminPrincipal>
-    <Auditoria />
-  </RutaAdminPrincipal>
-} />
-
-const menuPrincipal = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
-  { id: 'ventas', label: 'Ventas', icon: ShoppingCart, path: '/ventas' },
-  { id: 'compras', label: 'Compras', icon: ShoppingBag, path: '/compras' },
-  { id: 'clientes', label: 'Clientes', icon: Users, path: '/clientes' },
-  { id: 'proveedores', label: 'Proveedores', icon: Truck, path: '/proveedores' },
-  { id: 'empleados', label: 'Empleados', icon: HardHat, path: '/empleados' },
-  { id: 'cuentas', label: 'Cuentas', icon: Landmark, path: '/cuentas' },
-  { id: 'balance', label: 'Balance', icon: Scale, path: '/balance' },
-  { id: 'abonos', label: 'Abonos', icon: DollarSign, path: '/abonos' },
-  { id: 'prestamos', label: 'Prestamos', icon: HandCoins, path: '/prestamos' },
-  { id: 'auditoria', label: 'Auditoría', icon: FileText, path: '/auditoria', soloAdmin: true },
-]
-
 const inventarioSubMenu = [
   { id: 'inventario', label: 'Ver Inventario', icon: List, path: '/inventario/ver' },
   { id: 'inventario-productos', label: 'Productos', icon: Grid, path: '/inventario/productos' },
   { id: 'inventario-combos', label: 'Combos', icon: Layers, path: '/inventario/combos' },
+]
+
+// Menú agrupado por secciones. Cada grupo conserva su encabezado visible al
+// expandir el panel; en el riel colapsado solo se ven los íconos.
+const secciones = [
+  {
+    id: 'general',
+    label: 'General',
+    items: [
+      { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    ],
+  },
+  {
+    id: 'operaciones',
+    label: 'Operaciones',
+    items: [
+      { id: 'ventas', label: 'Ventas', icon: ShoppingCart, path: '/ventas' },
+      { id: 'compras', label: 'Compras', icon: ShoppingBag, path: '/compras' },
+      { id: 'inventario', label: 'Inventario', icon: Package, hijos: inventarioSubMenu },
+    ],
+  },
+  {
+    id: 'directorio',
+    label: 'Directorio',
+    items: [
+      { id: 'clientes', label: 'Clientes', icon: Users, path: '/clientes' },
+      { id: 'proveedores', label: 'Proveedores', icon: Truck, path: '/proveedores' },
+      { id: 'empleados', label: 'Empleados', icon: HardHat, path: '/empleados' },
+    ],
+  },
+  {
+    id: 'finanzas',
+    label: 'Finanzas',
+    items: [
+      { id: 'cuentas', label: 'Cuentas', icon: Landmark, path: '/cuentas' },
+      { id: 'balance', label: 'Balance', icon: Scale, path: '/balance' },
+      { id: 'abonos', label: 'Abonos', icon: DollarSign, path: '/abonos' },
+      { id: 'prestamos', label: 'Préstamos', icon: HandCoins, path: '/prestamos' },
+    ],
+  },
+  {
+    id: 'sistema',
+    label: 'Sistema',
+    items: [
+      { id: 'auditoria', label: 'Auditoría', icon: FileText, path: '/auditoria', soloAdmin: true },
+    ],
+  },
 ]
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -94,6 +117,11 @@ export default function Sidebar({ sidebarAbierto, setSidebarAbierto, sidebarCola
   const etiquetaColapsable = sidebarColapsado
     ? 'whitespace-nowrap min-w-0 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100 lg:transition-opacity lg:duration-200'
     : 'whitespace-nowrap min-w-0'
+
+  // Encabezado de sección: mismo comportamiento de visibilidad que las etiquetas.
+  const claseSeccion = sidebarColapsado
+    ? 'lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100 lg:transition-opacity lg:duration-200'
+    : ''
 
   // Marca compacta (logo sin texto) vs logo completo con el nombre.
   const claseMarca = sidebarColapsado
@@ -163,167 +191,148 @@ export default function Sidebar({ sidebarAbierto, setSidebarAbierto, sidebarCola
 
         {/* Navegación */}
         <nav aria-label="Menú principal" className={`p-3 flex flex-col gap-0.5 flex-1 ${scrollMenu}`}>
+          {secciones.map((seccion, index) => {
+            // Un grupo sin ítems visibles (p. ej. Sistema para no-admin) no se pinta.
+            const items = seccion.items.filter(item => !item.soloAdmin || esAdminPrincipal)
+            if (items.length === 0) return null
 
-        {/* Dashboard y Ventas */}
-        {menuPrincipal.slice(0, 2).map((item) => {
-          const Icon = item.icon
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              aria-label={item.label}
-              style={({ isActive }) => ({
-                display: 'flex', alignItems: 'center', gap: '12px',
-                padding: '10px 16px', borderRadius: '8px',
-                textDecoration: 'none',
-                background: isActive ? '#4f46e5' : 'transparent',
-                color: isActive ? 'white' : '#9ca3af',
-                fontSize: '17px',
-                fontWeight: isActive ? 600 : 400,
-                transition: 'all 0.15s',
-              })}
-              onMouseEnter={e => {
-                const isActive = e.currentTarget.getAttribute('aria-current') === 'page'
-                if (!isActive) {
-                  e.currentTarget.style.background = '#1f2937'
-                  e.currentTarget.style.color = 'white'
-                }
-              }}
-              onMouseLeave={e => {
-                const isActive = e.currentTarget.getAttribute('aria-current') === 'page'
-                if (!isActive) {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = '#9ca3af'
-                }
-              }}
-            >
-              <Icon size={17} className="shrink-0" />
-              <span className={etiquetaColapsable}>{item.label}</span>
-            </NavLink>
-          )
-        })}
+            return (
+              <div key={seccion.id} className="flex flex-col gap-0.5">
+                <p
+                  className={`px-4 ${index === 0 ? 'pt-1' : 'pt-3'} pb-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-[#6b7280] whitespace-nowrap select-none ${claseSeccion}`}
+                >
+                  {seccion.label}
+                </p>
 
-        {/* Inventario con submenú */}
-        <div>
-          <button
-            onClick={() => setInventarioAbierto(prev => !prev)}
-            aria-label="Inventario"
-            className="py-2.5 px-4" style={{
-              display: 'flex', alignItems: 'center', gap: '12px',
-              width: '100%', borderRadius: '8px',
-              background: inventarioActivo ? '#4f46e5' : 'transparent',
-              color: inventarioActivo ? 'white' : '#9ca3af',
-              border: 'none', cursor: 'pointer',
-              fontFamily: 'inherit', fontSize: '17px',
-              fontWeight: inventarioActivo ? 600 : 400,
-              textAlign: 'left', transition: 'all 0.15s'
-            }}
-            onMouseEnter={e => {
-              if (!inventarioActivo) {
-                e.currentTarget.style.background = '#1f2937'
-                e.currentTarget.style.color = 'white'
-              }
-            }}
-            onMouseLeave={e => {
-              if (!inventarioActivo) {
-                e.currentTarget.style.background = 'transparent'
-                e.currentTarget.style.color = '#9ca3af'
-              }
-            }}
-          >
-            <Package size={17} className="shrink-0" />
-            <span className={etiquetaColapsable} style={{ flex: 1 }}>Inventario</span>
-            {inventarioAbierto
-              ? <ChevronDown size={16} className={`shrink-0 ${etiquetaColapsable}`} />
-              : <ChevronRight size={16} className={`shrink-0 ${etiquetaColapsable}`} />
-            }
-          </button>
+                {items.map((item) => {
+                  const Icon = item.icon
 
-          {/* Submenú: oculto en el riel colapsado, visible al expandir */}
-          {inventarioAbierto && (
-            <div className={`mt-1 ml-3 pl-3 flex flex-col gap-0.5 ${claseSubmenu}`} style={{
-              borderLeft: '1px solid #374151',
-            }}>
-              {inventarioSubMenu.map((sub) => {
-                const SubIcon = sub.icon
-                const isSubActive = location.pathname === sub.path
-                return (
-                  <NavLink
-                    key={sub.path}
-                    to={sub.path}
-                    aria-label={sub.label}
-                    style={({ isActive }) => ({
-                      display: 'flex', alignItems: 'center', gap: '12px',
-                      padding: '8px 12px', borderRadius: '8px',
-                      textDecoration: 'none',
-                      background: isActive ? 'rgba(79,70,229,0.3)' : 'transparent',
-                      color: isActive ? '#a5b4fc' : '#6b7280',
-                      fontSize: '16px',
-                      fontWeight: isActive ? 500 : 400,
-                      transition: 'all 0.15s',
-                    })}
-                    onMouseEnter={e => {
-                      if (!isSubActive) {
-                        e.currentTarget.style.background = '#1f2937'
-                        e.currentTarget.style.color = '#d1d5db'
-                      }
-                    }}
-                    onMouseLeave={e => {
-                      if (!isSubActive) {
-                        e.currentTarget.style.background = 'transparent'
-                        e.currentTarget.style.color = '#6b7280'
-                      }
-                    }}
-                  >
-                    <SubIcon size={15} className="shrink-0" />
-                    <span className={etiquetaColapsable}>{sub.label}</span>
-                  </NavLink>
-                )
-              })}
-            </div>
-          )}
-        </div>
+                  // Inventario: ítem con submenú plegable.
+                  if (item.hijos) {
+                    return (
+                      <div key={item.id}>
+                        <button
+                          onClick={() => setInventarioAbierto(prev => !prev)}
+                          aria-label={item.label}
+                          aria-expanded={inventarioAbierto}
+                          aria-controls="submenu-inventario"
+                          className="py-2.5 px-4" style={{
+                            display: 'flex', alignItems: 'center', gap: '12px',
+                            width: '100%', borderRadius: '8px',
+                            background: inventarioActivo ? '#4f46e5' : 'transparent',
+                            color: inventarioActivo ? 'white' : '#9ca3af',
+                            border: 'none', cursor: 'pointer',
+                            fontFamily: 'inherit', fontSize: '17px',
+                            fontWeight: inventarioActivo ? 600 : 400,
+                            textAlign: 'left', transition: 'all 0.15s'
+                          }}
+                          onMouseEnter={e => {
+                            if (!inventarioActivo) {
+                              e.currentTarget.style.background = '#1f2937'
+                              e.currentTarget.style.color = 'white'
+                            }
+                          }}
+                          onMouseLeave={e => {
+                            if (!inventarioActivo) {
+                              e.currentTarget.style.background = 'transparent'
+                              e.currentTarget.style.color = '#9ca3af'
+                            }
+                          }}
+                        >
+                          <Icon size={17} className="shrink-0" />
+                          <span className={etiquetaColapsable} style={{ flex: 1 }}>{item.label}</span>
+                          {inventarioAbierto
+                            ? <ChevronDown size={16} className={`shrink-0 ${etiquetaColapsable}`} />
+                            : <ChevronRight size={16} className={`shrink-0 ${etiquetaColapsable}`} />
+                          }
+                        </button>
 
-        {/* Resto del menú */}
-        {menuPrincipal.slice(2).filter(item => !item.soloAdmin || esAdminPrincipal).map((item) => {
-          const Icon = item.icon
-          return (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              aria-label={item.label}
-              style={({ isActive }) => ({
-                display: 'flex', alignItems: 'center', gap: '12px',
-                padding: '10px 16px', borderRadius: '8px',
-                textDecoration: 'none',
-                background: isActive ? '#4f46e5' : 'transparent',
-                color: isActive ? 'white' : '#9ca3af',
-                fontSize: '17px',
-                fontWeight: isActive ? 600 : 400,
-                transition: 'all 0.15s',
-              })}
-              onMouseEnter={e => {
-                const isActive = e.currentTarget.getAttribute('aria-current') === 'page'
-                if (!isActive) {
-                  e.currentTarget.style.background = '#1f2937'
-                  e.currentTarget.style.color = 'white'
-                }
-              }}
-              onMouseLeave={e => {
-                const isActive = e.currentTarget.getAttribute('aria-current') === 'page'
-                if (!isActive) {
-                  e.currentTarget.style.background = 'transparent'
-                  e.currentTarget.style.color = '#9ca3af'
-                }
-              }}
-            >
-              <Icon size={17} className="shrink-0" />
-              <span className={etiquetaColapsable}>{item.label}</span>
-            </NavLink>
-          )
-        })}
+                        {/* Submenú: oculto en el riel colapsado, visible al expandir */}
+                        {inventarioAbierto && (
+                          <div id="submenu-inventario" className={`mt-1 ml-3 pl-3 flex flex-col gap-0.5 ${claseSubmenu}`} style={{
+                            borderLeft: '1px solid #374151',
+                          }}>
+                            {item.hijos.map((sub) => {
+                              const SubIcon = sub.icon
+                              const isSubActive = location.pathname === sub.path
+                              return (
+                                <NavLink
+                                  key={sub.path}
+                                  to={sub.path}
+                                  aria-label={sub.label}
+                                  style={({ isActive }) => ({
+                                    display: 'flex', alignItems: 'center', gap: '12px',
+                                    padding: '8px 12px', borderRadius: '8px',
+                                    textDecoration: 'none',
+                                    background: isActive ? 'rgba(79,70,229,0.3)' : 'transparent',
+                                    color: isActive ? '#a5b4fc' : '#6b7280',
+                                    fontSize: '16px',
+                                    fontWeight: isActive ? 500 : 400,
+                                    transition: 'all 0.15s',
+                                  })}
+                                  onMouseEnter={e => {
+                                    if (!isSubActive) {
+                                      e.currentTarget.style.background = '#1f2937'
+                                      e.currentTarget.style.color = '#d1d5db'
+                                    }
+                                  }}
+                                  onMouseLeave={e => {
+                                    if (!isSubActive) {
+                                      e.currentTarget.style.background = 'transparent'
+                                      e.currentTarget.style.color = '#6b7280'
+                                    }
+                                  }}
+                                >
+                                  <SubIcon size={15} className="shrink-0" />
+                                  <span className={etiquetaColapsable}>{sub.label}</span>
+                                </NavLink>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  }
 
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      end={item.path === '/'}
+                      aria-label={item.label}
+                      style={({ isActive }) => ({
+                        display: 'flex', alignItems: 'center', gap: '12px',
+                        padding: '10px 16px', borderRadius: '8px',
+                        textDecoration: 'none',
+                        background: isActive ? '#4f46e5' : 'transparent',
+                        color: isActive ? 'white' : '#9ca3af',
+                        fontSize: '17px',
+                        fontWeight: isActive ? 600 : 400,
+                        transition: 'all 0.15s',
+                      })}
+                      onMouseEnter={e => {
+                        const isActive = e.currentTarget.getAttribute('aria-current') === 'page'
+                        if (!isActive) {
+                          e.currentTarget.style.background = '#1f2937'
+                          e.currentTarget.style.color = 'white'
+                        }
+                      }}
+                      onMouseLeave={e => {
+                        const isActive = e.currentTarget.getAttribute('aria-current') === 'page'
+                        if (!isActive) {
+                          e.currentTarget.style.background = 'transparent'
+                          e.currentTarget.style.color = '#9ca3af'
+                        }
+                      }}
+                    >
+                      <Icon size={17} className="shrink-0" />
+                      <span className={etiquetaColapsable}>{item.label}</span>
+                    </NavLink>
+                  )
+                })}
+              </div>
+            )
+          })}
         </nav>
 
         {/* Footer */}

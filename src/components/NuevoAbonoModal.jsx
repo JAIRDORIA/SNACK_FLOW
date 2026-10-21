@@ -4,6 +4,10 @@ import api from '@/api/axios'
 import useAbonosModuleStore from '@/store/useAbonosModuleStore'
 import useBalanceStore from '@/store/useBalanceStore'
 import { getClientes } from '@/api/clientes_api'
+import MedioPagoSelector, {
+  medioPagoValido,
+  payloadMedioPago,
+} from '@/components/MedioPagoSelector'
 
 export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
   const [clientes, setClientes] = useState([])
@@ -12,11 +16,13 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
   const [ventasCliente, setVentasCliente] = useState([])
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null)
   const [monto, setMonto] = useState(0)
-  const [medioPago, setMedioPago] = useState('efectivo')
+  const [medioPago, setMedioPago] = useState({ medio_pago: 'efectivo', medio_pago_id: null })
   const [observacion, setObservacion] = useState('')
   const [cargandoVentas, setCargandoVentas] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
+  // Error de la cuenta de transferencia: se muestra bajo el selector.
+  const [errorMedioPago, setErrorMedioPago] = useState('')
   const [exito, setExito] = useState(false)
 
   const { crearAbono } =useAbonosModuleStore()
@@ -34,9 +40,10 @@ useEffect(() => {
     setVentasCliente([])
     setVentaSeleccionada(null)
     setMonto(0)
-    setMedioPago('efectivo')
+    setMedioPago({ medio_pago: 'efectivo', medio_pago_id: null })
     setObservacion('')
     setError('')
+    setErrorMedioPago('')
     setExito(false)
   }
 }, [open])
@@ -85,16 +92,21 @@ useEffect(() => {
       setError('Monto inválido o superior al saldo pendiente')
       return
     }
+    // Transferencia sin cuenta: se muestra bajo el selector y no se envía.
+    if (!medioPagoValido(medioPago)) {
+      setErrorMedioPago('Selecciona la cuenta de transferencia')
+      return
+    }
     setEnviando(true)
     setError('')
+    setErrorMedioPago('')
     try {
       const payload = {
         venta_id: ventaSeleccionada.id_venta,
         corte_id: balance.corte_id,
-        usuario_id: 1, // Cambiar por usuario real
         monto: monto,
         fecha: new Date().toISOString().slice(0, 10).split('-').reverse().join('/'),
-        medio_pago: medioPago,
+        ...payloadMedioPago(medioPago),
         observacion: observacion || undefined,
         
       }
@@ -105,7 +117,11 @@ useEffect(() => {
         onClose()
       }, 1000)
     } catch (err) {
-      setError(err.response?.data?.mensaje || 'Error al crear abono')
+      setError(
+        err.response?.data?.mensaje ||
+          err.response?.data?.error ||
+          'Error al crear abono',
+      )
     } finally {
       setEnviando(false)
     }
@@ -218,14 +234,18 @@ useEffect(() => {
                     className="w-full border border-slate-200 rounded-lg text-sm p-2"
                   />
 
-                  <label className="block text-xs text-slate-500">Medio de pago</label>
-                  <select value={medioPago} onChange={e => setMedioPago(e.target.value)}
-
-                    className="w-full border border-slate-200 rounded-lg text-sm p-2">
-                    <option value="efectivo">Efectivo</option>
-                    <option value="transferencia">Transferencia</option>
-                    <option value="otro">Otro</option>
-                  </select>
+                  <div>
+                    <p className="block text-xs text-slate-500 m-0 mb-1">Medio de pago</p>
+                    <MedioPagoSelector
+                      value={medioPago}
+                      onChange={(value) => {
+                        setMedioPago(value)
+                        if (errorMedioPago) setErrorMedioPago('')
+                      }}
+                      disabled={enviando}
+                      error={errorMedioPago}
+                    />
+                  </div>
 
                   <label className="block text-xs text-slate-500">Observación (opcional)</label>
                   <input

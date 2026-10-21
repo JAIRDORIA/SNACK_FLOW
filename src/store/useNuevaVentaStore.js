@@ -3,6 +3,7 @@ import api from '@/api/axios'
 import { getClientes } from '@/api/clientes_api'
 import { getCortes } from '@/api/cortes_api'
 import { getProductos } from '@/api/productos_api'
+import { medioPagoValido, payloadMedioPago } from '@/components/MedioPagoSelector'
 
 export const useNuevaVentaStore = create((set, get) => ({
   // Datos externos
@@ -42,7 +43,7 @@ export const useNuevaVentaStore = create((set, get) => ({
     set((state) => ({
       abonosIniciales: [
         ...state.abonosIniciales,
-        { monto: 0, medio_pago: 'efectivo', observacion: '' }
+        { monto: 0, medio_pago: 'efectivo', medio_pago_id: null, observacion: '' }
       ]
     }))
   },
@@ -55,6 +56,21 @@ export const useNuevaVentaStore = create((set, get) => ({
     set((state) => {
       const nuevos = [...state.abonosIniciales]
       nuevos[index] = { ...nuevos[index], [campo]: valor }
+      return { abonosIniciales: nuevos }
+    })
+  },
+  // El selector emite { medio_pago, medio_pago_id } juntos. En efectivo el id
+  // siempre queda en null.
+  cambiarMedioPagoAbono: (index, value) => {
+    set((state) => {
+      const nuevos = [...state.abonosIniciales]
+      if (!nuevos[index]) return {}
+      const esTransferencia = value?.medio_pago === 'transferencia'
+      nuevos[index] = {
+        ...nuevos[index],
+        medio_pago: esTransferencia ? 'transferencia' : 'efectivo',
+        medio_pago_id: esTransferencia ? value?.medio_pago_id ?? null : null,
+      }
       return { abonosIniciales: nuevos }
     })
   },
@@ -84,6 +100,7 @@ export const useNuevaVentaStore = create((set, get) => ({
       {
         monto: total > 0 ? total : 0,
         medio_pago: 'efectivo',
+        medio_pago_id: null,
         observacion: '',
       },
     ],
@@ -243,7 +260,6 @@ export const useNuevaVentaStore = create((set, get) => ({
     const total = get().totalVenta()
     const totalRedondeado = Math.round(total * 100) / 100
     const totalAbonado = get().totalAbonado()
-    const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
     // Validaciones
     if (!clienteId || !corteId || !fechaEntrega || detalle.length === 0) {
       set({ errorMsg: 'Completa todos los campos requeridos (cliente, corte, fecha, al menos un producto).' })
@@ -251,6 +267,15 @@ export const useNuevaVentaStore = create((set, get) => ({
     }
     if (totalAbonado > total) {
       set({ errorMsg: 'La suma de los abonos no puede superar el total de la venta.' })
+      return false
+    }
+    // Toda transferencia con monto debe llevar su cuenta (el modal muestra el
+    // error por fila; esto es la última barrera antes de enviar).
+    const abonoSinCuenta = abonosIniciales.some(
+      (a) => Number(a.monto) > 0 && !medioPagoValido(a)
+    )
+    if (abonoSinCuenta) {
+      set({ errorMsg: 'Selecciona la cuenta de transferencia' })
       return false
     }
 
@@ -263,7 +288,6 @@ export const useNuevaVentaStore = create((set, get) => ({
     const payload = {
       cliente_id: Number(clienteId),
       corte_id: Number(corteId),
-      usuario_id: usuario?.id,
       fecha_entrega: fechaFormateada,
       total: totalRedondeado,
       observacion: observacion?.trim() || null, 
@@ -285,12 +309,12 @@ export const useNuevaVentaStore = create((set, get) => ({
     }
 
     // Agregar abonos iniciales (múltiples)
-    const abonosValidos = abonosIniciales.filter(a => a.monto > 0)
+    const abonosValidos = abonosIniciales.filter(a => Number(a.monto) > 0)
     if (abonosValidos.length > 0) {
       payload.abonos_iniciales = abonosValidos.map(a => ({
         monto: Number(a.monto),
-        medio_pago: a.medio_pago,
-        observacion: a.observacion?.trim() || undefined
+        observacion: a.observacion?.trim() || undefined,
+        ...payloadMedioPago(a),
       }))
     }
 
@@ -328,7 +352,10 @@ export const useNuevaVentaStore = create((set, get) => ({
       console.error('Error al crear venta', err)
       set({
         enviando: false,
-        errorMsg: err.response?.data?.error || 'Error al registrar venta',
+        errorMsg:
+          err.response?.data?.error ||
+          err.response?.data?.mensaje ||
+          'Error al registrar venta',
       })
       return false
     }

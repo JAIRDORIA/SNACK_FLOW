@@ -9,8 +9,9 @@ export default function Dashboard() {
   const autoSlideRef = useRef(null)
 const statsCards = [
     {
-      title: 'Total de Dinero en Caja del corte actual',
-      value: balance?.dinero_caja ?? 0,
+      title: 'Total en caja',
+      // Mismos campos que Balance, con respaldo a los antiguos.
+      value: balance?.dinero_caja_total ?? balance?.dinero_caja_real ?? balance?.dinero_caja ?? 0,
       icon: Wallet,
       iconColor: '#22d3ee',
       ringColor: 'rgba(34,211,238,0.4)'
@@ -30,15 +31,15 @@ const statsCards = [
       ringColor: 'rgba(232,121,249,0.4)'
     },
     {
-      title: 'Total de Dinero en Efectivo',
-      value: balance?.total_efectivo ?? 0,
+      title: 'Efectivo en caja',
+      value: balance?.efectivo_caja ?? balance?.total_efectivo ?? 0,
       icon: DollarSign,
       iconColor: '#fb923c',
       ringColor: 'rgba(251,146,60,0.4)'
     },
     {
-      title: 'Dinero en Transferencia',
-      value: balance?.total_transferencia ?? 0,
+      title: 'Transferencias',
+      value: balance?.transferencia_cuentas ?? balance?.total_transferencia ?? 0,
       icon: CreditCard,
       iconColor: '#fb7185',
       ringColor: 'rgba(251,113,133,0.4)'

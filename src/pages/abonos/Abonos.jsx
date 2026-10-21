@@ -3,6 +3,7 @@ import { Plus, Search, Trash2, Loader2, AlertCircle, Info, X } from 'lucide-reac
 import useAbonosModuleStore from '@/store/useAbonosModuleStore'
 import useBalanceStore from '@/store/useBalanceStore'
 import NuevoAbonoModal from '@/components/NuevoAbonoModal'
+import MedioPagoBadge from '@/components/MedioPagoBadge'
 import { formatearFechaCorta } from '@/utils/formatearFecha'
 
 export default function Abonos() {
@@ -41,7 +42,8 @@ export default function Abonos() {
     return (
       String(a.id).includes(q) ||
       a.nombre_cliente?.toLowerCase().includes(q) ||
-      a.medio_pago?.toLowerCase().includes(q)
+      a.medio_pago?.toLowerCase().includes(q) ||
+      a.medio_pago_nombre?.toLowerCase().includes(q)
     )
   })
 
@@ -114,12 +116,10 @@ export default function Abonos() {
                       <td className="sm:px-4 sm:py-3 text-gray-700 text-xs sm:text-sm whitespace-nowrap py-3 px-4">{abono.nombre_cliente}</td>
                       <td className="sm:px-4 sm:py-3 text-right font-semibold text-xs sm:text-sm whitespace-nowrap py-3 px-4">${abono.monto.toLocaleString('es-CO')}</td>
                       <td className="sm:px-4 sm:py-3 py-3 px-4">
-                        <span className={`text-xs px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full font-medium whitespace-nowrap ${
-                          abono.medio_pago === 'efectivo' ? 'bg-emerald-50 text-emerald-600' :
-                          abono.medio_pago === 'transferencia' ? 'bg-blue-50 text-blue-600' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {abono.medio_pago}
-                        </span>
+                        <MedioPagoBadge
+                          medioPago={abono.medio_pago}
+                          nombre={abono.medio_pago_nombre}
+                        />
                       </td>
                       <td className="sm:px-4 sm:py-3 text-gray-500 text-xs sm:text-sm max-w-[120px] sm:max-w-[200px] truncate py-3 px-4">{abono.observacion || '—'}</td>
                       <td className="sm:px-4 sm:py-3 text-center py-3 px-4">

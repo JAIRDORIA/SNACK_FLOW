@@ -46,8 +46,10 @@ cerrarDetalleCorte: () => set({ detalleCorte: null }),
     set({ errorVentasPendientes: 'Error al cargar ventas pendientes', cargandoVentasPendientes: false })
   }
 },
-  fetchBalance: async () => {
-    set({ cargandoBalance: true, error: null })
+  // silent = true refresca las cards sin mostrar el spinner de página completa.
+  fetchBalance: async (silent = false) => {
+    if (silent) set({ error: null })
+    else set({ cargandoBalance: true, error: null })
     try {
       const res = await getBalance()
       set({ balance: res.data, cargandoBalance: false })

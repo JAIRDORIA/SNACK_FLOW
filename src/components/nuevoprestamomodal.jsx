@@ -9,30 +9,28 @@ import {
   HandCoins,
   Loader2,
   CheckCircle2,
-  Banknote,
-  ArrowLeftRight,
 } from 'lucide-react'
+import MedioPagoSelector, {
+  medioPagoValido,
+  payloadMedioPago,
+} from '@/components/MedioPagoSelector'
 
 // Estilo "Data-Dense Dashboard" (ui-ux-pro-max): modal de formulario con
 // etiquetas visibles (nunca solo placeholder), ayudas bajo el campo, estados de
 // foco visibles y feedback de error junto al campo afectado.
 
-const MEDIOS_PAGO = [
-  { value: 'efectivo', label: 'Efectivo', icon: Banknote },
-  { value: 'transferencia', label: 'Transferencia', icon: ArrowLeftRight },
-]
-
 export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
   const { nuevoPrestamo } = usePrestamosStore()
-  const usuario = JSON.parse(localStorage.getItem('usuario') || 'null')
 
   const [clientes, setClientes] = useState([])
   const [busquedaCliente, setBusquedaCliente] = useState('')
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null)
   const [monto, setMonto] = useState('')
-  const [medioPago, setMedioPago] = useState('efectivo')
+  const [medioPago, setMedioPago] = useState({ medio_pago: 'efectivo', medio_pago_id: null })
   const [observacion, setObservacion] = useState('')
   const [error, setError] = useState('')
+  // Error de la cuenta de transferencia: se muestra bajo el selector.
+  const [errorMedioPago, setErrorMedioPago] = useState('')
   const [guardando, setGuardando] = useState(false)
   const [buscando, setBuscando] = useState(false)
 
@@ -78,9 +76,10 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
     setClienteSeleccionado(null)
     setBusquedaCliente('')
     setMonto('')
-    setMedioPago('efectivo')
+    setMedioPago({ medio_pago: 'efectivo', medio_pago_id: null })
     setObservacion('')
     setError('')
+    setErrorMedioPago('')
   }
 
   const handleSubmit = async (e) => {
@@ -96,17 +95,17 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
       setError('El monto debe ser mayor a 0')
       return
     }
-    if (!usuario?.id) {
-      setError('No se pudo identificar el usuario actual')
+    if (!medioPagoValido(medioPago)) {
+      setErrorMedioPago('Selecciona la cuenta de transferencia')
       return
     }
 
     setGuardando(true)
+    setErrorMedioPago('')
     const resultado = await nuevoPrestamo({
       cliente_id: clienteSeleccionado.ID_Cliente,
-      usuario_id: usuario.id,
       monto: montoNum,
-      medio_pago: medioPago,
+      ...payloadMedioPago(medioPago),
       observacion: observacion || null,
     })
     setGuardando(false)
@@ -280,37 +279,24 @@ export default function NuevoPrestamoModal({ isOpen, onClose, onSuccess }) {
             </p>
           </div>
 
-          {/* ── Medio de pago: botones en vez de <select> ── */}
-          <fieldset className="border-0 p-0 m-0">
-            <legend className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 p-0">
+          {/* ── Medio de pago ── */}
+          <div>
+            <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 m-0">
               Medio de pago <span className="text-rose-500">*</span>
-            </legend>
-            <div className="grid grid-cols-2 gap-2">
-              {MEDIOS_PAGO.map((m) => {
-                const Icono = m.icon
-                const activo = medioPago === m.value
-                return (
-                  <button
-                    type="button"
-                    key={m.value}
-                    aria-pressed={activo}
-                    onClick={() => setMedioPago(m.value)}
-                    className={`flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold py-2.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 cursor-pointer ${
-                      activo
-                        ? 'border-indigo-500 bg-indigo-50 text-indigo-700'
-                        : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    <Icono size={15} aria-hidden="true" />
-                    {m.label}
-                  </button>
-                )
-              })}
-            </div>
+            </p>
+            <MedioPagoSelector
+              value={medioPago}
+              onChange={(value) => {
+                setMedioPago(value)
+                if (errorMedioPago) setErrorMedioPago('')
+              }}
+              disabled={guardando}
+              error={errorMedioPago}
+            />
             <p className="text-[11px] text-slate-400 mt-1.5 m-0">
               Medio con el que se entrega el dinero.
             </p>
-          </fieldset>
+          </div>
 
           {/* ── Observación ── */}
           <div>

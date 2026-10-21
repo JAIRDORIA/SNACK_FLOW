@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { getCompras, postCompra, putCompra, deleteCompra } from '@/api/compras_api'
 import { getCortes } from '@/api/cortes_api'
+import { payloadMedioPago } from '@/components/MedioPagoSelector'
 
 // Mapea la respuesta del backend al shape que usa el frontend
 const normalizar = (c) => ({
@@ -50,30 +51,26 @@ const useComprasStore = create((set, get) => ({
     }
   },
 
-  crearCompra: async (data) => {
-    const usuario_id = JSON.parse(localStorage.getItem('usuario') || '{}').id ?? 1
+  crearCompra: async (data, medioPago) => {
     const payload = {
       proveedor_id: data.id_proveedor,
       total:        data.costo_total,
       fecha:        data.fecha_compra,
-      medio_pago:   data.medio_pago || 'efectivo',
+      ...payloadMedioPago(medioPago),
       descripcion:  data.descripcion || '',
-      usuario_id,
     }
     const res = await postCompra(payload)
     await get().fetchCompras(get().pagina, get().limite, get().corteIdFiltro, get().busqueda)
     return res.data
   },
 
-  editarCompra: async (id, data) => {
-    const usuario_id = JSON.parse(localStorage.getItem('usuario') || '{}').id ?? 1
+  editarCompra: async (id, data, medioPago) => {
     const payload = {
       proveedor_id: data.id_proveedor,
       total:        data.costo_total,
       fecha:        data.fecha_compra,
       descripcion:  data.descripcion || '',
-      medio_pago:   data.medio_pago || 'efectivo',
-      usuario_id,
+      ...payloadMedioPago(medioPago),
     }
     const res = await putCompra(id, payload)
     await get().fetchCompras(get().pagina, get().limite, get().corteIdFiltro, get().busqueda)

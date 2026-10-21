@@ -39,6 +39,7 @@ import { capitalizarNombre } from "@/utils/formatearTexto";
 import { formatearFechaColombia } from "@/utils/formatearFecha";
 import usePorConfirmarStore from "@/store/usePorConfirmarStore";
 import KpiCard from "@/components/KpiCard";
+import MedioPagoBadge from "@/components/MedioPagoBadge";
 
 // ══════════════════════════════════════════
 // CONFIGURACION DE ESTILOS
@@ -76,6 +77,16 @@ const TIPO_CONFIG = {
   transferencia: { bg: "#eff6ff", color: "#1d4ed8", label: "Transferencia" },
   otro: { bg: "#f9fafb", color: "#6b7280", label: "Otro" },
 };
+
+// Escapa texto para insertarlo en el HTML del comprobante (valores escritos
+// por usuarios, como el nombre de la cuenta de transferencia).
+const escapeHtml = (texto) =>
+  String(texto ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 
 // Opciones del panel de FILTROS. Además de los medios reales incluye "Deben",
 // que el backend sí soporta en `tipos_pago` (equivale a saldo_pendiente > 0;
@@ -327,7 +338,7 @@ export default function Ventas() {
               <tr>
                 <td>${a.fecha}</td>
                 <td>$${a.monto?.toLocaleString("es-CO")}</td>
-                <td>${a.medio_pago}</td>
+                <td>${escapeHtml(a.medio_pago_nombre || a.medio_pago)}</td>
               </tr>
             `,
           )
@@ -1407,21 +1418,10 @@ export default function Ventas() {
                               ${a.monto?.toLocaleString("es-CO")}
                             </td>
                             <td className="py-1 px-1.5">
-                              <span
-                                className="text-x rounded-full font-medium py-0.5 px-1.5"
-                                style={{
-                                  background:
-                                    a.medio_pago === "efectivo"
-                                      ? "#f0fdf4"
-                                      : "#eff6ff",
-                                  color:
-                                    a.medio_pago === "efectivo"
-                                      ? "#15803d"
-                                      : "#1d4ed8"
-                                }}
-                              >
-                                {a.medio_pago}
-                              </span>
+                              <MedioPagoBadge
+                                medioPago={a.medio_pago}
+                                nombre={a.medio_pago_nombre}
+                              />
                             </td>
                             <td
 
@@ -1715,7 +1715,10 @@ export default function Ventas() {
 
                               className="text-sm py-2 px-4"
                             >
-                              {abono.medio_pago}
+                              <MedioPagoBadge
+                                medioPago={abono.medio_pago}
+                                nombre={abono.medio_pago_nombre}
+                              />
                             </td>
                           </tr>
                         ))}

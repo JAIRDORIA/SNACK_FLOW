@@ -1,6 +1,6 @@
 # SnackFlow — Frontend (negocio Delis)
 
-Explora el repo tú mismo; no pidas archivos. Responde breve, con edición mínima y sin refactors no pedidos. Al terminar, lista archivos modificados y cualquier campo o nombre del contrato que hayas tenido que suponer.
+Explora el repo tú mismo; no pidas archivos. Responde breve, con edición mínima y sin refactors no pedidos. Al terminar, lista archivos modificados y cualquier campo o nombre del contrato que hayas tenido que suponer. al responder alguna pregunta o editar archivo o iniciar un nuevo chat lee los archivos diagnostico_medios_pago.md, estructura_froend.md y snackflow_context.md; y manten estos archivos actualizados segun el caso
 
 ## Stack
 - React + Vite, Zustand (**un store por módulo**), capa `src/api/*.js` sobre una instancia de axios (`src/api/axios.js`), íconos de `lucide-react`.

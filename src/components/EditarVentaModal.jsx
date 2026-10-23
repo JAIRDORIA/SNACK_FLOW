@@ -12,7 +12,9 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
     cargarVenta, setFechaEntrega, setHoraEntrega,
     modificarProducto, eliminarProducto,
     totalActual, guardarCambios, reset, agregarItem,
-    actualizarComposicionCombo
+    actualizarComposicionCombo,
+    valorDomicilio, valorDomicilioOriginal, domicilioPagado, productosPagado,
+    setValorDomicilio, subtotalProductos,
   } = useEditarVentaStore()
 
   // Para el selector de productos (usamos el store de nueva venta que ya tiene los productos)
@@ -21,6 +23,9 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
   const [itemSeleccionado, setItemSeleccionado] = useState(null);
   const [cantidad, setCantidad] = useState(1)
   const [selectValue, setSelectValue] = useState('');
+  // Texto del input de domicilio: se sincroniza solo al cargar la venta (o al
+  // guardar), para no pisar lo que el usuario está escribiendo.
+  const [valorDomicilioLocal, setValorDomicilioLocal] = useState('0')
 
   // ── Sub-modal de composición de combo ──
   const [compoIndex, setCompoIndex] = useState(null)      // índice de la fila que se edita
@@ -47,6 +52,25 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
       reset()
     }
   }, [open, ventaId])
+
+  // Se sincroniza cuando terminó de cargar la venta (cambia el valor original)
+  // o al guardar; no en cada tecla, para no reformatear lo que se escribe.
+  useEffect(() => {
+    setValorDomicilioLocal(valorDomicilio ? String(valorDomicilio) : '0')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ventaId, valorDomicilioOriginal])
+
+  const domicilioNum = Number(valorDomicilio) || 0
+  const errorDomicilio = domicilioNum < domicilioPagado
+    ? `El domicilio no puede ser menor a lo ya pagado ($${(Number(domicilioPagado) || 0).toLocaleString('es-CO')})`
+    : domicilioNum > 1000000
+      ? 'El valor del domicilio no puede superar $1.000.000'
+      : ''
+  const subtotalActual = subtotalProductos()
+  const errorProductos = subtotalActual < (Number(productosPagado) || 0)
+    ? `El subtotal de productos no puede ser menor a lo ya pagado ($${(Number(productosPagado) || 0).toLocaleString('es-CO')})`
+    : ''
+  const hayErrorMontos = Boolean(errorDomicilio || errorProductos)
   const handleAgregarProducto = (item) => {
   if (!item) return;
 
@@ -217,6 +241,51 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
                   className="w-full border border-slate-300 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
                 />
               </div>
+              <div>
+                <label htmlFor="valor-domicilio-editar" className="block text-xs text-slate-500 mb-1">
+                  Valor del domicilio
+                </label>
+                <input
+                  id="valor-domicilio-editar"
+                  type="number"
+                  inputMode="decimal"
+                  min="0"
+                  max="1000000"
+                  step="0.01"
+                  placeholder="0"
+                  value={valorDomicilioLocal}
+                  onChange={(e) => {
+                    const raw = e.target.value
+                    setValorDomicilioLocal(raw)
+                    setValorDomicilio(parseFloat(raw) || 0)
+                  }}
+                  onBlur={() => {
+                    const numero = Math.min(
+                      Math.max(parseFloat(valorDomicilioLocal) || 0, 0),
+                      1000000,
+                    )
+                    const redondeado = Math.round(numero * 100) / 100
+                    setValorDomicilio(redondeado)
+                    setValorDomicilioLocal(String(redondeado))
+                  }}
+                  aria-invalid={Boolean(errorDomicilio)}
+                  aria-describedby={errorDomicilio ? 'valor-domicilio-error' : 'valor-domicilio-help'}
+                  className={`w-full border rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2 ${
+                    errorDomicilio ? 'border-rose-300 bg-rose-50/40' : 'border-slate-300'
+                  }`}
+                />
+                {errorDomicilio ? (
+                  <p id="valor-domicilio-error" role="alert" className="text-xs text-rose-600 mt-1">
+                    {errorDomicilio}
+                  </p>
+                ) : (
+                  <p id="valor-domicilio-help" className="text-xs text-slate-400 mt-1">
+                    {domicilioPagado > 0
+                      ? `Mínimo permitido: $${(Number(domicilioPagado) || 0).toLocaleString('es-CO')} (ya pagado).`
+                      : 'Se suma al total y se cobra aparte de los productos.'}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -345,11 +414,24 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
           </div>
 
           {/* Total */}
-          <div className="bg-indigo-50 rounded-xl p-4">
+          <div className="bg-indigo-50 rounded-xl p-4 space-y-1.5">
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Nuevo total</span>
+              <span className="text-slate-600">Subtotal productos</span>
+              <span className="font-medium text-slate-700">${subtotalActual.toLocaleString('es-CO')}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-slate-600">Domicilio</span>
+              <span className="font-medium text-slate-700">${domicilioNum.toLocaleString('es-CO')}</span>
+            </div>
+            <div className="flex justify-between text-sm border-t border-indigo-100 pt-1.5">
+              <span className="font-semibold text-slate-700">Nuevo total</span>
               <span className="font-bold text-slate-800">${totalActual().toLocaleString('es-CO')}</span>
             </div>
+            {errorProductos && (
+              <p role="alert" className="text-xs text-rose-600 pt-1">
+                {errorProductos}
+              </p>
+            )}
           </div>
 
           {/* Error */}
@@ -383,7 +465,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
             </button>
             <button
               onClick={handleGuardar}
-              disabled={cargando || exito}
+              disabled={cargando || exito || hayErrorMontos}
 
               className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md hover:shadow-lg disabled:opacity-50 transition-all py-2 px-6"
             >

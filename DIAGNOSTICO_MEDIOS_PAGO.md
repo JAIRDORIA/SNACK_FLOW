@@ -249,7 +249,7 @@ Iconos: `DollarSign` (Total en caja), `Wallet` (Efectivo en caja), `CreditCard`
   (`efectivo` → emerald, `transferencia` → blue, resto → gray) y el valor crudo en
   minúsculas (línea 121).
 - El buscador incluye el medio: `a.medio_pago?.toLowerCase().includes(q)` (línea 44).
-- No hay vista de detalle ni recibo por abono; solo modal de eliminar (169–192).
+- Hay modal de recibo por abono (`GET /abonos/{id}/recibo`) y chip "Domicilio" cuando `es_domicilio` es true; el modal de eliminar se mantiene.
 
 ### Compras
 

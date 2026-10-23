@@ -321,6 +321,10 @@ export default function Ventas() {
 
       <div style="display: flex; justify-content: flex-end;">
         <div style="width: 250px;">
+          <p style="display: flex; justify-content: space-between;"><span>Subtotal:</span> <strong>$${Number(data.subtotal_productos ?? data.total ?? 0).toLocaleString("es-CO")}</strong></p>
+          ${Number(data.valor_domicilio) > 0
+            ? `<p style="display: flex; justify-content: space-between;"><span>Domicilio:</span> <strong>$${Number(data.valor_domicilio).toLocaleString("es-CO")}</strong></p>`
+            : ""}
           <p style="display: flex; justify-content: space-between;"><span>Total:</span> <strong>$${data.total?.toLocaleString("es-CO")}</strong></p>
         </div>
       </div>
@@ -338,7 +342,7 @@ export default function Ventas() {
               <tr>
                 <td>${a.fecha}</td>
                 <td>$${a.monto?.toLocaleString("es-CO")}</td>
-                <td>${escapeHtml(a.medio_pago_nombre || a.medio_pago)}</td>
+                <td>${escapeHtml(a.medio_pago_nombre || a.medio_pago)}${a.es_domicilio ? " (domicilio)" : ""}</td>
               </tr>
             `,
           )
@@ -877,6 +881,11 @@ export default function Ventas() {
                               Debe ${(v.saldo_pendiente ?? 0).toLocaleString("es-CO")}
                             </span>
                           )}
+                          {Number(v.domicilio_pendiente) > 0 && (
+                            <span className="inline-flex items-center text-[10px] rounded-full font-semibold bg-violet-50 text-violet-700 border border-violet-200 py-0.5 px-2">
+                              Domicilio debe ${Number(v.domicilio_pendiente).toLocaleString("es-CO")}
+                            </span>
+                          )}
                           {/* Medio de pago real. Si el valor es un pseudo-estado
                               ('error' por fallo de red, 'sin_pago', 'debe') o no
                               está en TIPO_CONFIG, no se muestra nada. */}
@@ -1285,6 +1294,62 @@ export default function Ventas() {
                 ))}
               </div>
 
+              {/* Desglose productos / domicilio (solo si la venta tiene domicilio) */}
+              {Number(detalleVenta.valor_domicilio) > 0 && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                      Productos
+                    </p>
+                    <dl className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <dt className="text-slate-500">Subtotal</dt>
+                        <dd className="font-medium text-slate-700">
+                          ${Number(detalleVenta.subtotal_productos ?? 0).toLocaleString("es-CO")}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-slate-500">Pagado</dt>
+                        <dd className="font-medium text-emerald-600">
+                          ${Number(detalleVenta.productos_pagado ?? 0).toLocaleString("es-CO")}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between border-t border-slate-200 pt-1">
+                        <dt className="text-slate-500">Pendiente</dt>
+                        <dd className="font-semibold text-amber-600">
+                          ${Number(detalleVenta.productos_pendiente ?? 0).toLocaleString("es-CO")}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                  <div className="rounded-2xl border border-violet-200 bg-violet-50 p-4">
+                    <p className="text-xs font-semibold text-violet-600 uppercase tracking-wider mb-2">
+                      Domicilio
+                    </p>
+                    <dl className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <dt className="text-slate-500">Valor</dt>
+                        <dd className="font-medium text-slate-700">
+                          ${Number(detalleVenta.valor_domicilio ?? 0).toLocaleString("es-CO")}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-slate-500">Pagado</dt>
+                        <dd className="font-medium text-emerald-600">
+                          ${Number(detalleVenta.domicilio_pagado ?? 0).toLocaleString("es-CO")}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between border-t border-violet-200 pt-1">
+                        <dt className="text-slate-500">Pendiente</dt>
+                        <dd className="font-semibold text-violet-700">
+                          ${Number(detalleVenta.domicilio_pendiente ?? 0).toLocaleString("es-CO")}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
+              )}
+
               {/* productos */}
               <div>
                 <p
@@ -1412,10 +1477,16 @@ export default function Ventas() {
                               {a.fecha}
                             </td>
                             <td
-
                               className="text-sm font-semibold text-green-600 py-1 px-1.5"
                             >
-                              ${a.monto?.toLocaleString("es-CO")}
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span>${a.monto?.toLocaleString("es-CO")}</span>
+                                {a.es_domicilio && (
+                                  <span className="inline-flex items-center text-[10px] rounded-full font-semibold bg-violet-50 text-violet-700 border border-violet-200 py-0.5 px-2">
+                                    Domicilio
+                                  </span>
+                                )}
+                              </div>
                             </td>
                             <td className="py-1 px-1.5">
                               <MedioPagoBadge
@@ -1636,14 +1707,21 @@ export default function Ventas() {
               <div className="flex justify-end">
                 <div className="w-64">
                   <div
-
                     className="flex justify-between border-b border-slate-200 pt-2 pb-2"
                   >
                     <span className="text-sm text-slate-500">Subtotal</span>
                     <span className="text-sm text-slate-800">
-                      ${comprobante.total?.toLocaleString("es-CO")}
+                      ${Number(comprobante.subtotal_productos ?? comprobante.total ?? 0).toLocaleString("es-CO")}
                     </span>
                   </div>
+                  {Number(comprobante.valor_domicilio) > 0 && (
+                    <div className="flex justify-between border-b border-slate-200 pt-2 pb-2">
+                      <span className="text-sm text-slate-500">Domicilio</span>
+                      <span className="text-sm text-slate-800">
+                        ${Number(comprobante.valor_domicilio).toLocaleString("es-CO")}
+                      </span>
+                    </div>
+                  )}
                   <div
 
                     className="flex justify-between border-b border-slate-200 pt-2 pb-2"
@@ -1709,7 +1787,12 @@ export default function Ventas() {
 
                               className="text-sm text-green-600 py-2 px-4"
                             >
-                              ${abono.monto?.toLocaleString("es-CO")}
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span>${abono.monto?.toLocaleString("es-CO")}</span>
+                                {abono.es_domicilio && (
+                                  <span className="text-[11px] text-violet-700 font-medium">(domicilio)</span>
+                                )}
+                              </div>
                             </td>
                             <td
 

@@ -8,6 +8,12 @@ const useEditarVentaStore = create((set, get) => ({
   fechaEntrega: '',
   horaEntrega: '',
   detalle: [], // { tipo, producto_id, combo_id, nombre_producto, cantidad, precio_unitario, productos? }
+  // Domicilio: valor actual, valor con el que se cargó (para enviarlo solo si
+  // cambió) y montos ya pagados que limitan la edición.
+  valorDomicilio: 0,
+  valorDomicilioOriginal: 0,
+  domicilioPagado: 0,
+  productosPagado: 0,
 
   // UI
   cargando: false,
@@ -18,6 +24,7 @@ const useEditarVentaStore = create((set, get) => ({
   setVentaId: (id) => set({ ventaId: id }),
   setFechaEntrega: (f) => set({ fechaEntrega: f }),
   setHoraEntrega: (h) => set({ horaEntrega: h }),
+  setValorDomicilio: (v) => set({ valorDomicilio: Number(v) || 0 }),
 
   // Cargar datos de la venta a editar
   cargarVenta: async (id) => {
@@ -26,10 +33,15 @@ const useEditarVentaStore = create((set, get) => ({
       const res = await getVentaDetalle(id)
       const data = res.data
       const [fecha, hora] = (data.fecha_entrega || '').split(' ')
+      const valorDomicilio = Number(data.valor_domicilio) || 0
       set({
         ventaId: id,
         fechaEntrega: fecha || '',
         horaEntrega: hora?.slice(0, 5) || '', // HH:MM
+        valorDomicilio,
+        valorDomicilioOriginal: valorDomicilio,
+        domicilioPagado: Number(data.domicilio_pagado) || 0,
+        productosPagado: Number(data.productos_pagado) || 0,
         detalle: (data.detalle || []).map(d => ({
           tipo: d.es_combo === 1 ? 'combo' : 'producto',
           producto_id: d.es_combo === 1 ? null : d.producto_id,
@@ -88,14 +100,22 @@ const useEditarVentaStore = create((set, get) => ({
     }))
   },
 
-  // Calcular nuevo total
-  totalActual: () => {
+  // Subtotal de productos (sin domicilio)
+  subtotalProductos: () => {
     return get().detalle.reduce((sum, item) => sum + item.cantidad * item.precio_unitario, 0)
+  },
+
+  // Calcular nuevo total = productos + domicilio
+  totalActual: () => {
+    return get().subtotalProductos() + (Number(get().valorDomicilio) || 0)
   },
 
   // Guardar cambios
   guardarCambios: async () => {
-    const { ventaId, fechaEntrega, horaEntrega, detalle } = get()
+    const {
+      ventaId, fechaEntrega, horaEntrega, detalle,
+      valorDomicilio, valorDomicilioOriginal, domicilioPagado, productosPagado,
+    } = get()
     if (!ventaId) return false
 
     if (!fechaEntrega) {
@@ -117,10 +137,30 @@ const useEditarVentaStore = create((set, get) => ({
       }
     }
 
+    // Domicilio: >= 0, máximo 2 decimales y tope 1.000.000. No puede bajar de
+    // lo que el cliente ya pagó por el domicilio.
+    const domicilioNum = Number(valorDomicilio) || 0
+    if (!Number.isFinite(domicilioNum) || domicilioNum < 0 || domicilioNum > 1000000) {
+      set({ error: 'El valor del domicilio debe estar entre 0 y 1.000.000' })
+      return false
+    }
+    if (domicilioNum < (Number(domicilioPagado) || 0)) {
+      set({
+        error: `El domicilio no puede ser menor a lo ya pagado ($${(Number(domicilioPagado) || 0).toLocaleString('es-CO')})`,
+      })
+      return false
+    }
+    if (get().subtotalProductos() < (Number(productosPagado) || 0)) {
+      set({
+        error: `El subtotal de productos no puede ser menor a lo ya pagado ($${(Number(productosPagado) || 0).toLocaleString('es-CO')})`,
+      })
+      return false
+    }
+
     set({ cargando: true, error: null })
 
     try {
-      await axios.put(`/ventas/${ventaId}/detalle`, {
+      const body = {
         detalle: detalle.map(d => {
           const item = {
             tipo: d.tipo || 'producto',
@@ -137,13 +177,27 @@ const useEditarVentaStore = create((set, get) => ({
           }
           return item
         })
-      })
+      }
+
+      // Solo se envía si el usuario lo modificó; ausente = conservar el actual.
+      const domicilioRedondeado = Math.round(domicilioNum * 100) / 100
+      const originalRedondeado = Math.round((Number(valorDomicilioOriginal) || 0) * 100) / 100
+      if (domicilioRedondeado !== originalRedondeado) {
+        body.valor_domicilio = domicilioRedondeado
+      }
+
+      await axios.put(`/ventas/${ventaId}/detalle`, body)
 
       const horaConSegundos = horaEntrega ? `${horaEntrega}:00` : '00:00:00'
       const nuevaFecha = `${fechaEntrega} ${horaConSegundos}`
       await axios.put(`/ventas/${ventaId}`, { fecha_entrega: nuevaFecha })
 
-      set({ cargando: false, exito: true })
+      set({
+        cargando: false,
+        exito: true,
+        valorDomicilio: domicilioRedondeado,
+        valorDomicilioOriginal: domicilioRedondeado,
+      })
       return true
     } catch (err) {
       set({
@@ -160,6 +214,10 @@ const useEditarVentaStore = create((set, get) => ({
     fechaEntrega: '',
     horaEntrega: '',
     detalle: [],
+    valorDomicilio: 0,
+    valorDomicilioOriginal: 0,
+    domicilioPagado: 0,
+    productosPagado: 0,
     cargando: false,
     error: null,
     exito: false,

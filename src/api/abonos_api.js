@@ -6,6 +6,8 @@ export const getAbonos = (pagina = 1, limite = 20) =>
 
 export const crearAbono = (data) => api.post('/abonos/', data)
 
+export const getReciboAbono = (id) => api.get(`/abonos/${id}/recibo`)
+
 export const eliminarAbono = (id) => api.delete(`/abonos/${id}`)
 
 

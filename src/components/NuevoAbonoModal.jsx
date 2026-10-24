@@ -17,12 +17,18 @@ export default function NuevoAbonoModal({ open, onClose, onAbonoCreado }) {
   const [ventaSeleccionada, setVentaSeleccionada] = useState(null)
   const [monto, setMonto] = useState(0)
   const [medioPago, setMedioPago] = useState({ medio_pago: 'efectivo', medio_pago_id: null })
+  // Pago del domicilio: monto y medio independientes de los productos.
+  const [montoDomicilio, setMontoDomicilio] = useState(0)
+  const [medioPagoDomicilio, setMedioPagoDomicilio] = useState({ medio_pago: 'efectivo', medio_pago_id: null })
   const [observacion, setObservacion] = useState('')
   const [cargandoVentas, setCargandoVentas] = useState(false)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
   // Error de la cuenta de transferencia: se muestra bajo el selector.
   const [errorMedioPago, setErrorMedioPago] = useState('')
+  const [errorMedioPagoDomicilio, setErrorMedioPagoDomicilio] = useState('')
+  // Aviso cuando el abono de productos ya se registró y falló el del domicilio.
+  const [avisoParcial, setAvisoParcial] = useState('')
   const [exito, setExito] = useState(false)
 
   const { crearAbono } =useAbonosModuleStore()
@@ -40,10 +46,14 @@ useEffect(() => {
     setVentasCliente([])
     setVentaSeleccionada(null)
     setMonto(0)
+    setMontoDomicilio(0)
     setMedioPago({ medio_pago: 'efectivo', medio_pago_id: null })
+    setMedioPagoDomicilio({ medio_pago: 'efectivo', medio_pago_id: null })
     setObservacion('')
     setError('')
     setErrorMedioPago('')
+    setErrorMedioPagoDomicilio('')
+    setAvisoParcial('')
     setExito(false)
   }
 }, [open])
@@ -64,13 +74,51 @@ useEffect(() => {
 
   const clientesFiltrados = clientes
 
+  // El modal se abre desde Abonos.jsx con las ventas del listado, que trae
+  // valor_domicilio y domicilio_pendiente pero no productos_pendiente: se
+  // deriva del saldo total.
+  const valorDomicilioVenta = Number(ventaSeleccionada?.valor_domicilio) || 0
+  const domicilioPendiente = Number(ventaSeleccionada?.domicilio_pendiente) || 0
+  const productosPendiente = ventaSeleccionada
+    ? (ventaSeleccionada.productos_pendiente != null
+        ? Number(ventaSeleccionada.productos_pendiente) || 0
+        : Math.max(0, (Number(ventaSeleccionada.saldo_pendiente) || 0) - domicilioPendiente))
+    : 0
+
+  const mensajeDeError = (err, fallback) =>
+    err.response?.data?.mensaje || err.response?.data?.error || fallback
+
+  // Tras un fallo parcial se recargan las ventas del cliente para reflejar el
+  // abono que sí quedó registrado y dejar el domicilio pendiente para reintentar.
+  const recargarVenta = async (idVenta) => {
+    if (!clienteSeleccionado) return null
+    try {
+      const res = await api.get(`/ventas/?cliente_id=${clienteSeleccionado.ID_Cliente}&limite=50`)
+      const pendientes = (res.data.datos || []).filter(v =>
+        v.saldo_pendiente > 0 && v.estado !== 'anulada'
+      )
+      setVentasCliente(pendientes)
+      const actual = pendientes.find(v => String(v.id_venta) === String(idVenta)) || null
+      setVentaSeleccionada(actual)
+      setMonto(0)
+      setMontoDomicilio(actual ? Number(actual.domicilio_pendiente) || 0 : 0)
+      return actual
+    } catch {
+      // Si falla la recarga, al menos se limpia el monto ya registrado.
+      setMonto(0)
+      return null
+    }
+  }
+
   const seleccionarCliente = async (cliente) => {
   setClienteSeleccionado(cliente)
   setBusquedaCliente('')
   setVentaSeleccionada(null)
   setMonto(0)
+  setMontoDomicilio(0)
   setCargandoVentas(true)
   setError('')
+  setAvisoParcial('')
   try {
     // El backend ya filtra por cliente_id -- usamos el ID real de este objeto
     const res = await api.get(`/ventas/?cliente_id=${cliente.ID_Cliente}&limite=50`)
@@ -88,40 +136,90 @@ useEffect(() => {
 }
 
   const handleSubmit = async () => {
-    if (!ventaSeleccionada || monto <= 0 || monto > ventaSeleccionada.saldo_pendiente) {
-      setError('Monto inválido o superior al saldo pendiente')
+    if (!ventaSeleccionada || enviando) return
+
+    const montoProductos = Number(monto) || 0
+    const montoDom = Number(montoDomicilio) || 0
+    if (montoProductos <= 0 && montoDom <= 0) {
+      setError('Ingresa al menos un monto mayor a 0')
       return
     }
-    // Transferencia sin cuenta: se muestra bajo el selector y no se envía.
-    if (!medioPagoValido(medioPago)) {
+    if (montoProductos > productosPendiente) {
+      setError(`El pago de productos no puede superar los productos pendientes ($${productosPendiente.toLocaleString('es-CO')})`)
+      return
+    }
+    if (montoDom > domicilioPendiente) {
+      setError(`El pago del domicilio no puede superar el domicilio pendiente ($${domicilioPendiente.toLocaleString('es-CO')})`)
+      return
+    }
+    // Transferencia sin cuenta: se valida por cada medio de pago.
+    let hayErrorMedio = false
+    if (montoProductos > 0 && !medioPagoValido(medioPago)) {
       setErrorMedioPago('Selecciona la cuenta de transferencia')
-      return
+      hayErrorMedio = true
     }
+    if (montoDom > 0 && !medioPagoValido(medioPagoDomicilio)) {
+      setErrorMedioPagoDomicilio('Selecciona la cuenta de transferencia')
+      hayErrorMedio = true
+    }
+    if (hayErrorMedio) return
+
     setEnviando(true)
     setError('')
+    setAvisoParcial('')
     setErrorMedioPago('')
+    setErrorMedioPagoDomicilio('')
+
+    const base = {
+      venta_id: ventaSeleccionada.id_venta,
+      corte_id: balance.corte_id,
+      fecha: new Date().toISOString().slice(0, 10).split('-').reverse().join('/'),
+      observacion: observacion || undefined,
+    }
+
     try {
-      const payload = {
-        venta_id: ventaSeleccionada.id_venta,
-        corte_id: balance.corte_id,
-        monto: monto,
-        fecha: new Date().toISOString().slice(0, 10).split('-').reverse().join('/'),
-        ...payloadMedioPago(medioPago),
-        observacion: observacion || undefined,
-        
+      // Productos primero. Si falla, no se intenta el domicilio.
+      if (montoProductos > 0) {
+        try {
+          await crearAbono({
+            ...base,
+            monto: montoProductos,
+            es_domicilio: false,
+            ...payloadMedioPago(medioPago),
+          })
+        } catch (err) {
+          setError(mensajeDeError(err, 'Error al crear el abono de productos'))
+          return
+        }
       }
-      await crearAbono(payload)
+
+      if (montoDom > 0) {
+        try {
+          await crearAbono({
+            ...base,
+            monto: montoDom,
+            es_domicilio: true,
+            ...payloadMedioPago(medioPagoDomicilio),
+          })
+        } catch (err) {
+          // El abono de productos ya quedó registrado: se avisa, se recargan
+          // los datos y se deja solo el domicilio pendiente para reintentar.
+          setError(mensajeDeError(err, 'Error al crear el abono del domicilio'))
+          if (montoProductos > 0) {
+            setAvisoParcial(
+              `El abono de productos por $${montoProductos.toLocaleString('es-CO')} SÍ quedó registrado. Revisa el domicilio pendiente e intenta de nuevo.`,
+            )
+          }
+          await recargarVenta(ventaSeleccionada.id_venta)
+          return
+        }
+      }
+
       setExito(true)
       setTimeout(() => {
         onAbonoCreado()
         onClose()
       }, 1000)
-    } catch (err) {
-      setError(
-        err.response?.data?.mensaje ||
-          err.response?.data?.error ||
-          'Error al crear abono',
-      )
     } finally {
       setEnviando(false)
     }
@@ -197,7 +295,18 @@ useEffect(() => {
                     onChange={e => {
                       const v = ventasCliente.find(v => v.id_venta == e.target.value)
                       setVentaSeleccionada(v)
-                      setMonto(v.saldo_pendiente) // por defecto el total pendiente
+                      const domPend = Number(v?.domicilio_pendiente) || 0
+                      const prodPend = v
+                        ? (v.productos_pendiente != null
+                            ? Number(v.productos_pendiente) || 0
+                            : Math.max(0, (Number(v.saldo_pendiente) || 0) - domPend))
+                        : 0
+                      setMonto(prodPend)
+                      setMontoDomicilio(domPend)
+                      setError('')
+                      setAvisoParcial('')
+                      setErrorMedioPago('')
+                      setErrorMedioPagoDomicilio('')
                     }}
 
                     className="w-full border border-slate-200 rounded-lg text-sm p-2"
@@ -223,19 +332,42 @@ useEffect(() => {
                     <span className="font-semibold text-amber-600">${ventaSeleccionada.saldo_pendiente.toLocaleString('es-CO')}</span>
                   </div>
 
-                  <label className="block text-xs text-slate-500">Monto a abonar</label>
-                  <input
-                    type="number"
-                    min={1}
-                    max={ventaSeleccionada.saldo_pendiente}
-                    value={monto}
-                    onChange={e => setMonto(Number(e.target.value))}
- 
-                    className="w-full border border-slate-200 rounded-lg text-sm p-2"
-                  />
+                  {valorDomicilioVenta > 0 && (
+                    <div className="bg-white/70 border border-indigo-100 rounded-lg p-3 space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Productos pendientes</span>
+                        <span className="font-medium">${productosPendiente.toLocaleString('es-CO')}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Domicilio pendiente</span>
+                        <span className="font-medium">${domicilioPendiente.toLocaleString('es-CO')}</span>
+                      </div>
+                    </div>
+                  )}
 
-                  <div>
-                    <p className="block text-xs text-slate-500 m-0 mb-1">Medio de pago</p>
+                  <div className="space-y-2">
+                    <label htmlFor="monto-venta" className="block text-xs font-medium text-slate-600">
+                      {valorDomicilioVenta > 0 ? 'Pagar venta' : 'Monto a abonar'}
+                    </label>
+                    <input
+                      id="monto-venta"
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      max={productosPendiente}
+                      step="0.01"
+                      value={monto}
+                      onChange={e => setMonto(Number(e.target.value))}
+                      disabled={enviando}
+                      aria-describedby={valorDomicilioVenta > 0 ? 'productos-pendientes' : undefined}
+                      className="w-full border border-slate-200 rounded-lg text-sm p-2"
+                    />
+                    {valorDomicilioVenta > 0 && (
+                      <p id="productos-pendientes" className="text-xs text-slate-500">
+                        Productos pendientes: ${productosPendiente.toLocaleString('es-CO')}
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-500 m-0 mb-1">Medio de pago</p>
                     <MedioPagoSelector
                       value={medioPago}
                       onChange={(value) => {
@@ -247,12 +379,47 @@ useEffect(() => {
                     />
                   </div>
 
-                  <label className="block text-xs text-slate-500">Observación (opcional)</label>
+                  {domicilioPendiente > 0 && (
+                    <div className="border-t border-indigo-100 pt-3 space-y-2">
+                      <label htmlFor="monto-domicilio" className="block text-xs font-medium text-slate-600">
+                        Pagar domicilio
+                      </label>
+                      <input
+                        id="monto-domicilio"
+                        type="number"
+                        inputMode="decimal"
+                        min={0}
+                        max={domicilioPendiente}
+                        step="0.01"
+                        value={montoDomicilio}
+                        onChange={e => setMontoDomicilio(Number(e.target.value))}
+                        disabled={enviando}
+                        aria-describedby="domicilio-pendiente"
+                        className="w-full border border-slate-200 rounded-lg text-sm p-2"
+                      />
+                      <p id="domicilio-pendiente" className="text-xs text-slate-500">
+                        Domicilio pendiente: ${domicilioPendiente.toLocaleString('es-CO')}
+                      </p>
+                      <p className="text-xs text-slate-500 m-0 mb-1">Medio de pago</p>
+                      <MedioPagoSelector
+                        value={medioPagoDomicilio}
+                        onChange={(value) => {
+                          setMedioPagoDomicilio(value)
+                          if (errorMedioPagoDomicilio) setErrorMedioPagoDomicilio('')
+                        }}
+                        disabled={enviando}
+                        error={errorMedioPagoDomicilio}
+                      />
+                    </div>
+                  )}
+
+                  <label htmlFor="abono-observacion" className="block text-xs text-slate-500">Observación (opcional)</label>
                   <input
+                    id="abono-observacion"
                     type="text"
                     value={observacion}
                     onChange={e => setObservacion(e.target.value)}
-
+                    disabled={enviando}
                     className="w-full border border-slate-200 rounded-lg text-sm p-2"
                     placeholder="Ej. pago en caja"
                   />
@@ -264,6 +431,11 @@ useEffect(() => {
           {error && (
             <div className="flex items-center gap-2 text-sm text-rose-600 bg-rose-50 p-3 rounded-lg">
               <AlertCircle size={16} /> {error}
+            </div>
+          )}
+          {avisoParcial && (
+            <div role="status" className="flex items-start gap-2 text-sm text-amber-700 bg-amber-50 border border-amber-200 p-3 rounded-lg">
+              <AlertCircle size={16} className="mt-0.5 shrink-0" /> {avisoParcial}
             </div>
           )}
           {exito && (
@@ -278,7 +450,7 @@ useEffect(() => {
             className="px-5 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50">
             Cancelar
           </button>
-          <button onClick={handleSubmit} disabled={!ventaSeleccionada || enviando || monto <= 0}
+          <button onClick={handleSubmit} disabled={!ventaSeleccionada || enviando || (Number(monto) <= 0 && Number(montoDomicilio) <= 0)}
 
             className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-semibold shadow-md disabled:opacity-50 py-2 px-6">
             {enviando ? <Loader2 size={16} className="animate-spin" /> : null}

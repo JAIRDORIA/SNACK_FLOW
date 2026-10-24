@@ -39,6 +39,54 @@ export const useNuevaVentaStore = create((set, get) => ({
 
   abonosIniciales: [],
 
+  // Domicilio: se cobra aparte de los productos y con su propio medio de pago.
+  valorDomicilio: 0,
+  abonoDomicilio: {
+    monto: 0,
+    medio_pago: 'efectivo',
+    medio_pago_id: null,
+    observacion: '',
+  },
+
+  setValorDomicilio: (valor) => {
+    set((state) => {
+      const numero = Number.isFinite(Number(valor)) ? Number(valor) : 0
+      const nuevo = Math.min(Math.max(numero, 0), 1000000)
+      const abonoDom = state.abonoDomicilio
+      return {
+        valorDomicilio: nuevo,
+        abonoDomicilio: {
+          ...abonoDom,
+          // Si el domicilio baja por debajo de lo ya escrito, se ajusta.
+          monto: Number(abonoDom.monto) > nuevo ? nuevo : abonoDom.monto,
+        },
+      }
+    })
+  },
+  setAbonoDomicilioMonto: (monto) => {
+    set((state) => ({
+      abonoDomicilio: {
+        ...state.abonoDomicilio,
+        monto: Math.min(
+          Math.max(Number(monto) || 0, 0),
+          Number(state.valorDomicilio) || 0,
+        ),
+      },
+    }))
+  },
+  cambiarMedioPagoDomicilio: (value) => {
+    set((state) => {
+      const esTransferencia = value?.medio_pago === 'transferencia'
+      return {
+        abonoDomicilio: {
+          ...state.abonoDomicilio,
+          medio_pago: esTransferencia ? 'transferencia' : 'efectivo',
+          medio_pago_id: esTransferencia ? value?.medio_pago_id ?? null : null,
+        },
+      }
+    })
+  },
+
   agregarAbonoInicial: () => {
     set((state) => ({
       abonosIniciales: [
@@ -75,10 +123,11 @@ export const useNuevaVentaStore = create((set, get) => ({
     })
   },
   pagarCompleto: () => {
-  const total = get().totalVenta();
+  const subtotal = get().subtotalProductos();
+  const domicilio = get().totalDomicilio();
   const abonos = get().abonosIniciales;
 
-  // Si ya hay una fila vacía (monto 0), la reutilizamos
+  // Productos: si ya hay una fila vacía (monto 0), la reutilizamos
   const indiceVacio = abonos.findIndex(
     (a) => !a.monto || Number(a.monto) === 0
   );
@@ -87,32 +136,46 @@ export const useNuevaVentaStore = create((set, get) => ({
     const nuevos = [...abonos];
     nuevos[indiceVacio] = {
       ...nuevos[indiceVacio],
-      monto: total > 0 ? total : nuevos[indiceVacio].monto,
+      monto: subtotal > 0 ? subtotal : nuevos[indiceVacio].monto,
     };
     set({ abonosIniciales: nuevos });
-    return;
+  } else {
+    // Si no, creamos una nueva fila con el subtotal de productos
+    set({
+      abonosIniciales: [
+        ...abonos,
+        {
+          monto: subtotal > 0 ? subtotal : 0,
+          medio_pago: 'efectivo',
+          medio_pago_id: null,
+          observacion: '',
+        },
+      ],
+    });
   }
 
-  // Si no, creamos una nueva fila con el total
-  set({
-    abonosIniciales: [
-      ...abonos,
-      {
-        monto: total > 0 ? total : 0,
-        medio_pago: 'efectivo',
-        medio_pago_id: null,
-        observacion: '',
-      },
-    ],
-  });
+  // Domicilio: su propio bloque, solo si hay valor.
+  if (domicilio > 0) {
+    set((state) => ({
+      abonoDomicilio: { ...state.abonoDomicilio, monto: domicilio },
+    }));
+  }
 },
-  totalAbonado: () => {
-    return get().abonosIniciales.reduce((sum, a) => sum + (a.monto || 0), 0)
-  },
   // Cálculos (getters)
-  totalVenta: () => {
+  subtotalProductos: () => {
     const { detalle } = get()
     return detalle.reduce((acc, item) => acc + item.cantidad * item.precio_unitario, 0)
+  },
+  totalDomicilio: () => Number(get().valorDomicilio) || 0,
+  totalAbonadoProductos: () => {
+    return get().abonosIniciales.reduce((sum, a) => sum + (Number(a.monto) || 0), 0)
+  },
+  totalAbonadoDomicilio: () => Number(get().abonoDomicilio.monto) || 0,
+  totalAbonado: () => {
+    return get().totalAbonadoProductos() + get().totalAbonadoDomicilio()
+  },
+  totalVenta: () => {
+    return get().subtotalProductos() + get().totalDomicilio()
   },
 
   caso: () => {
@@ -248,6 +311,13 @@ export const useNuevaVentaStore = create((set, get) => ({
       direccionClienteRegistrada: '',
       detalle: [],
       abonosIniciales: [],
+      valorDomicilio: 0,
+      abonoDomicilio: {
+        monto: 0,
+        medio_pago: 'efectivo',
+        medio_pago_id: null,
+        observacion: '',
+      },
       enviando: false,
       exito: false,
       errorMsg: '',
@@ -256,24 +326,34 @@ export const useNuevaVentaStore = create((set, get) => ({
 
   // Enviar venta
   registrarVenta: async () => {
-    const { clienteId, corteId, fechaEntrega, horaEntrega,observacion, detalle, abonosIniciales, direccionEntrega, direccionClienteRegistrada } = get()
-    const total = get().totalVenta()
+    const { clienteId, corteId, fechaEntrega, horaEntrega, observacion, detalle,
+            abonosIniciales, direccionEntrega, direccionClienteRegistrada,
+            abonoDomicilio } = get()
+    const subtotalProductos = get().subtotalProductos()
+    const valorDomicilio = get().totalDomicilio()
+    const montoDomicilio = Number(abonoDomicilio.monto) || 0
+    const total = subtotalProductos + valorDomicilio
     const totalRedondeado = Math.round(total * 100) / 100
-    const totalAbonado = get().totalAbonado()
     // Validaciones
     if (!clienteId || !corteId || !fechaEntrega || detalle.length === 0) {
       set({ errorMsg: 'Completa todos los campos requeridos (cliente, corte, fecha, al menos un producto).' })
       return false
     }
-    if (totalAbonado > total) {
-      set({ errorMsg: 'La suma de los abonos no puede superar el total de la venta.' })
+    // Tope por tipo: los abonos de productos no pueden pasar el subtotal de
+    // productos ni el abono de domicilio el valor del domicilio.
+    if (get().totalAbonadoProductos() > subtotalProductos) {
+      set({ errorMsg: 'La suma de los abonos de productos no puede superar el subtotal de productos.' })
+      return false
+    }
+    if (montoDomicilio > valorDomicilio) {
+      set({ errorMsg: 'El abono de domicilio no puede superar el valor del domicilio.' })
       return false
     }
     // Toda transferencia con monto debe llevar su cuenta (el modal muestra el
     // error por fila; esto es la última barrera antes de enviar).
     const abonoSinCuenta = abonosIniciales.some(
       (a) => Number(a.monto) > 0 && !medioPagoValido(a)
-    )
+    ) || (montoDomicilio > 0 && !medioPagoValido(abonoDomicilio))
     if (abonoSinCuenta) {
       set({ errorMsg: 'Selecciona la cuenta de transferencia' })
       return false
@@ -290,6 +370,7 @@ export const useNuevaVentaStore = create((set, get) => ({
       corte_id: Number(corteId),
       fecha_entrega: fechaFormateada,
       total: totalRedondeado,
+      valor_domicilio: Math.round(valorDomicilio * 100) / 100,
       observacion: observacion?.trim() || null, 
       detalle: detalle.map((d) => {
         const item = {
@@ -308,14 +389,23 @@ export const useNuevaVentaStore = create((set, get) => ({
       }),
     }
 
-    // Agregar abonos iniciales (múltiples)
+    // Agregar abonos iniciales (múltiples de productos + uno de domicilio)
     const abonosValidos = abonosIniciales.filter(a => Number(a.monto) > 0)
-    if (abonosValidos.length > 0) {
-      payload.abonos_iniciales = abonosValidos.map(a => ({
-        monto: Number(a.monto),
-        observacion: a.observacion?.trim() || undefined,
-        ...payloadMedioPago(a),
-      }))
+    const abonosPayload = abonosValidos.map(a => ({
+      monto: Number(a.monto),
+      observacion: a.observacion?.trim() || undefined,
+      ...payloadMedioPago(a),
+      es_domicilio: false,
+    }))
+    if (montoDomicilio > 0 && valorDomicilio > 0) {
+      abonosPayload.push({
+        monto: montoDomicilio,
+        ...payloadMedioPago(abonoDomicilio),
+        es_domicilio: true,
+      })
+    }
+    if (abonosPayload.length > 0) {
+      payload.abonos_iniciales = abonosPayload
     }
 
     // Dirección solo para este pedido. Si viene vacía, o es la misma que la

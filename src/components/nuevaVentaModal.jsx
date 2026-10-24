@@ -55,6 +55,13 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
     cambiarMedioPagoAbono,
     totalAbonado,
     pagarCompleto,
+    subtotalProductos,
+    totalDomicilio,
+    abonoDomicilio,
+    setValorDomicilio,
+    setAbonoDomicilioMonto,
+    cambiarMedioPagoDomicilio,
+    totalAbonadoDomicilio,
     direccionEntrega,
     direccionClienteRegistrada,
     setDireccionEntrega,
@@ -66,6 +73,10 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [editandoDireccion, setEditandoDireccion] = useState(false)
   // Errores por fila de abono (índice → mensaje). Se pasan al selector.
   const [erroresAbonos, setErroresAbonos] = useState([])
+  // Domicilio: se maneja aparte del abono de productos.
+  const [valorDomicilioLocal, setValorDomicilioLocal] = useState("")
+  const [montoDomicilioLocal, setMontoDomicilioLocal] = useState("")
+  const [errorDomicilio, setErrorDomicilio] = useState("")
 
   const selectProductoRef = useRef(null);
   const [textoBusqueda, setTextoBusqueda] = useState("");
@@ -84,6 +95,12 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   useEffect(() => {
     setMontosLocales(abonosIniciales.map((a) => a.monto?.toString() || ""));
   }, [abonosIniciales]);
+
+  // Si el store ajusta el monto del domicilio (al bajarlo o "Pagar completo"),
+  // el input local refleja el valor real.
+  useEffect(() => {
+    setMontoDomicilioLocal(abonoDomicilio.monto ? String(abonoDomicilio.monto) : "");
+  }, [abonoDomicilio.monto]);
 
   const todosLosItems = useMemo(() => {
     const prods = productos.map((p) => ({
@@ -112,6 +129,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       setCrearClienteOpen(false);
       setEditandoDireccion(false);
       setErroresAbonos([]);
+      setValorDomicilioLocal("");
+      setMontoDomicilioLocal("");
+      setErrorDomicilio("");
     }
   }, [open]);
   useEffect(() => {
@@ -198,6 +218,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const handlePagarCompleto = () => {
     pagarCompleto();
     setErroresAbonos([]);
+    setErrorDomicilio("");
   };
 
   const handleRegistrar = async () => {
@@ -207,7 +228,12 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
         ? "Selecciona la cuenta de transferencia"
         : "",
     );
-    if (errores.some(Boolean)) {
+    const errorDom =
+      Number(abonoDomicilio.monto) > 0 && !medioPagoValido(abonoDomicilio)
+        ? "Selecciona la cuenta de transferencia"
+        : "";
+    setErrorDomicilio(errorDom);
+    if (errores.some(Boolean) || errorDom) {
       setErroresAbonos(errores);
       return;
     }
@@ -927,6 +953,45 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 No hay productos agregados.
               </p>
             )}
+
+            {/* Valor del domicilio: opcional, se cobra aparte de los productos */}
+            <div className="mt-4 max-w-xs">
+              <label
+                htmlFor="valor-domicilio"
+                className="block text-xs font-medium text-slate-600 mb-1"
+              >
+                Valor del domicilio
+              </label>
+              <input
+                id="valor-domicilio"
+                type="number"
+                inputMode="decimal"
+                min="0"
+                max="1000000"
+                step="0.01"
+                placeholder="0"
+                value={valorDomicilioLocal}
+                onChange={(e) => {
+                  const raw = e.target.value;
+                  setValorDomicilioLocal(raw);
+                  setValorDomicilio(parseFloat(raw) || 0);
+                  setErrorDomicilio("");
+                }}
+                onBlur={() => {
+                  const numero = Math.min(
+                    Math.max(parseFloat(valorDomicilioLocal) || 0, 0),
+                    1000000,
+                  );
+                  const redondeado = Math.round(numero * 100) / 100;
+                  setValorDomicilio(redondeado);
+                  setValorDomicilioLocal(redondeado ? String(redondeado) : "");
+                }}
+                className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
+              />
+              <p className="text-xs text-slate-400 mt-1">
+                Opcional. Se cobra aparte y puede pagarse con otro medio.
+              </p>
+            </div>
           </div>
 
           {/* Sección 3: Abono inicial */}
@@ -987,7 +1052,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     <input
                       type="number"
                       min="0"
-                      max={totalVenta()}
+                      max={subtotalProductos()}
                       value={montosLocales[index] ?? ""}
                       onChange={(e) => {
                         const nuevos = [...montosLocales];
@@ -996,7 +1061,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                       }}
                       onBlur={() => {
                         const val = parseFloat(montosLocales[index]) || 0;
-                        const clamped = Math.min(Math.max(val, 0), totalVenta());
+                        const clamped = Math.min(Math.max(val, 0), subtotalProductos());
                         modificarAbonoInicial(index, "monto", clamped);
                         // Si la fila ya no tiene monto, su error deja de aplicar.
                         if (clamped === 0) {
@@ -1064,6 +1129,73 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                 </div>
               </div>
             ))}
+
+            {/* Domicilio: bloque de pago aparte, con su propio medio */}
+            {totalDomicilio() > 0 && (
+              <div className="bg-amber-50 rounded-xl border border-amber-200 mb-2 p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="text-sm font-semibold text-slate-700">
+                    Pagar domicilio
+                  </h4>
+                  <span className="text-xs text-slate-500">
+                    Pendiente: $
+                    {Math.max(
+                      0,
+                      totalDomicilio() - totalAbonadoDomicilio(),
+                    ).toLocaleString("es-CO")}
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <div>
+                    <label
+                      htmlFor="monto-domicilio"
+                      className="block text-xs text-slate-500 mb-1"
+                    >
+                      Monto
+                    </label>
+                    <input
+                      id="monto-domicilio"
+                      type="number"
+                      inputMode="decimal"
+                      min="0"
+                      max={totalDomicilio()}
+                      step="0.01"
+                      value={montoDomicilioLocal}
+                      onChange={(e) => {
+                        setMontoDomicilioLocal(e.target.value);
+                        setAbonoDomicilioMonto(parseFloat(e.target.value) || 0);
+                        setErrorDomicilio("");
+                      }}
+                      onBlur={() => {
+                        const val = Math.min(
+                          Math.max(parseFloat(montoDomicilioLocal) || 0, 0),
+                          totalDomicilio(),
+                        );
+                        const redondeado = Math.round(val * 100) / 100;
+                        setAbonoDomicilioMonto(redondeado);
+                        setMontoDomicilioLocal(
+                          redondeado ? String(redondeado) : "",
+                        );
+                      }}
+                      className="w-full border border-slate-200 rounded-lg text-sm text-slate-700 focus:ring-2 focus:ring-indigo-400 p-2"
+                    />
+                  </div>
+                  <div>
+                    <p className="block text-xs text-slate-500 m-0 mb-1">
+                      Medio de pago
+                    </p>
+                    <MedioPagoSelector
+                      value={{
+                        medio_pago: abonoDomicilio.medio_pago,
+                        medio_pago_id: abonoDomicilio.medio_pago_id ?? null,
+                      }}
+                      onChange={cambiarMedioPagoDomicilio}
+                      error={errorDomicilio}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Resumen */}
@@ -1072,25 +1204,31 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
             className="bg-indigo-50 rounded-xl p-4"
           >
             <div className="flex justify-between text-sm">
-              <span className="text-slate-600">Total venta</span>
+              <span className="text-slate-600">Subtotal productos</span>
+              <span className="font-medium text-slate-800">
+                ${subtotalProductos().toLocaleString("es-CO")}
+              </span>
+            </div>
+            {totalDomicilio() > 0 && (
+              <div className="flex justify-between text-sm mt-1">
+                <span className="text-slate-600">Domicilio</span>
+                <span className="font-medium text-slate-800">
+                  ${totalDomicilio().toLocaleString("es-CO")}
+                </span>
+              </div>
+            )}
+            <div className="flex justify-between text-sm mt-1 pt-1 border-t border-indigo-100">
+              <span className="font-semibold text-slate-700">Total</span>
               <span className="font-bold text-slate-800">
                 ${totalVenta().toLocaleString("es-CO")}
               </span>
+            </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span className="text-slate-600">Total abonado</span>
               <span className="font-medium text-emerald-600">
                 ${(totalAbonado() || 0).toLocaleString("es-CO")}
               </span>
             </div>
-            {abonosIniciales.length > 0 && (
-              <div
-
-                className="flex justify-between text-sm mt-1"
-              >
-                <span className="text-slate-600">Total abonado</span>
-                <span className="font-medium text-emerald-600">
-                  ${(totalAbonado() || 0).toLocaleString("es-CO")}
-                </span>
-              </div>
-            )}
             {saldoPendiente() > 0 && (
               <div
 

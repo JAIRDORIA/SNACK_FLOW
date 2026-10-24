@@ -366,3 +366,9 @@ src/utils/
 - **¿Un comportamiento reutilizable?** → `src/hooks/`.
 - **¿Un static (imagen/logo)?** → `public/` (se referencia como `/archivo.png`).
 ```
+
+**Nota (domicilio, 2026-10-23):** `nuevaVentaModal.jsx` incluye el input "Valor del domicilio", el bloque "Pagar domicilio" (con su propio `MedioPagoSelector`) y el resumen separado; la lógica y el payload viven en `useNuevaVentaStore.js` (`subtotalProductos`, `totalDomicilio`, `abonoDomicilio`, `es_domicilio`).
+
+**Nota (domicilio en edición y abonos, 2026-10-23):** `EditarVentaModal.jsx` + `useEditarVentaStore.js` editan `valor_domicilio` (mínimo = `domicilio_pagado`, envío condicional en `PUT /ventas/{id}/detalle`) y el total del footer suma domicilio. `NuevoAbonoModal.jsx` separa "Pagar venta" (productos) y "Pagar domicilio" con medios independientes y hace dos `POST /abonos` secuenciales con `es_domicilio` booleano; ante fallo del segundo avisa que el primero quedó registrado y recarga la venta.
+
+**Nota (domicilio en pantallas de lectura, 2026-10-23):** `Ventas.jsx` muestra chip "Domicilio debe" en la lista, desglose Productos/Domicilio en el detalle, chip "Domicilio" en abonos, y en el comprobante (pantalla e impresión) usa `subtotal_productos`, agrega la línea Domicilio y mantiene `total`. `Abonos.jsx` marca abonos con `es_domicilio` y agrega modal/impresión de recibo con `GET /abonos/{id}/recibo` (concepto, monto y pendientes).

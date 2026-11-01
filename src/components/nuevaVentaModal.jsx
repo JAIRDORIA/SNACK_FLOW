@@ -82,7 +82,9 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [textoBusqueda, setTextoBusqueda] = useState("");
   const [itemsFiltrados, setItemsFiltrados] = useState([]);
   const [itemSeleccionado, setItemSeleccionado] = useState(null);
-  const [cantidadItem, setCantidadItem] = useState(1)
+  // Única fuente de verdad para la cantidad a agregar. Se lee del input en el
+  // momento de agregar (en iPhone el `onBlur` puede llegar después del tap y
+  // dejaba la cantidad anterior).
   const [cantidadItemInput, setCantidadItemInput] = useState("1");
   const [textoBusquedaCliente, setTextoBusquedaCliente] = useState("");
   const [clientesFiltrados, setClientesFiltrados] = useState([]);
@@ -92,6 +94,8 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
   const [montosLocales, setMontosLocales] = useState([]);
   const [productosEditados, setProductosEditados] = useState([]);
   const [precioEditado, setPrecioEditado] = useState(0);
+  // Error del sub-modal de composición (composición vacía o precio inválido).
+  const [errorCombo, setErrorCombo] = useState("");
   useEffect(() => {
     setMontosLocales(abonosIniciales.map((a) => a.monto?.toString() || ""));
   }, [abonosIniciales]);
@@ -134,9 +138,46 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
       setErrorDomicilio("");
     }
   }, [open]);
-  useEffect(() => {
-    setCantidadItemInput(cantidadItem.toString());
-  }, [cantidadItem]);
+
+  // Lee la cantidad del input y la normaliza (entero >= 1). Devuelve el valor
+  // que se debe usar al agregar, para no depender de un estado que se
+  // actualizaba solo en `onBlur`.
+  const leerCantidad = () => {
+    const valor = parseInt(cantidadItemInput, 10);
+    const cantidad = Number.isFinite(valor) && valor > 0 ? valor : 1;
+    setCantidadItemInput(String(cantidad));
+    return cantidad;
+  };
+
+  const reiniciarCantidad = () => setCantidadItemInput("1");
+
+  // Precio inicial de un combo al abrir la personalización. `GET /combos/`
+  // devuelve `precio_frito` y `precio_congelado` (no `precio_venta` ni
+  // `precio`), por eso antes quedaba NaN y el campo salía vacío.
+  const precioInicialCombo = (combo) => {
+    const frito = Number(combo?.precio_frito);
+    if (Number.isFinite(frito) && frito > 0) return frito;
+    const congelado = Number(combo?.precio_congelado);
+    if (Number.isFinite(congelado) && congelado > 0) return congelado;
+    const alterno = Number(combo?.precio_venta ?? combo?.precio);
+    return Number.isFinite(alterno) && alterno > 0 ? alterno : 0;
+  };
+
+  // Un combo es personalizado cuando la línea trae su propia composición
+  // (`productos`); si no, es de catálogo y su composición vive en `combos`.
+  const esComboPersonalizado = (item) =>
+    item?.tipo === "combo" && Array.isArray(item.productos);
+
+  const composicionDe = (item) => {
+    if (!item || item.tipo !== "combo") return [];
+    if (Array.isArray(item.productos)) return item.productos;
+    const combo = combos.find((c) => Number(c.id) === Number(item.combo_id));
+    return Array.isArray(combo?.productos) ? combo.productos : [];
+  };
+
+  const nombreDeProducto = (productoId) =>
+    productos.find((p) => Number(p.id) === Number(productoId))?.nombre ||
+    `Producto #${productoId}`;
 
   useEffect(() => {
     const productosFiltrados = productos
@@ -325,11 +366,11 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
       className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
     >
-      <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl modal-card">
         {/* Header */}
         <div
 
-          className="flex items-center justify-between border-b border-slate-100 bg-indigo-50 py-4 px-9"
+          className="flex items-center justify-between shrink-0 border-b border-slate-100 bg-indigo-50 py-4 px-9"
         >
           <h2 className="text-lg font-bold text-slate-800">Nueva Venta</h2>
           <button
@@ -345,7 +386,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
         <div
 
-          className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto p-6"
+          className="modal-body flex flex-col gap-6 p-6"
         >
           {/* Error de carga */}
           {errorDatos && (
@@ -615,7 +656,14 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   type="text"
                   placeholder="Buscar producto o combo..."
                   value={textoBusqueda}
-                  onChange={(e) => setTextoBusqueda(e.target.value)}
+                  onChange={(e) => {
+                    setTextoBusqueda(e.target.value);
+                    // Al escribir de nuevo se cierra el panel del ítem anterior:
+                    // en iPhone el panel seguía activo y el tap terminaba
+                    // agregando el producto/combo equivocado.
+                    setItemSeleccionado(null);
+                    reiniciarCantidad();
+                  }}
 
                   className="w-full border border-slate-200 rounded-lg text-sm p-2"
                 />
@@ -627,18 +675,11 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                       </span>
                       <input
                         type="number"
+                        inputMode="numeric"
                         min="1"
                         value={cantidadItemInput}
                         onChange={(e) => setCantidadItemInput(e.target.value)}
-                        onBlur={() => {
-                          const val = parseInt(cantidadItemInput, 10);
-                          if (isNaN(val) || val < 1) {
-                            setCantidadItemInput("1");
-                            setCantidadItem(1);
-                          } else {
-                            setCantidadItem(val);
-                          }
-                        }}
+                        onBlur={leerCantidad}
 
                         className="w-20 border border-slate-200 rounded-lg text-sm p-1"
                       />
@@ -649,7 +690,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               const precio = parseFloat(
                                 itemSeleccionado.precio_detal,
                               );
-                              const cantidadFinal = parseInt(cantidadItemInput, 10) || 1
+                              const cantidadFinal = leerCantidad()
                               agregarItem({
                                 tipo: itemSeleccionado.tipo,
                                 producto_id: itemSeleccionado.id,
@@ -660,7 +701,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                               });
                               setTextoBusqueda("");
                               setItemSeleccionado(null);
-                              setCantidadItem(1);
+                              reiniciarCantidad();
                             }}
 
                             className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-medium py-2 px-3"
@@ -681,12 +722,12 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                                 producto_id: itemSeleccionado.id,
                                 combo_id: null,
                                 nombre_producto: itemSeleccionado.nombre,
-                                cantidad: cantidadItem,
+                                cantidad: leerCantidad(),
                                 precio_unitario: precio,
                               });
                               setTextoBusqueda("");
                               setItemSeleccionado(null);
-                              setCantidadItem(1);
+                              reiniciarCantidad();
                             }}
 
                             className="bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-medium py-2 px-3"
@@ -710,12 +751,12 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                                 producto_id: null,
                                 combo_id: itemSeleccionado.id,
                                 nombre_producto: itemSeleccionado.nombre,
-                                cantidad: cantidadItem,
+                                cantidad: leerCantidad(),
                                 precio_unitario: precio,
                               });
                               setTextoBusqueda("");
                               setItemSeleccionado(null);
-                              setCantidadItem(1);
+                              reiniciarCantidad();
                             }}
 
                             className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium py-2 px-3"
@@ -736,12 +777,12 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                                 producto_id: null,
                                 combo_id: itemSeleccionado.id,
                                 nombre_producto: itemSeleccionado.nombre,
-                                cantidad: cantidadItem,
+                                cantidad: leerCantidad(),
                                 precio_unitario: precio,
                               });
                               setTextoBusqueda("");
                               setItemSeleccionado(null);
-                              setCantidadItem(1);
+                              reiniciarCantidad();
                             }}
 
                             className="bg-cyan-600 hover:bg-cyan-700 text-white rounded-lg text-xs font-medium py-2 px-3"
@@ -768,15 +809,15 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                       ) : (
                         <button
                           onClick={() => {
+                            // `productos` siempre viene del catálogo, pero se
+                            // protege por si la respuesta cambiara.
                             setProductosEditados(
-                              itemSeleccionado.productos.map((p) => ({ ...p })),
+                              Array.isArray(itemSeleccionado.productos)
+                                ? itemSeleccionado.productos.map((p) => ({ ...p }))
+                                : [],
                             );
-                            setPrecioEditado(
-                              parseFloat(
-                                itemSeleccionado.precio_venta ||
-                                itemSeleccionado.precio,
-                              ),
-                            );
+                            setPrecioEditado(precioInicialCombo(itemSeleccionado));
+                            setErrorCombo("");
                             setMostrarInfoCombo(true);
                           }}
                           className="text-indigo-600 hover:underline flex items-center gap-1"
@@ -800,6 +841,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                           // Al hacer clic, rellenamos el input y guardamos el item seleccionado
                           setTextoBusqueda(`${item.nombre} (${item.tipo})`);
                           setItemSeleccionado(item);
+                          reiniciarCantidad(); // la cantidad no se arrastra entre ítems
                           setItemsFiltrados([]); // ocultar lista
                         }}
 
@@ -905,7 +947,37 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
                           className="text-slate-700 py-2 px-3"
                         >
-                          {item.nombre_producto}
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span>{item.nombre_producto}</span>
+                            {item.tipo === "combo" && (
+                              <span
+                                className={`text-[10px] font-semibold rounded-full border py-0.5 px-2 ${
+                                  esComboPersonalizado(item)
+                                    ? "text-violet-700 bg-violet-50 border-violet-200"
+                                    : "text-slate-600 bg-slate-100 border-slate-200"
+                                }`}
+                              >
+                                {esComboPersonalizado(item)
+                                  ? "Personalizado"
+                                  : "Catálogo"}
+                              </span>
+                            )}
+                          </div>
+                          {/* Composición: así se verifica qué lleva el combo
+                              (sobre todo el personalizado) sin abrir otro modal. */}
+                          {item.tipo === "combo" && composicionDe(item).length > 0 && (
+                            <ul className="mt-1 space-y-0.5">
+                              {composicionDe(item).map((p, idx) => (
+                                <li
+                                  key={`${p.producto_id}-${idx}`}
+                                  className="text-xs text-slate-500"
+                                >
+                                  · {p.nombre || nombreDeProducto(p.producto_id)} ×{" "}
+                                  {p.cantidad_unidades}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </td>
                         <td
 
@@ -1266,7 +1338,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
         {/* Footer */}
         <div
 
-          className="border-t border-slate-100 bg-slate-50/50 flex justify-between items-center py-4 px-6"
+          className="shrink-0 safe-bottom border-t border-slate-100 bg-slate-50/50 flex flex-wrap justify-between items-center gap-2 pt-4 px-6"
         >
           <span className="text-sm text-slate-500">
             {detalle.length > 0
@@ -1309,42 +1381,45 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
         >
           <div
 
-            className="bg-white rounded-2xl w-full max-w-lg shadow-2xl p-6"
+            className="bg-white rounded-2xl w-full max-w-lg shadow-2xl modal-card"
           >
             <div
 
-              className="flex items-center justify-between mb-4"
+              className="flex items-center justify-between gap-3 shrink-0 p-6 pb-2"
             >
               <h3 className="text-lg font-bold text-slate-800">
                 Editar {itemSeleccionado.nombre}
               </h3>
               <button
                 onClick={() => setMostrarInfoCombo(false)}
-                className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center"
+                className="w-9 h-9 rounded-lg hover:bg-gray-100 flex items-center justify-center shrink-0"
+                aria-label="Cerrar"
               >
                 <X size={18} color="#64748b" />
               </button>
             </div>
-            <button
-              onClick={() => {
-                setProductosEditados([
-                  ...productosEditados,
-                  { producto_id: "", nombre: "", cantidad_unidades: 1 },
-                ]);
-              }}
 
-              className="text-indigo-600 text-sm hover:underline mt-2"
-            >
-              + Agregar producto
-            </button>
+            <div className="modal-body p-6 pt-2">
+              <button
+                onClick={() => {
+                  setProductosEditados([
+                    ...productosEditados,
+                    { producto_id: "", nombre: "", cantidad_unidades: 1 },
+                  ]);
+                  setErrorCombo("");
+                }}
 
-            {itemSeleccionado.productos &&
-              itemSeleccionado.productos.length > 0 ? (
-              <>
-                <table
+                className="text-indigo-600 text-sm hover:underline"
+              >
+                + Agregar producto
+              </button>
 
-                  className="w-full text-sm border-collapse mb-4"
-                >
+              {productosEditados.length > 0 ? (
+                <>
+                  <table
+
+                    className="w-full text-sm border-collapse mt-2 mb-4"
+                  >
                   <thead>
                     <tr className="bg-slate-50">
                       <th
@@ -1395,6 +1470,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                         <td className="py-1 px-3">
                           <input
                             type="number"
+                            inputMode="numeric"
                             min="1"
                             value={prod.cantidad_unidades}
                             onChange={(e) => {
@@ -1404,6 +1480,18 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                                 cantidad_unidades: Number(e.target.value),
                               };
                               setProductosEditados(nuevos);
+                              setErrorCombo("");
+                            }}
+                            onBlur={() => {
+                              // Las unidades de la composición nunca pueden ser 0.
+                              const nuevas = [...productosEditados];
+                              const actual = Number(nuevas[i]?.cantidad_unidades);
+                              nuevas[i] = {
+                                ...nuevas[i],
+                                cantidad_unidades:
+                                  Number.isFinite(actual) && actual > 0 ? actual : 1,
+                              };
+                              setProductosEditados(nuevas);
                             }}
 
                             className="w-20 text-center border border-slate-200 rounded text-sm p-1.5"
@@ -1423,10 +1511,14 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                   </label>
                   <input
                     type="number"
-                    min="0"
+                    inputMode="decimal"
+                    min="0.01"
                     step="0.01"
                     value={precioEditado}
-                    onChange={(e) => setPrecioEditado(Number(e.target.value))}
+                    onChange={(e) => {
+                      setPrecioEditado(e.target.value === "" ? "" : Number(e.target.value));
+                      setErrorCombo("");
+                    }}
 
                     className="w-full border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-400 p-2"
                   />
@@ -1438,29 +1530,51 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
               </p>
             )}
 
+            {errorCombo && (
+              <p
+                role="alert"
+                className="flex items-center gap-2 text-sm text-rose-600 bg-rose-50 rounded-lg p-3 mb-2"
+              >
+                <AlertCircle size={16} /> {errorCombo}
+              </p>
+            )}
+            </div>
+
             <div
 
-              className="flex gap-2 justify-end mt-4"
+              className="flex gap-2 justify-end p-6 pt-0 shrink-0"
             >
               <button
                 onClick={() => setMostrarInfoCombo(false)}
 
-                className="border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 py-2 px-4"
+                className="border border-gray-200 rounded-xl text-sm font-medium text-gray-600 bg-white hover:bg-gray-50 py-2.5 px-4"
               >
                 Cancelar
               </button>
               <button
                 onClick={() => {
-                  // Validar que haya al menos un producto seleccionado
-                  if (
-                    productosEditados.length === 0 ||
-                    !productosEditados.some((p) => p.producto_id)
-                  ) {
-                    alert(
-                      "Debe seleccionar al menos un producto para el combo",
-                    );
+                  // Composición: al menos un producto real seleccionado.
+                  const composicion = productosEditados
+                    .filter((p) => p.producto_id)
+                    .map((p) => ({
+                      producto_id: p.producto_id,
+                      cantidad_unidades: p.cantidad_unidades,
+                    }));
+
+                  if (composicion.length === 0) {
+                    setErrorCombo("Debe seleccionar al menos un producto para el combo");
                     return;
                   }
+
+                  // Precio: número finito mayor a 0. Antes el combo se podía
+                  // guardar con precio NaN/vacío y el backend fallaba.
+                  const precioCombo = Number(precioEditado);
+                  if (!Number.isFinite(precioCombo) || precioCombo <= 0) {
+                    setErrorCombo("Ingresa un precio del combo mayor a 0");
+                    return;
+                  }
+
+                  const cantidadCombo = leerCantidad();
 
                   // Enviar UN SOLO item de tipo combo con la lista de productos personalizados
                   agregarItem({
@@ -1468,24 +1582,20 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                     combo_id: null, // No usa el combo original
                     producto_id: null, // No es un producto simple
                     nombre_producto: itemSeleccionado.nombre, // Mantiene el nombre del combo
-                    cantidad: cantidadItem, // Cuántos combos se venden
-                    precio_unitario: precioEditado, // Precio total del combo (frito o congelado)
-                    productos: productosEditados
-                      .filter((p) => p.producto_id) // Solo los que tengan producto real seleccionado
-                      .map((p) => ({
-                        producto_id: p.producto_id,
-                        cantidad_unidades: p.cantidad_unidades, // Las unidades que lleva este producto en el combo
-                      })),
+                    cantidad: cantidadCombo, // Cuántos combos se venden
+                    precio_unitario: Math.round(precioCombo * 100) / 100,
+                    productos: composicion,
                   });
 
                   // Limpiar estados
                   setMostrarInfoCombo(false);
                   setItemSeleccionado(null);
                   setTextoBusqueda("");
-                  setCantidadItem(1);
+                  setErrorCombo("");
+                  reiniciarCantidad();
                 }}
 
-                className="bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 py-2 px-4"
+                className="bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 py-2.5 px-4"
               >
                 Confirmar y Agregar
               </button>

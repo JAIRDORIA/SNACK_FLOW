@@ -5,6 +5,24 @@ import { getCortes } from '@/api/cortes_api'
 import { getProductos } from '@/api/productos_api'
 import { medioPagoValido, payloadMedioPago } from '@/components/MedioPagoSelector'
 
+// Firma estable de la composición de un combo personalizado. El orden de los
+// productos no importa: el mismo conjunto con las mismas unidades cuenta como
+// la misma composición.
+const firmaComposicion = (productos) => {
+  if (!Array.isArray(productos) || productos.length === 0) return ''
+  return productos
+    .map((p) => `${Number(p.producto_id)}:${Number(p.cantidad_unidades)}`)
+    .sort()
+    .join('|')
+}
+
+// Los precios se comparan con 2 decimales para que la aritmética de punto
+// flotante no impida fusionar dos líneas realmente iguales.
+const precioNormalizado = (valor) => {
+  const numero = Number(valor)
+  return Number.isFinite(numero) ? Math.round(numero * 100) / 100 : 0
+}
+
 export const useNuevaVentaStore = create((set, get) => ({
   // Datos externos
   clientes: [],
@@ -200,7 +218,9 @@ export const useNuevaVentaStore = create((set, get) => ({
       const [clientesRes, cortesRes, productosRes] = await Promise.all([
         getClientes(),
         getCortes(),
-        getProductos(),
+        // El backend no limita el tamaño de página: se piden todos para que
+        // el buscador y la composición de combos tengan los productos reales.
+        getProductos(1, 300),
       ])
 
       // Extraer el array de clientes desde la propiedad 'items'
@@ -254,24 +274,57 @@ export const useNuevaVentaStore = create((set, get) => ({
 
   agregarItem: (nuevoItem) => {
     set((state) => {
-      // Buscar si ya existe un item del mismo tipo con el mismo id
+      // Busca una línea que sea *exactamente* el mismo ítem. La identidad es:
+      //   producto → producto_id + precio (detal y mayor son líneas distintas)
+      //   combo    → combo_id + precio y, si es personalizado (combo_id null),
+      //              además nombre + composición.
+      // Antes todos los combos personalizados tenían combo_id null y se
+      // fusionaban entre sí: el segundo (p. ej. el "mini") desaparecía y la
+      // primera línea quedaba con cantidad 2 y la composición del primero.
       const index = state.detalle.findIndex((item) => {
-        if (nuevoItem.tipo === 'combo' && item.tipo === 'combo') {
-          return item.combo_id === nuevoItem.combo_id
+        if (item.tipo !== nuevoItem.tipo) return false
+
+        if (
+          precioNormalizado(item.precio_unitario) !==
+          precioNormalizado(nuevoItem.precio_unitario)
+        ) {
+          return false
         }
-        if (nuevoItem.tipo === 'producto' && item.tipo === 'producto') {
+
+        if (nuevoItem.tipo === 'combo') {
+          if (item.combo_id !== nuevoItem.combo_id) return false
+
+          // Combos de catálogo: mismo combo y mismo precio.
+          if (nuevoItem.combo_id !== null && nuevoItem.combo_id !== undefined) {
+            return true
+          }
+
+          // Combos personalizados: mismo nombre y misma composición.
+          if ((item.nombre_producto || '') !== (nuevoItem.nombre_producto || '')) {
+            return false
+          }
+          return firmaComposicion(item.productos) === firmaComposicion(nuevoItem.productos)
+        }
+
+        if (nuevoItem.tipo === 'producto') {
           return item.producto_id === nuevoItem.producto_id
         }
+
         return false
       })
 
       if (index !== -1) {
-        // Ya existe: sumamos la cantidad
+        // Ya existe: sumamos la cantidad y conservamos la composición.
         const nuevoDetalle = [...state.detalle]
-        nuevoDetalle[index] = {
-          ...nuevoDetalle[index],
-          cantidad: nuevoDetalle[index].cantidad + nuevoItem.cantidad,
+        const actual = nuevoDetalle[index]
+        const fusionado = {
+          ...actual,
+          cantidad: actual.cantidad + nuevoItem.cantidad,
         }
+        if (nuevoItem.tipo === 'combo') {
+          fusionado.productos = actual.productos ?? nuevoItem.productos ?? null
+        }
+        nuevoDetalle[index] = fusionado
         return { detalle: nuevoDetalle }
       }
 

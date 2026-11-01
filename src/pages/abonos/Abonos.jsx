@@ -302,8 +302,8 @@ export default function Abonos() {
           aria-modal="true"
           aria-labelledby="recibo-titulo"
         >
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between border-b border-indigo-100 bg-indigo-50 py-4 px-6">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl modal-card">
+            <div className="flex items-center justify-between shrink-0 border-b border-indigo-100 bg-indigo-50 py-4 px-6">
               <div>
                 <h2 id="recibo-titulo" className="text-lg font-bold text-slate-800">
                   Recibo {recibo.numero_recibo}
@@ -319,7 +319,7 @@ export default function Abonos() {
               </button>
             </div>
 
-            <div className="p-6 space-y-3">
+            <div className="modal-body p-6 space-y-3">
               <div className="flex justify-between gap-4 text-sm">
                 <span className="text-slate-500">Cliente</span>
                 <span className="font-medium text-slate-800 text-right">{recibo.nombre_cliente}</span>
@@ -367,7 +367,7 @@ export default function Abonos() {
               )}
             </div>
 
-            <div className="border-t border-slate-100 bg-slate-50/50 flex justify-end gap-2 py-4 px-6">
+            <div className="shrink-0 safe-bottom border-t border-slate-100 bg-slate-50/50 flex flex-wrap justify-end gap-2 pt-4 px-6">
               <button
                 onClick={() => setRecibo(null)}
                 className="border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 py-2 px-4"

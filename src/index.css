@@ -12,3 +12,72 @@ body {
   background-color: #ffffff;
 }
 
+/* ─────────────────────────────────────────────────────────────
+   ALTO REAL DEL VIEWPORT (iOS)
+   En Safari/iPhone `100vh` es el viewport grande (sin barras), así que
+   el pie de las pantallas queda detrás de la barra del navegador.
+   Se declara `vh` primero como respaldo y `dvh` después: los
+   navegadores que no entienden `dvh` ignoran la segunda línea.
+   ───────────────────────────────────────────────────────────── */
+.app-shell {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.min-h-app {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   MODALES
+   `.modal-card`  → tarjeta que nunca supera la pantalla visible.
+   `.modal-body`  → única zona con scroll; cabecera y pie (con el
+                    botón de guardar) quedan siempre visibles.
+   ───────────────────────────────────────────────────────────── */
+.modal-card {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 2rem);
+  max-height: calc(100dvh - 2rem - env(safe-area-inset-bottom, 0px));
+  overflow: hidden;
+}
+
+.modal-card > .modal-body {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* Reserva para el indicador de inicio del iPhone. */
+.safe-bottom {
+  padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* ─────────────────────────────────────────────────────────────
+   iOS hace zoom automático al enfocar un input/select/textarea con
+   font-size < 16px. En móvil/tablet se fuerza 16px para evitarlo
+   (el zoom manual con pinza se mantiene: no se desactiva la escala).
+   ───────────────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Al imprimir, el modal no debe recortar el contenido (comprobantes). */
+@media print {
+  .modal-card {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .modal-card > .modal-body {
+    overflow: visible;
+  }
+}
+

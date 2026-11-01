@@ -31,6 +31,7 @@ import {
   getVentaComprobante,
   anularVenta,
 } from "@/api/ventas_api";
+import { getProductos } from "@/api/productos_api";
 import useAbonosStore from "@/store/useAbonoStore";
 import useDashboardStore from "@/store/useDashboardStore";
 import useEditarVentaStore from "@/store/useEditarVentaStore";
@@ -161,6 +162,9 @@ export default function Ventas() {
 
   const [detalleVenta, setDetalleVenta] = useState(null);
   const [cargandoDetalle, setCargandoDetalle] = useState(false);
+  // Nombres de productos para mostrar la composición de los combos
+  // personalizados en el detalle (se piden una sola vez por sesión).
+  const productosRef = useRef({});
   const [busqueda, setBusqueda] = useState("");
   const [busquedaInput, setBusquedaInput] = useState(busqueda);
   const [modalOpen, setModalOpen] = useState(false);
@@ -419,6 +423,24 @@ export default function Ventas() {
     setCargandoDetalle(true);
     try {
       const res = await getVentaDetalle(id);
+
+      // Si la venta trae combos personalizados, se resuelven los nombres de
+      // sus productos para poder mostrar la composición en el detalle.
+      const tieneComposicion = (res.data?.detalle || []).some(
+        (d) => Array.isArray(d.combo_productos) && d.combo_productos.length > 0,
+      );
+      if (tieneComposicion && Object.keys(productosRef.current).length === 0) {
+        try {
+          const prods = await getProductos(1, 300);
+          const lista = prods.data?.datos || prods.data?.items || [];
+          productosRef.current = Object.fromEntries(
+            lista.map((p) => [Number(p.id), p.nombre]),
+          );
+        } catch {
+          // Sin nombres se muestra igual el id del producto.
+        }
+      }
+
       setDetalleVenta(res.data);
     } catch (err) {
       console.error("Error al cargar detalle", err);
@@ -1086,9 +1108,9 @@ export default function Ventas() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden"
+            className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl modal-card"
           >
-            <div className="flex items-center justify-between border-b border-slate-100 py-4 px-6">
+            <div className="flex items-center justify-between shrink-0 border-b border-slate-100 py-4 px-6">
               <h2 className="font-bold text-lg text-slate-800">
                 {pedidosPorConfirmar.length} pedido
                 {pedidosPorConfirmar.length === 1 ? "" : "s"} entregado
@@ -1104,7 +1126,7 @@ export default function Ventas() {
               </button>
             </div>
 
-            <div className="max-h-[70vh] overflow-y-auto p-4 flex flex-col gap-2">
+            <div className="modal-body p-4 flex flex-col gap-2">
               {pedidosPorConfirmar.map((p) => {
                 const etiquetaDia = etiquetaDiaPedido(p.entregada_cocina_at);
                 return (
@@ -1209,11 +1231,11 @@ export default function Ventas() {
 
           className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-1"
         >
-          <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden">
+          <div className="bg-white rounded-2xl w-full max-w-4xl shadow-2xl modal-card">
             {/* header */}
             <div
 
-              className="flex items-center justify-between border-b border-slate-100 py-1.5 px-2"
+              className="flex items-center justify-between shrink-0 border-b border-slate-100 py-1.5 px-2"
             >
               <div>
                 <p className="font-bold text-xl text-slate-800">
@@ -1247,7 +1269,7 @@ export default function Ventas() {
 
             <div
 
-              className="flex flex-col gap-8 max-h-[70vh] overflow-y-auto p-2.5"
+              className="modal-body flex flex-col gap-8 p-2.5"
             >
               {/* info general */}
               <div className="grid grid-cols-3 gap-6">
@@ -1400,7 +1422,39 @@ export default function Ventas() {
 
                               className="text-sm text-slate-700 font-medium py-1 px-1.5"
                             >
-                              {d.nombre_producto}
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span>{d.nombre_producto}</span>
+                                {d.es_combo ? (
+                                  <span
+                                    className={`text-[10px] font-semibold rounded-full border py-0.5 px-2 ${
+                                      Array.isArray(d.combo_productos)
+                                        ? "text-violet-700 bg-violet-50 border-violet-200"
+                                        : "text-slate-600 bg-slate-100 border-slate-200"
+                                    }`}
+                                  >
+                                    {Array.isArray(d.combo_productos)
+                                      ? "Personalizado"
+                                      : "Catálogo"}
+                                  </span>
+                                ) : null}
+                              </div>
+                              {Array.isArray(d.combo_productos) &&
+                                d.combo_productos.length > 0 && (
+                                  <ul className="mt-1 space-y-0.5 font-normal">
+                                    {d.combo_productos.map((p, idx) => (
+                                      <li
+                                        key={`${p.producto_id}-${idx}`}
+                                        className="text-xs text-slate-500"
+                                      >
+                                        ·{" "}
+                                        {productosRef.current?.[
+                                          Number(p.producto_id)
+                                        ] || `Producto #${p.producto_id}`}{" "}
+                                        × {p.cantidad_unidades}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
                             </td>
                             <td
 
@@ -1562,11 +1616,11 @@ export default function Ventas() {
 
           className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 no-print p-4"
         >
-          <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden print-container">
+          <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl modal-card print-container">
             {/* Header del comprobante */}
             <div
 
-              className="flex items-center justify-between border-b border-slate-200 bg-indigo-50 no-print py-4 px-6"
+              className="flex items-center justify-between shrink-0 border-b border-slate-200 bg-indigo-50 no-print py-4 px-6"
             >
               <div>
                 <h3 className="font-bold text-lg text-slate-800">
@@ -1597,7 +1651,7 @@ export default function Ventas() {
             {/* Contenido imprimible */}
             <div
 
-              className="max-h-[70vh] overflow-y-auto print-content p-6"
+              className="modal-body print-content p-6"
             >
               {/* Datos del cliente y venta */}
               <div

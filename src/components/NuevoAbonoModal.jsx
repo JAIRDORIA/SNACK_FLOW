@@ -229,15 +229,15 @@ useEffect(() => {
 
   return (
     <div  className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden">
-        <div  className="flex items-center justify-between border-b border-gray-100 bg-indigo-50 py-4 px-6">
+      <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl modal-card">
+        <div  className="flex items-center justify-between shrink-0 border-b border-gray-100 bg-indigo-50 py-4 px-6">
           <h2 className="text-lg font-bold text-slate-800">Nuevo Abono</h2>
-          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200">
+          <button onClick={onClose} className="w-8 h-8 rounded-xl flex items-center justify-center hover:bg-slate-200" aria-label="Cerrar">
             <X size={20} color="#64748b" />
           </button>
         </div>
 
-        <div  className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto p-6">
+        <div  className="modal-body flex flex-col gap-6 p-6">
           {/* Buscar cliente */}
           {!clienteSeleccionado ? (
             <div>
@@ -445,7 +445,7 @@ useEffect(() => {
           )}
         </div>
 
-        <div  className="border-t border-gray-100 bg-gray-50/50 flex justify-end gap-3 py-4 px-6">
+        <div  className="shrink-0 safe-bottom border-t border-gray-100 bg-gray-50/50 flex flex-wrap justify-end gap-3 pt-4 px-6">
           <button onClick={onClose} disabled={enviando}
             className="px-5 py-2 border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50">
             Cancelar

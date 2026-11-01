@@ -10,7 +10,7 @@ export default function Layout() {
   const [sidebarColapsado, setSidebarColapsado] = useState(true);
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="app-shell flex overflow-hidden">
       
       {/* Fondo oscuro móvil */}
       {sidebarAbierto && (
@@ -33,7 +33,7 @@ export default function Layout() {
           setSidebarColapsado={setSidebarColapsado}
         />
 
-        <main className="flex-1 overflow-y-auto p-4">
+        <main className="flex-1 overflow-y-auto p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
           <Outlet />
         </main>
       </div>

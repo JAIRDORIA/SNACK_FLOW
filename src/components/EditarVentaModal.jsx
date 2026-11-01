@@ -200,10 +200,10 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
   return (
     <>
       <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden">
+      <div className="bg-white rounded-2xl w-full max-w-3xl shadow-2xl modal-card">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-indigo-50 py-4 px-6">
+        <div className="flex items-center justify-between shrink-0 border-b border-slate-100 bg-indigo-50 py-4 px-6">
           <h2 className="text-lg font-bold text-slate-800">
             Editar Venta #{String(ventaId).padStart(3, '0')}
           </h2>
@@ -215,7 +215,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
           </button>
         </div>
 
-        <div className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto p-6">
+        <div className="modal-body flex flex-col gap-6 p-6">
 
           {/* Sección Fecha de entrega */}
           <div>
@@ -450,7 +450,7 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-slate-300 bg-slate-50/50 flex justify-between items-center py-4 px-6">
+        <div className="shrink-0 safe-bottom border-t border-slate-300 bg-slate-50/50 flex flex-wrap justify-between items-center gap-2 pt-4 px-6">
           <span className="text-sm text-slate-500">
             {detalle.length} producto(s) · Total: ${totalActual().toLocaleString('es-CO')}
           </span>
@@ -480,20 +480,22 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
       {/* ═══ SUB-MODAL: COMPOSICIÓN DEL COMBO ═══ */}
       {itemEnComposicion && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl modal-card">
+            <div className="flex items-center justify-between gap-3 shrink-0 p-6 pb-2">
               <h3 className="text-lg font-bold text-slate-800">
                 Composición de {itemEnComposicion.nombre_producto}
               </h3>
               <button
                 onClick={cerrarComposicion}
-                className="w-8 h-8 rounded-lg hover:bg-slate-100 flex items-center justify-center"
+                className="w-9 h-9 rounded-lg hover:bg-slate-100 flex items-center justify-center shrink-0"
+                aria-label="Cerrar"
               >
                 <X size={18} color="#64748b" />
               </button>
             </div>
 
-            <div className="flex items-center justify-between mb-2">
+            <div className="modal-body p-6 pt-2">
+            <div className="flex items-center justify-between gap-2 mb-2">
               <p className="text-xs text-slate-500">
                 Las cantidades son en <strong>unidades</strong> por combo.
               </p>
@@ -578,11 +580,12 @@ export default function EditarVentaModal({ open, onClose, onVentaEditada }) {
                 <AlertCircle size={16} /> {compoError}
               </div>
             )}
+            </div>
 
-            <div className="flex gap-2 justify-end mt-4">
+            <div className="flex gap-2 justify-end shrink-0 p-6 pt-0">
               <button
                 onClick={cerrarComposicion}
-                className="border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 py-2 px-4"
+                className="border border-slate-200 rounded-xl text-sm font-medium text-slate-600 bg-white hover:bg-slate-50 py-2.5 px-4"
               >
                 Cancelar
               </button>

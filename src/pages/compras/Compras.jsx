@@ -48,7 +48,9 @@ const responsiveStyles = `
   @media (max-width: 480px) {
     .page-container  { padding: 14px 10px !important; }
     .grid-kpi        { grid-template-columns: 1fr !important; }
-    .modal-inner     { padding: 20px 16px !important; max-height: 92vh; overflow-y: auto; }
+    /* El scroll lo maneja .modal-body (index.css) y el alto .modal-card;
+       antes se intentaba aquí pero el overflow:hidden inline lo anulaba. */
+    .modal-inner     { padding: 20px 16px !important; }
     .modal-header    { padding: 18px 18px 14px !important; }
     .modal-body      { padding: 18px 18px !important; }
     .modal-footer-wrap { padding: 12px 18px 18px !important; }
@@ -164,10 +166,10 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
 
   return (
     <div className="p-4" style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div className="modal-inner" style={{ background: '#ffffff', borderRadius: '20px', width: '100%', maxWidth: '480px', boxShadow: '0 24px 64px rgba(0,0,0,0.14)', overflow: 'hidden', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
+      <div className="modal-inner modal-card" style={{ background: '#ffffff', borderRadius: '20px', width: '100%', maxWidth: '480px', boxShadow: '0 24px 64px rgba(0,0,0,0.14)', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
 
         {/* Header */}
-        <div className="modal-header pt-6 pr-7 pb-5 pl-7" style={{ borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+        <div className="modal-header pt-6 pr-7 pb-5 pl-7" style={{ borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(88,66,255,0.08)', border: '1px solid rgba(88,66,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <ShoppingBag size={20} color="#5842ff" />
@@ -187,7 +189,7 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
         </div>
 
         {/* Body */}
-        <div className="modal-body py-6 px-7" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+        <div className="modal-body py-6 px-7" style={{ display: 'flex', flexDirection: 'column', gap: '16px', minHeight: 0 }}>
 
           {/* Proveedor */}
           <div>
@@ -230,7 +232,7 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
               </label>
               <div style={{ position: 'relative' }}>
                 <DollarSign size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-                <input type="number" name="costo_total" value={form.costo_total} onChange={handleChange}
+                <input type="number" inputMode="numeric" step="1" name="costo_total" value={form.costo_total} onChange={handleChange}
                   placeholder="0" min="0" style={inputBase} onFocus={focusIn} onBlur={focusOut} />
               </div>
             </div>
@@ -282,7 +284,7 @@ function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
         </div>
 
         {/* Footer */}
-        <div className="modal-footer modal-footer-wrap pt-4 pr-7 pb-6 pl-7" style={{ borderTop: '1px solid #f1f5f9', display: 'flex', gap: '10px' }}>
+        <div className="modal-footer modal-footer-wrap safe-bottom pt-4 pr-7 pl-7" style={{ borderTop: '1px solid #f1f5f9', display: 'flex', gap: '10px', flexShrink: 0 }}>
           <button onClick={onClose} className="p-2.5" style={{ flex: 1, borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
             Cancelar
           </button>
@@ -409,7 +411,7 @@ export default function Compras() {
   )
 
   return (
-    <div className="page-container py-10 px-12" style={{ flex: 1, background: '#fafbfc', minHeight: '100vh', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
+    <div className="page-container min-h-app py-10 px-12" style={{ flex: 1, background: '#fafbfc', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
       <style>{responsiveStyles}</style>
 
       {/* ═══ HEADER ═══ */}

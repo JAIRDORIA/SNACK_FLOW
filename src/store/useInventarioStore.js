@@ -1,12 +1,16 @@
 import { create } from "zustand";
 import { getInventario, getProductosBajoStock } from "@/api/inventario_api";
 
-const useInventarioStore = create((set) => ({
+// Ignora respuestas viejas al cambiar de término o de página.
+let fetchSeq = 0;
+
+const useInventarioStore = create((set, get) => ({
     inventario: [],
     total: 0,
     pagina: 1,
     limite: 20,
     total_paginas: 0,
+    busqueda: '',
     bajoStock: [],
     cargando: false,
     error: null,
@@ -15,9 +19,10 @@ const useInventarioStore = create((set) => ({
     // refrescos en segundo plano: `Inventario.jsx` hace `if (cargando) return
     // <spinner/>`, así que activar el flag desmontaría la página entera (y con
     // ella cualquier modal abierto encima, como el de validar producción).
-    refrescarInventarioSilencioso: async (pagina = 1, limite = 20) => {
+    // Conserva la búsqueda activa del store.
+    refrescarInventarioSilencioso: async (pagina = get().pagina, limite = get().limite) => {
         try {
-            const res = await getInventario(pagina, limite);
+            const res = await getInventario(pagina, limite, get().busqueda);
             set({
                 inventario   : res.data.datos,
                 total        : res.data.total,
@@ -31,10 +36,12 @@ const useInventarioStore = create((set) => ({
         }
     },
 
-    fetchInventario: async (pagina = 1, limite = 20) => {
-        set({ cargando: true, error: null });
+    fetchInventario: async (pagina = 1, limite = get().limite, q = get().busqueda) => {
+        const seq = ++fetchSeq;
+        set({ cargando: true, error: null, busqueda: q });
         try {
-            const res = await getInventario(pagina, limite);
+            const res = await getInventario(pagina, limite, q);
+            if (seq !== fetchSeq) return;
             set({
                 inventario   : res.data.datos,
                 total        : res.data.total,
@@ -44,6 +51,7 @@ const useInventarioStore = create((set) => ({
                 cargando     : false
             });
         } catch (err) {
+            if (seq !== fetchSeq) return;
             set({ error: err.response?.data?.mensaje || "Error al cargar inventario", cargando: false });
         }
     },

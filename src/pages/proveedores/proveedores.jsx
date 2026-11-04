@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import {
   Plus, Search, Pencil, Trash2, X,
   AlertTriangle, Truck, Mail, MapPin, Phone, User, CheckCircle2,
@@ -298,17 +298,30 @@ function ModalReactivar({ proveedor, onClose, onConfirmar }) {
 // ══════════════════════════════════════════
 export default function Proveedores() {
   const {
-    proveedores, cargando, error,
-    fetchProveedores, crearProveedor, editarProveedor, eliminarProveedor
+    proveedores, total, pagina, total_paginas, cargando, error,
+    fetchProveedores, busqueda, setBusqueda,
+    crearProveedor, editarProveedor, eliminarProveedor
   } = useProveedoresStore()
 
-  const [busqueda,           setBusqueda]           = useState('')
+  const [busquedaInput,      setBusquedaInput]      = useState(busqueda || '')
   const [modalFormOpen,      setModalFormOpen]      = useState(false)
   const [proveedorEditar,    setProveedorEditar]    = useState(null)
   const [proveedorEliminar,  setProveedorEliminar]  = useState(null)
   const [proveedorReactivar, setProveedorReactivar] = useState(null)
+  const debounceRef = useRef(null)
 
-  useEffect(() => { fetchProveedores() }, [])
+  useEffect(() => {
+    fetchProveedores(1)
+    return () => clearTimeout(debounceRef.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Búsqueda en el servidor con debounce; reinicia a la página 1.
+  const handleSearch = (value) => {
+    setBusquedaInput(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => setBusqueda(value), 400)
+  }
 
   const esInactivo = (p) => {
     if (p.activo === undefined) return false
@@ -316,12 +329,8 @@ export default function Proveedores() {
     return v === '0' || v === 'false' || v === 'null'
   }
 
-  const lista = proveedores.filter(p =>
-    p.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.telefono?.includes(busqueda) ||
-    p.email?.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.contacto?.toLowerCase().includes(busqueda.toLowerCase())
-  )
+  // El filtrado y la paginación los hace el backend con `q`.
+  const lista = proveedores
 
   const inactivosCount = proveedores.filter(esInactivo).length
 
@@ -338,7 +347,7 @@ export default function Proveedores() {
     await editarProveedor(p.id, { nombre: p.nombre || '', telefono: p.telefono || '', direccion: p.direccion || '', email: p.email || '', activo: 1 })
   }
 
-  if (cargando) return (
+  if (cargando && proveedores.length === 0 && !busquedaInput.trim()) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px' }}>
       <div style={{ width: '36px', height: '36px', border: '3px solid #5842ff', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
     </div>
@@ -364,10 +373,10 @@ export default function Proveedores() {
       {/* ═══ KPI CARDS ═══ */}
       <div className="grid-kpi">
         {[
-          { label: 'Total Proveedores', value: proveedores.length,                     borderColor: '#f59e0b', icon: <Truck size={20} color="#f59e0b" /> },
-          { label: 'Resultados',        value: lista.length,                             borderColor: '#8b5cf6', icon: <Search size={20} color="#8b5cf6" /> },
-          { label: 'Con Email',         value: proveedores.filter(p => p.email).length,  borderColor: '#06b6d4', icon: <Mail size={20} color="#06b6d4" /> },
-          { label: 'Inactivos',         value: inactivosCount,                           borderColor: '#f43f5e', icon: <ShieldAlert size={20} color="#f43f5e" /> },
+          { label: 'Total Proveedores', value: total,                                 borderColor: '#f59e0b', icon: <Truck size={20} color="#f59e0b" /> },
+          { label: 'En esta página',    value: lista.length,                          borderColor: '#8b5cf6', icon: <Search size={20} color="#8b5cf6" /> },
+          { label: 'Con Email (pág.)',  value: proveedores.filter(p => p.email).length,  borderColor: '#06b6d4', icon: <Mail size={20} color="#06b6d4" /> },
+          { label: 'Inactivos (pág.)',  value: inactivosCount,                        borderColor: '#f43f5e', icon: <ShieldAlert size={20} color="#f43f5e" /> },
         ].map((card, i) => (
           <div key={i} className="py-5 px-6" style={{ background: '#1a1b26', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ width: '48px', height: '48px', borderRadius: '12px', border: `1.5px solid ${card.borderColor}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -388,15 +397,27 @@ export default function Proveedores() {
         <div className="toolbar-container py-4 px-6" style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
           <div className="search-box" style={{ position: 'relative', width: '320px' }}>
             <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
-            <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar por nombre, email, contacto..."
+            <input value={busquedaInput} onChange={e => handleSearch(e.target.value)} placeholder="Buscar por nombre, email, teléfono..."
               className="pt-2.5 pr-4 pb-2.5 pl-11" style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#0f172a', background: '#ffffff', outline: 'none', fontFamily: 'inherit' }}
               onFocus={e => e.target.style.border = '1px solid #5842ff'}
               onBlur={e => e.target.style.border = '1px solid #e2e8f0'} />
           </div>
+          {cargando && (
+            <span className="flex items-center gap-2" style={{ fontSize: '13px', color: '#64748b' }} role="status">
+              <RefreshCw size={16} className="animate-spin" style={{ color: '#5842ff' }} />
+              Actualizando...
+            </span>
+          )}
           <button className="py-2.5 px-4" style={{ display: 'flex', alignItems: 'center', gap: '8px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#ffffff', color: '#475569', fontSize: '14px', fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit' }}>
             <SlidersHorizontal size={16} /> Filtros
           </button>
         </div>
+
+        {error && (
+          <div role="alert" className="mx-6 my-3 px-4 py-3" style={{ background: '#fff1f2', border: '1px solid #fecdd3', borderRadius: '10px', color: '#e11d48', fontSize: '13px' }}>
+            {error}
+          </div>
+        )}
 
         {/* ── TABLA (desktop) ── */}
         <div className="table-desktop" style={{ overflowX: 'auto' }}>
@@ -410,7 +431,7 @@ export default function Proveedores() {
             </thead>
             <tbody>
               {lista.length === 0 ? (
-                <tr><td colSpan={6} className="py-14 px-0" style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>No hay resultados.</td></tr>
+                <tr><td colSpan={6} className="py-14 px-0" style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>{busquedaInput.trim() ? 'No hay proveedores para esta búsqueda. Prueba con otro nombre, email o teléfono.' : 'No hay proveedores registrados.'}</td></tr>
               ) : lista.map((p, index) => {
                 const inactivo = esInactivo(p)
                 return (
@@ -465,7 +486,7 @@ export default function Proveedores() {
         {/* ── CARDS (móvil) ── */}
         <div className="cards-mobile pt-2 pr-0 pb-4 pl-0">
           {lista.length === 0 ? (
-            <p className="py-10 px-0" style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>No hay resultados.</p>
+            <p className="py-10 px-0" style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>{busquedaInput.trim() ? 'No hay proveedores para esta búsqueda.' : 'No hay proveedores registrados.'}</p>
           ) : lista.map((p, index) => {
             const inactivo = esInactivo(p)
             return (
@@ -540,10 +561,35 @@ export default function Proveedores() {
         </div>
 
         {/* Pie tabla */}
-        <div className="table-footer py-4 px-6" style={{ display: 'flex', background: '#ffffff', borderTop: '1px solid #f1f5f9' }}>
+        <div className="table-footer py-4 px-6" style={{ display: 'flex', background: '#ffffff', borderTop: '1px solid #f1f5f9', gap: '12px', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '14px', color: '#64748b', fontWeight: 500 }}>
-            Mostrando <strong style={{ color: '#111827' }}>{lista.length}</strong> de <strong style={{ color: '#111827' }}>{proveedores.length}</strong> proveedores
+            Mostrando <strong style={{ color: '#111827' }}>{lista.length}</strong> de <strong style={{ color: '#111827' }}>{total}</strong> proveedores
           </span>
+          {total_paginas > 1 && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => fetchProveedores(pagina - 1)}
+                disabled={pagina <= 1}
+                className="py-2 px-4"
+                style={{ border: '1px solid #e2e8f0', borderRadius: '8px', background: 'white', color: pagina <= 1 ? '#94a3b8' : '#475569', fontSize: '13px', cursor: pagina <= 1 ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
+              >
+                ← Anterior
+              </button>
+              <span style={{ fontSize: '13px', color: '#64748b' }}>
+                {pagina} / {total_paginas}
+              </span>
+              <button
+                type="button"
+                onClick={() => fetchProveedores(pagina + 1)}
+                disabled={pagina >= total_paginas}
+                className="py-2 px-4"
+                style={{ border: '1px solid #e2e8f0', borderRadius: '8px', background: 'white', color: pagina >= total_paginas ? '#94a3b8' : '#475569', fontSize: '13px', cursor: pagina >= total_paginas ? 'not-allowed' : 'pointer', fontFamily: 'inherit' }}
+              >
+                Siguiente →
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

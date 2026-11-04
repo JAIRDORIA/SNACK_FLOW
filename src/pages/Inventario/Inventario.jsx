@@ -1,4 +1,4 @@
-import { useState, useEffect,useMemo } from 'react'
+import { useState, useEffect,useMemo, useRef } from 'react'
 import {
   Search, AlertTriangle, Package,
   TrendingDown, CheckCircle, Layers,
@@ -581,37 +581,47 @@ export default function Inventario() {
   const {
     inventario, total, pagina, total_paginas,
     bajoStock, cargando, error,
-    fetchInventario, fetchBajoStock
+    fetchInventario, fetchBajoStock, busqueda
   } = useInventarioStore()
 
-  const [busqueda, setBusqueda] = useState('')
+  const [busquedaInput, setBusquedaInput] = useState(busqueda || '')
   const [editando, setEditando] = useState(null)
   const [editandoCantidades, setEditandoCantidades] = useState(null)
   const [modalProduccion, setModalProduccion] = useState(false)
   const [modalHistorial, setModalHistorial] = useState(false)
   const isMobile = useIsMobile()
+  const debounceRef = useRef(null)
 
   useEffect(() => {
-    fetchInventario()
+    fetchInventario(1)
     fetchBajoStock()
+    return () => clearTimeout(debounceRef.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  // Búsqueda en el servidor con debounce; reinicia a la página 1.
+  const handleBusqueda = (value) => {
+    setBusquedaInput(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      fetchInventario(1, 20, value)
+    }, 400)
+  }
 
   const cargar = (p = 1) => {
     fetchInventario(p)
     fetchBajoStock()
   }
 
-  const lista = inventario.filter(i => {
-    const q = busqueda.toLowerCase()
-    return String(i.id).includes(q) || i.nombre_producto?.toLowerCase().includes(q)
-  })
+  // El backend ya filtra por `q`; la tabla solo pinta la página recibida.
+  const lista = inventario
 
   const totalProductos = total
   const bajoStockCount = bajoStock.length
   const stockOk = inventario.filter(i => i.stock_actual > i.stock_minimo).length
   const sinStock = inventario.filter(i => i.stock_actual === 0).length
 
-  if (cargando) return (
+  if (cargando && inventario.length === 0 && !busquedaInput.trim()) return (
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-4">
         <div className="w-10 h-10 border-3 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -664,9 +674,9 @@ export default function Inventario() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         {[
           { label: isMobile ? 'Productos' : 'Total productos', val: totalProductos, icon: <Layers size={isMobile ? 16 : 22} color="#818cf8" />, ring: 'ring-indigo-500/40' },
-          { label: isMobile ? 'Stock OK' : 'Total stock OK', val: stockOk, icon: <CheckCircle size={isMobile ? 16 : 22} color="#34d399" />, ring: 'ring-emerald-400/40' },
+          { label: isMobile ? 'Stock OK' : 'Stock OK (pág.)', val: stockOk, icon: <CheckCircle size={isMobile ? 16 : 22} color="#34d399" />, ring: 'ring-emerald-400/40' },
           { label: isMobile ? 'Bajo stock' : 'Total bajo stock', val: bajoStockCount, icon: <TrendingDown size={isMobile ? 16 : 22} color="#fbbf24" />, ring: 'ring-amber-400/40' },
-          { label: isMobile ? 'Sin stock' : 'Total sin stock', val: sinStock, icon: <Package size={isMobile ? 16 : 22} color="#f87171" />, ring: 'ring-red-400/40' },
+          { label: isMobile ? 'Sin stock' : 'Sin stock (pág.)', val: sinStock, icon: <Package size={isMobile ? 16 : 22} color="#f87171" />, ring: 'ring-red-400/40' },
         ].map((card, i) => (
           <div
             key={i}
@@ -710,13 +720,19 @@ export default function Inventario() {
 
         <div className="border-b border-slate-100 flex gap-4 items-center flex-wrap p-3">
           <div className="relative flex-1 max-w-md" style={{ minWidth: isMobile ? '100%' : '280px' }}>
-            <input type="text" placeholder="Buscar por ID o producto..."
-              value={busqueda} onChange={e => setBusqueda(e.target.value)} maxLength={50}
+            <input type="text" placeholder="Buscar por nombre de producto..."
+              value={busquedaInput} onChange={e => handleBusqueda(e.target.value)} maxLength={50}
 
               className="w-full border border-slate-200 rounded-xl text-sm outline-none text-slate-700 bg-white focus:border-indigo-400 focus:ring-3 focus:ring-indigo-50 transition-all placeholder:text-slate-400 pl-12 pr-4 pt-3 pb-3"
             />
             <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
           </div>
+          {cargando && (
+            <span className="flex items-center gap-2 text-[13px] text-slate-500" role="status">
+              <RefreshCw size={15} className="animate-spin text-indigo-500" />
+              Actualizando...
+            </span>
+          )}
         </div>
 
         <div className="overflow-x-auto">
@@ -738,7 +754,7 @@ export default function Inventario() {
                       <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center">
                         <Search size={28} className="text-slate-300" />
                       </div>
-                      <p className="text-sm font-medium">No se encontraron productos</p>
+                      <p className="text-sm font-medium">{busquedaInput.trim() ? 'No se encontraron productos para esta búsqueda' : 'No se encontraron productos'}</p>
                     </div>
                   </td>
                 </tr>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { usePrestamosStore } from '../../store/Useprestamosstore'
 import NuevoPrestamoModal from '../../components/nuevoprestamomodal'
 import AbonarPrestamoModal from '../../components/Pagarprestamomodal'
@@ -84,22 +84,45 @@ function MedioPagoBadge({ prestamo }) {
 }
 
 export default function Prestamos() {
-  const { prestamos, loading, error, filtroEstado, setFiltroEstado, fetchPrestamos } =
-    usePrestamosStore()
+  const {
+    prestamos,
+    total,
+    resumen,
+    pagina,
+    total_paginas,
+    loading,
+    error,
+    filtroEstado,
+    busqueda,
+    setFiltroEstado,
+    setBusqueda,
+    fetchPrestamos,
+  } = usePrestamosStore()
   const [modalNuevoAbierto, setModalNuevoAbierto] = useState(false)
   const [prestamoAAbonar, setPrestamoAAbonar] = useState(null)
-  const [busqueda, setBusqueda] = useState('')
+  const [busquedaInput, setBusquedaInput] = useState(busqueda || '')
+  const debounceRef = useRef(null)
 
   useEffect(() => {
-    fetchPrestamos()
+    fetchPrestamos(1)
+    return () => clearTimeout(debounceRef.current)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Búsqueda en el servidor con debounce; reinicia a la página 1.
+  const handleBusqueda = (value) => {
+    setBusquedaInput(value)
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => setBusqueda(value), 400)
+  }
+
   // Totales derivados de la lista cargada (misma fuente que la tabla).
-  const totalPrestado = prestamos.reduce((acc, p) => acc + (p.monto || 0), 0)
-  const totalAbonado = prestamos.reduce((acc, p) => acc + (p.total_abonado || 0), 0)
-  const totalSaldo = prestamos.reduce((acc, p) => acc + (p.saldo_pendiente || 0), 0)
+  const totalPrestado = resumen.total_prestado
+  const totalAbonado = resumen.total_abonado
+  const totalSaldoGlobal = resumen.saldo_por_cobrar
   const cantPendientes = prestamos.filter((p) => p.estado === 'pendiente').length
   const cantPagados = prestamos.filter((p) => p.estado === 'pagado').length
+  const saldoPagina = prestamos.reduce((acc, p) => acc + (p.saldo_pendiente || 0), 0)
 
   const kpis = [
     {
@@ -118,21 +141,21 @@ export default function Prestamos() {
     },
     {
       label: 'Saldo por cobrar',
-      value: `$${totalSaldo.toLocaleString('es-CO')}`,
+      value: `$${totalSaldoGlobal.toLocaleString('es-CO')}`,
       icon: TrendingDown,
       color: '#fb923c',
       ring: 'ring-orange-400/40',
     },
     {
       label: 'Pendientes',
-      value: cantPendientes,
+      value: resumen.pendientes,
       icon: Clock,
       color: '#fbbf24',
       ring: 'ring-amber-400/40',
     },
     {
       label: 'Pagados',
-      value: cantPagados,
+      value: resumen.pagados,
       icon: CheckCircle2,
       color: '#22d3ee',
       ring: 'ring-cyan-400/40',
@@ -140,20 +163,10 @@ export default function Prestamos() {
   ]
 
   const filtros = [
-    { key: '', label: 'Todos', count: prestamos.length },
-    { key: 'pendiente', label: 'Pendientes', count: cantPendientes },
-    { key: 'pagado', label: 'Pagados', count: cantPagados },
+    { key: '', label: 'Todos', count:  resumen.pendientes + resumen.pagados },
+    { key: 'pendiente', label: 'Pendientes', count: resumen.pendientes },
+    { key: 'pagado', label: 'Pagados', count: resumen.pagados },
   ]
-
-  // Búsqueda local: la tabla ya trae la lista completa desde el store.
-  const termino = busqueda.trim().toLowerCase()
-  const prestamosFiltrados = termino
-    ? prestamos.filter((p) =>
-        [p.cliente_nombre, p.observacion, p.medio_pago_nombre, String(p.id)]
-          .filter(Boolean)
-          .some((campo) => String(campo).toLowerCase().includes(termino)),
-      )
-    : prestamos
 
   const inputBusqueda = (
     <div className="relative flex-1 min-w-[220px] max-w-md">
@@ -164,9 +177,9 @@ export default function Prestamos() {
       />
       <input
         type="search"
-        value={busqueda}
-        onChange={(e) => setBusqueda(e.target.value)}
-        placeholder="Buscar por cliente, observación o medio..."
+        value={busquedaInput}
+        onChange={(e) => handleBusqueda(e.target.value)}
+        placeholder="Buscar por cliente, observación o ID..."
         aria-label="Buscar préstamos"
         className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-[13px] outline-none text-slate-700 bg-white focus:border-indigo-400 focus:ring-3 focus:ring-indigo-50 transition-all placeholder:text-slate-400"
       />
@@ -201,6 +214,9 @@ export default function Prestamos() {
       </div>
 
       {/* ═══ KPI CARDS ═══ */}
+      <p className="text-[11px] text-slate-400 mb-2">
+        Resumen global{total > 0 ? ` · ${resumen.pendientes + resumen.pagados} préstamos en total` : ''}
+      </p>
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 mb-6">
         {kpis.map((kpi) => {
           const Icono = kpi.icon
@@ -315,7 +331,7 @@ export default function Prestamos() {
                 </tr>
               )}
 
-              {!loading && prestamosFiltrados.length === 0 && (
+              {!loading && prestamos.length === 0 && (
                 <tr>
                   <td colSpan={9} className="px-4 py-24">
                     <div className="flex flex-col items-center gap-3 text-center">
@@ -323,10 +339,10 @@ export default function Prestamos() {
                         <Wallet size={26} className="text-slate-300" aria-hidden="true" />
                       </div>
                       <p className="text-sm font-semibold text-slate-600 m-0">
-                        {termino ? 'Sin resultados para esta búsqueda' : 'No hay préstamos registrados'}
+                        {busquedaInput.trim() ? 'Sin resultados para esta búsqueda' : 'No hay préstamos registrados'}
                       </p>
                       <p className="text-xs text-slate-400 m-0">
-                        {termino
+                        {busquedaInput.trim()
                           ? 'Intenta con otro cliente u observación'
                           : 'Registra el primer préstamo para verlo aquí'}
                       </p>
@@ -336,7 +352,7 @@ export default function Prestamos() {
               )}
 
               {!loading &&
-                prestamosFiltrados.map((p, i) => {
+                prestamos.map((p, i) => {
                   const cfg = ESTADO_CFG[p.estado] ?? ESTADO_CFG.pendiente
                   const esPagado = p.estado === 'pagado'
 
@@ -440,19 +456,19 @@ export default function Prestamos() {
             </div>
           )}
 
-          {!loading && prestamosFiltrados.length === 0 && (
+          {!loading && prestamos.length === 0 && (
             <div className="flex flex-col items-center gap-3 py-16 px-4 text-center">
               <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center">
                 <Wallet size={26} className="text-slate-300" aria-hidden="true" />
               </div>
               <p className="text-sm font-semibold text-slate-600 m-0">
-                {termino ? 'Sin resultados para esta búsqueda' : 'No hay préstamos registrados'}
+                {busquedaInput.trim() ? 'Sin resultados para esta búsqueda' : 'No hay préstamos registrados'}
               </p>
             </div>
           )}
 
           {!loading &&
-            prestamosFiltrados.map((p) => {
+            prestamos.map((p) => {
               const cfg = ESTADO_CFG[p.estado] ?? ESTADO_CFG.pendiente
               const esPagado = p.estado === 'pagado'
 
@@ -534,25 +550,48 @@ export default function Prestamos() {
         </div>
 
         {/* pie */}
-        {!loading && prestamosFiltrados.length > 0 && (
+        {!loading && total > 0 && (
           <div className="border-t border-slate-200 flex justify-between items-center gap-3 flex-wrap text-[13px] text-slate-500 bg-slate-50/60 px-5 py-4">
             <span>
               Mostrando{' '}
               <strong className="text-slate-700 font-semibold tabular-nums">
-                {prestamosFiltrados.length}
-              </strong>{' '}
-              de{' '}
-              <strong className="text-slate-700 font-semibold tabular-nums">
                 {prestamos.length}
               </strong>{' '}
+              de{' '}
+              <strong className="text-slate-700 font-semibold tabular-nums">{total}</strong>{' '}
               préstamos
             </span>
-            <span className="tabular-nums">
-              Saldo total:{' '}
-              <strong className="text-slate-700 font-semibold">
-                ${totalSaldo.toLocaleString('es-CO')}
-              </strong>
-            </span>
+            <div className="flex items-center gap-3 flex-wrap">
+              <span className="tabular-nums">
+                Saldo de la página:{' '}
+                <strong className="text-slate-700 font-semibold">
+                  ${saldoPagina.toLocaleString('es-CO')}
+                </strong>
+              </span>
+              {total_paginas > 1 && (
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fetchPrestamos(pagina - 1)}
+                    disabled={pagina <= 1}
+                    className="py-2 px-3 border border-slate-200 rounded-xl text-xs bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    ← Anterior
+                  </button>
+                  <span className="text-xs text-slate-500 tabular-nums">
+                    {pagina} / {total_paginas}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => fetchPrestamos(pagina + 1)}
+                    disabled={pagina >= total_paginas}
+                    className="py-2 px-3 border border-slate-200 rounded-xl text-xs bg-white disabled:opacity-40 hover:bg-slate-50 transition-all font-medium text-slate-600 cursor-pointer disabled:cursor-not-allowed"
+                  >
+                    Siguiente →
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

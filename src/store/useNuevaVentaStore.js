@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import api from '@/api/axios'
 import { getClientes } from '@/api/clientes_api'
 import { getCortes } from '@/api/cortes_api'
-import { getProductos } from '@/api/productos_api'
+import { getTodosLosProductos } from '@/api/productos_api'
 import { medioPagoValido, payloadMedioPago } from '@/components/MedioPagoSelector'
 
 // Firma estable de la composición de un combo personalizado. El orden de los
@@ -215,19 +215,18 @@ export const useNuevaVentaStore = create((set, get) => ({
 
     set({ cargandoDatos: true, errorDatos: null })
     try {
-      const [clientesRes, cortesRes, productosRes] = await Promise.all([
+      const [clientesRes, cortesRes, productosData] = await Promise.all([
         getClientes(),
         getCortes(),
-        // El backend no limita el tamaño de página: se piden todos para que
-        // el buscador y la composición de combos tengan los productos reales.
-        getProductos(1, 300),
+        // El backend limita a 200 por página: se recorren todas las páginas
+        // para que el buscador y la composición de combos tengan el catálogo.
+        getTodosLosProductos(),
       ])
 
       // Extraer el array de clientes desde la propiedad 'items'
       const clientesData = clientesRes.data?.items || []
-      // Para cortes y productos asumimos que también vienen con 'items', si no, ajusta
+      // Para cortes asumimos que viene con 'datos', si no, ajusta
       const cortesTodos = cortesRes.data?.datos || []
-      const productosData = productosRes.data?.datos || []
       const cortesFiltrados = cortesTodos.filter(c => c.estado === 'abierto' || c.estado === 'futuro')
       const corteAbierto = cortesFiltrados.find(c => c.estado === 'abierto')
 

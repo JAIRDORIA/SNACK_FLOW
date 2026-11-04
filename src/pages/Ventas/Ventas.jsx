@@ -31,7 +31,7 @@ import {
   getVentaComprobante,
   anularVenta,
 } from "@/api/ventas_api";
-import { getProductos } from "@/api/productos_api";
+import { getTodosLosProductos } from "@/api/productos_api";
 import useAbonosStore from "@/store/useAbonoStore";
 import useDashboardStore from "@/store/useDashboardStore";
 import useEditarVentaStore from "@/store/useEditarVentaStore";
@@ -431,8 +431,7 @@ export default function Ventas() {
       );
       if (tieneComposicion && Object.keys(productosRef.current).length === 0) {
         try {
-          const prods = await getProductos(1, 300);
-          const lista = prods.data?.datos || prods.data?.items || [];
+          const lista = await getTodosLosProductos();
           productosRef.current = Object.fromEntries(
             lista.map((p) => [Number(p.id), p.nombre]),
           );
@@ -643,7 +642,7 @@ export default function Ventas() {
         >
           <div className="relative flex-1 min-w-[280px] max-w-md">
             <input
-              className="pl-12 pr-4 pt-3 pb-3"
+              
               type="text"
               placeholder="Buscar por ID, cliente, fecha o estado..."
               value={busquedaInput}

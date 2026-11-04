@@ -345,3 +345,7 @@ Iconos: `DollarSign` (Total en caja), `Wallet` (Efectivo en caja), `CreditCard`
 7. Balance usa `dinero_caja_real`; Dashboard usa `dinero_caja` para la misma idea.
 8. Sin React Query ni Context: todo el estado servidor/cliente vive en zustand.
 9. Sin librería de UI ni de modales: Tailwind + lucide-react + overlays a mano.
+
+---
+
+**Nota de vigencia (2026-11-03):** la rama `feature/paginacion_parametroq` adaptó paginación y búsqueda en servidor de préstamos, proveedores, inventario y productos. No cambió la lógica de medios de pago ni los hallazgos de este diagnóstico; en préstamos cambió el shape de `GET /prestamos/` (ahora incluye `resumen` global), la pantalla pagina/busca en backend y sus KPI usan ese resumen.

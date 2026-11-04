@@ -63,6 +63,7 @@ Documento de traspaso para continuar el desarrollo en otra conversación. Proyec
 - Disponibilidad de caja para prestar se calcula sumando ingresos−egresos de `movimientos_caja` por `corte_id` + `medio_pago` (fuente única de verdad, no duplica lógica del balance).
 - Un abono a préstamo se asocia al corte **abierto en el momento del abono**, no al corte original del préstamo (igual que los abonos de venta).
 - Endpoints: `POST/GET /prestamos`, `GET/POST /prestamos/<id>/abonos`.
+- **Desde 2026-11-03** `GET /prestamos/` devuelve `{ datos, total, pagina, limite, total_paginas }` (antes era un array) y acepta `pagina`, `limite` (1-100, por defecto 20), `q` (cliente/observación/id), `estado` (`pendiente`/`pagado`) y `cliente_id`. El frontend lee `res.data.datos`; para “todos los pendientes de un cliente” se usa `cliente_id` + `estado=pendiente`.
 
 ## 6. Autenticación y roles
 
@@ -123,7 +124,7 @@ Cotización enviada por **$600.000**, 3 semanas, anticipo 30%:
 
 ## 9. Bugs y patrones a vigilar (aprendizajes de esta conversación)
 
-- **Endpoints con `LIMIT` fijo + filtro en frontend**: varios `getX(pagina, limite)` traían todo con un límite fijo (190-200) y filtraban en el cliente — se rompía al superar el límite. Corregido en clientes (parámetro `q` + debounce) y compras (mismo patrón). En ventas se optó por filtrar por `cliente_id` sin paginar, en vez de `q`, para el caso de "ver deudas de un cliente". **Inventario todavía tiene este problema pendiente de corregir.**
+- **Endpoints con `LIMIT` fijo + filtro en frontend**: varios `getX(pagina, limite)` traían todo con un límite fijo (190-200) y filtraban en el cliente — se rompía al superar el límite. Corregido en clientes, compras, inventario, productos, proveedores y préstamos con parámetro `q`, debounce (~400 ms, reinicia a página 1) y paginación en servidor.
 - **Cursores MySQL sin cerrar**: causó `1226 - max_user_connections exceeded`. Revisar que todo `service` cierre su cursor incluso si hay excepción (no está aplicado con `try/finally` en todos lados todavía).
 - **Nombres de campo inconsistentes entre servicios de clientes**: unos devuelven `id`/`nombre`, otros (los que usan los modales de abonos y préstamos) devuelven `ID_Cliente`/`Cli_Nombre` (vía `cliente(...).toDic()`). **Nunca asumir el shape de un objeto sin confirmarlo con un dato real.**
 - **`usuario_id` hardcodeado en `1`**: se fue corrigiendo módulo por módulo (ventas, compras, préstamos) reemplazándolo por el id real de `localStorage`. Revisar si queda en algún lado más.
@@ -141,3 +142,22 @@ Cotización enviada por **$600.000**, 3 semanas, anticipo 30%:
 *Actualización 2026-10-23 (domicilio en edición y abonos):* `useEditarVentaStore` carga `valor_domicilio`, `domicilio_pagado`, `productos_pagado`; `totalActual()` = productos + domicilio. `guardarCambios()` bloquea domicilio menor a lo pagado y detalle menor a `productos_pagado`, y envía `valor_domicilio` en `PUT /ventas/{id}/detalle` solo si cambió. `NuevoAbonoModal` recibe ventas del listado, deriva `productos_pendiente = saldo_pendiente - domicilio_pendiente`, muestra productos y domicilio por separado con su propio `MedioPagoSelector`, y hace `POST /abonos` secuenciales (productos primero) con `es_domicilio` booleano estricto. Si falla el segundo, conserva el modal abierto, avisa que el primero quedó registrado y recarga la venta.
 
 *Actualización 2026-10-23 (domicilio en lectura):* `Ventas.jsx` agrega chip "Domicilio debe" en la lista, desglose Productos/Domicilio en el detalle, chip "Domicilio" en abonos, y en comprobante/impresión usa `subtotal_productos` + línea Domicilio + `total`. `Abonos.jsx` marca abonos con `es_domicilio` y agrega modal e impresión de recibo (`GET /abonos/{id}/recibo`) con concepto "Abono de domicilio/venta" y pendientes cuando `valor_domicilio > 0`. El comprobante del backend no devuelve `abonos`; el marcador `( domicilio )` queda defensivo.
+
+---
+
+## 11. Paginación y búsqueda en servidor (2026-11-03)
+
+Rama `feature/paginacion_parametroq`, creada desde `origin/main`. Se adaptó el frontend a cuatro listados que ahora paginan/buscan en el backend, sin tocar la lógica de negocio:
+
+| Endpoint | Shape | Params usados | Pantalla / consumidor |
+|---|---|---|---|
+| `GET /prestamos/` | `{ datos, total, pagina, limite, total_paginas, resumen }` | `pagina`, `limite`, `q`, `estado`, `cliente_id` | `pages/prestamos/prestamos.jsx` + `Useprestamosstore.js` |
+| `GET /proveedores/` | `{ exito, datos, total, pagina, limite, total_paginas }` | `pagina`, `limite`, `q` | `pages/proveedores/proveedores.jsx` + `useProveedoresStore.js` |
+| `GET /inventarios/` | `{ datos, total, pagina, limite, total_paginas }` | `pagina`, `limite`, `q` (nombre) | `useInventarioStore.js` + `pages/Inventario/Inventario.jsx` |
+| `GET /productos/` | `{ datos, total, pagina, limite, total_paginas }` | `pagina`, `limite`, `q` (nombre/descripción) | `ProductsManager.jsx`; catálogo completo con `getTodosLosProductos()` |
+
+- Límite máximo aceptado: 200 en inventario/productos (100 en préstamos/proveedores). Los catálogos que necesitan todos los productos recorren páginas de 200 con `getTodosLosProductos()` (`useNuevaVentaStore`, detalle de `Ventas.jsx`).
+- Búsqueda con debounce de 400 ms; cada cambio de `q` reinicia a página 1. Las respuestas viejas se descartan con un contador de secuencia en los stores.
+- Los selects/dropdowns de proveedores usan `GET /proveedores/activos` (`proveedoresActivos` en `useProveedoresStore`); `/proveedores/` queda solo para la tabla paginada.
+- Los KPI calculados sobre la lista recibida se rotularon “(pág.)”, salvo en préstamos. Allí `GET /prestamos/` devuelve `resumen: { total_prestado, total_abonado, saldo_por_cobrar, pendientes, pagados }`; el store lo guarda en `resumen` (con fallback al valor previo si la respuesta no lo trae) y lo actualiza de forma optimista en `nuevoPrestamo` y `abonar`. La pantalla muestra esos KPI como “Resumen global”, mientras los tabs siguen contando la página y el pie usa `saldoPagina`.
+

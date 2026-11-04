@@ -1,7 +1,11 @@
 import api from "./axios";
 
-export const getInventario = (pagina = 1, limite = 20) =>
-    api.get(`/inventarios/?pagina=${pagina}&limite=${limite}`);
+// `q` busca por nombre de producto en el servidor. `limite` máximo: 200.
+export const getInventario = (pagina = 1, limite = 20, q = '') => {
+    const params = { pagina, limite }
+    if (q) params.q = q
+    return api.get("/inventarios/", { params });
+};
 
 export const getInventarioById = (id) =>
     api.get(`/inventarios/${id}`);

@@ -346,7 +346,7 @@ export default function Compras() {
     fetchCompras, crearCompra, editarCompra, eliminarCompra,
     corteIdFiltro, cortes, fetchCortes, pagina, limite, total_paginas,total
   } = useComprasStore()
-  const { proveedores, fetchProveedores } = useProveedoresStore()
+  const { proveedoresActivos, fetchProveedoresActivos } = useProveedoresStore()
   const { balance } = useDashboardStore()
 
   const [busqueda, setBusqueda] = useState('')
@@ -360,7 +360,7 @@ export default function Compras() {
   const filtroRef = useRef(null)
 
   useEffect(() => {
-    fetchProveedores()
+    fetchProveedoresActivos()
     fetchCortes()
   }, [])
 
@@ -484,7 +484,7 @@ export default function Compras() {
                 <select value={filtroProveedor} onChange={e => setFiltroProveedor(e.target.value)}
                   className="py-2 px-3" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '13px', outline: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>
                   <option value="">Todos los proveedores</option>
-                  {proveedores.map(p => <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>)}
+                  {proveedoresActivos.map(p => <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>)}
                 </select>
                 {nFiltros > 0 && (
                   <div className="mt-4 pt-4" style={{ borderTop: '1px solid #f1f5f9' }}>
@@ -640,7 +640,7 @@ export default function Compras() {
       </div>
 
       {/* ═══ MODALES ═══ */}
-      {modalFormOpen && <ModalCompra compra={compraEditar} proveedores={proveedores} onClose={cerrarForm} onGuardar={handleGuardar} />}
+      {modalFormOpen && <ModalCompra compra={compraEditar} proveedores={proveedoresActivos} onClose={cerrarForm} onGuardar={handleGuardar} />}
       {compraEliminar && <ModalEliminar compra={compraEliminar} onClose={() => setCompraEliminar(null)} onConfirmar={() => eliminarCompra(compraEliminar.id_compra)} />}
     </div>
   )

@@ -2,8 +2,22 @@ import api from './axios'
 
 const BASE = '/prestamos'
 
-export const listarPrestamos = (estado) => {
-  const params = estado ? { estado } : {}
+// GET /prestamos/ devuelve { datos, total, pagina, limite, total_paginas }.
+// `cliente_id` permite pedir todos los préstamos de un cliente sin paginar el
+// resto del listado (usado por consumidores que necesitan ese subconjunto).
+export const listarPrestamos = ({
+  pagina = 1,
+  limite = 20,
+  q = '',
+  estado,
+  cliente_id,
+} = {}) => {
+  const params = { pagina, limite }
+  if (q) params.q = q
+  if (estado) params.estado = estado
+  if (cliente_id !== undefined && cliente_id !== null && cliente_id !== '') {
+    params.cliente_id = cliente_id
+  }
   return api.get(`${BASE}/`, { params })
 }
 

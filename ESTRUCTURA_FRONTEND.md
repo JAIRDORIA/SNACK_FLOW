@@ -145,6 +145,8 @@ export const anularVenta = (id) => api.put(`/ventas/${id}/anulacion`)
 
 > Patrón: **`api/` nunca maneja estado ni UI**, solo hace la llamada y devuelve la respuesta.
 
+**Nota (paginación y búsqueda, 2026-11-03):** `listarPrestamos`, `getProveedores`, `getInventario` y `getProductos` aceptan `pagina`, `limite` y `q` como parámetros. `GET /prestamos/` ahora devuelve `{ datos, total, pagina, limite, total_paginas }` (ya no un array) y `GET /proveedores/` añade `pagina/limite/total_paginas`. Los selects de proveedores usan `getProveedoresActivos()` (`/proveedores/activos`). Para catálogos completos de productos existe `getTodosLosProductos()`, que recorre páginas de 200 (el máximo permitido) en vez de pedir un límite mayor.
+
 ---
 
 ### 3.3 `src/store/` — Estado global (Zustand)
@@ -372,3 +374,5 @@ src/utils/
 **Nota (domicilio en edición y abonos, 2026-10-23):** `EditarVentaModal.jsx` + `useEditarVentaStore.js` editan `valor_domicilio` (mínimo = `domicilio_pagado`, envío condicional en `PUT /ventas/{id}/detalle`) y el total del footer suma domicilio. `NuevoAbonoModal.jsx` separa "Pagar venta" (productos) y "Pagar domicilio" con medios independientes y hace dos `POST /abonos` secuenciales con `es_domicilio` booleano; ante fallo del segundo avisa que el primero quedó registrado y recarga la venta.
 
 **Nota (domicilio en pantallas de lectura, 2026-10-23):** `Ventas.jsx` muestra chip "Domicilio debe" en la lista, desglose Productos/Domicilio en el detalle, chip "Domicilio" en abonos, y en el comprobante (pantalla e impresión) usa `subtotal_productos`, agrega la línea Domicilio y mantiene `total`. `Abonos.jsx` marca abonos con `es_domicilio` y agrega modal/impresión de recibo con `GET /abonos/{id}/recibo` (concepto, monto y pendientes).
+
+**Nota (paginación y búsqueda en servidor, 2026-11-03):** Préstamos, proveedores, inventario y productos paginan y buscan en el backend. Los stores guardan `total`, `pagina`, `limite`, `total_paginas` y `busqueda`; las pantallas envían `q` con debounce de ~400 ms, reinician a página 1 y descartan respuestas viejas con un contador de secuencia. En préstamos, `GET /prestamos/` también devuelve `resumen` (`total_prestado`, `total_abonado`, `saldo_por_cobrar`, `pendientes`, `pagados`): el store lo mantiene y la pantalla usa esos valores para las KPI globales; los tabs siguen contando la página y el pie usa `saldoPagina`. Detalle por endpoint en `SnackFlow_contexto (1).md` §11.

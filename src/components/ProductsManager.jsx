@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Plus, Pencil, Trash2, X,
   Search, AlertTriangle,
@@ -22,18 +22,35 @@ export default function ProductosManager() {
   const [formData, setFormData] = useState(FORM_INICIAL);
   const [editingId, setEditingId] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const [busqueda, setBusqueda] = useState('');
   const [deleteId, setDeleteId] = useState(null);
   const [deleteNombre, setDeleteNombre] = useState('');
+  const debounceRef = useRef(null);
+  const requestSeq = useRef(0);
 
   useEffect(() => {
-    loadProductos();
+    loadProductos(1);
+    return () => clearTimeout(debounceRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadProductos = async (pagina = 1) => {
+  // Búsqueda en el servidor (nombre o descripción) con debounce.
+  const handleSearch = (value) => {
+    setSearchInput(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      setBusqueda(value);
+      loadProductos(1, value);
+    }, 400);
+  };
+
+  const loadProductos = async (pagina = 1, q = busqueda) => {
+  const seq = ++requestSeq.current
   try {
     setLoading(true)
-    const res = await api.get('/productos/', { params: { pagina, limite: 15 } })
+    const res = await getProductos(pagina, 15, q)
+    if (seq !== requestSeq.current) return
     const data = res.data
     setProductosData({
       datos: data.datos || data.items || [],
@@ -44,10 +61,11 @@ export default function ProductosManager() {
     setPagina(pagina)
     setError(null)
   } catch (err) {
+    if (seq !== requestSeq.current) return
     console.error(err)
-    setError('No se pudieron cargar los productos')
+    setError(err.response?.data?.mensaje || 'No se pudieron cargar los productos')
   } finally {
-    setLoading(false)
+    if (seq === requestSeq.current) setLoading(false)
   }
 }
 
@@ -110,15 +128,10 @@ export default function ProductosManager() {
     setShowForm(false);
   };
 
-  const filteredProductos = productosData.datos.filter(
-    (p) =>
-      p.nombre?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
+  // Ya no se filtra en el cliente: el backend aplica `q`.
   const totalProductos = productosData.total;
 
-  if (loading) return (
+  if (loading && productosData.datos.length === 0 && !busqueda) return (
     <div className="flex items-center justify-center h-64">
       <div className="flex flex-col items-center gap-3">
         <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
@@ -271,7 +284,7 @@ export default function ProductosManager() {
           <div className="py-3 px-4" style={{ borderBottom: '1px solid #f1f5f9' }}>
             <div style={{ position: 'relative', maxWidth: '360px' }}>
               <input type="text" placeholder="Buscar producto..." maxLength={50}
-                value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchInput} onChange={(e) => handleSearch(e.target.value)}
                 className="pt-2.5 pr-4 pb-2.5 pl-10" style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
                 onFocus={e => { e.target.style.borderColor = '#6366f1'; e.target.style.boxShadow = '0 0 0 3px rgba(99,102,241,0.1)'; }}
                 onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
@@ -298,13 +311,13 @@ export default function ProductosManager() {
                 </tr>
               </thead>
               <tbody>
-                {filteredProductos.length === 0 ? (
+                {productosData.datos.length === 0 ? (
                   <tr>
                     <td colSpan="5" className="p-12" style={{ textAlign: 'center', color: '#94a3b8', fontSize: '14px' }}>
-                      No hay productos registrados
+                      {busqueda ? 'No hay productos para esta búsqueda' : 'No hay productos registrados'}
                     </td>
                   </tr>
-                ) : filteredProductos.map((producto) => (
+                ) : productosData.datos.map((producto) => (
                   
                   <tr key={producto.id} style={{ borderBottom: '1px solid #f1f5f9' }}
                     onMouseEnter={e => e.currentTarget.style.background = '#f8fafc'}
@@ -357,7 +370,7 @@ export default function ProductosManager() {
           <span className="text-sm">
             Mostrando{" "}
             <strong className="text-slate-700 font-semibold">
-              {filteredProductos.length}
+              {productosData.datos.length}
             </strong>{" "}
             de <strong className="text-slate-700 font-semibold">{totalProductos}</strong>{" "}
             productos

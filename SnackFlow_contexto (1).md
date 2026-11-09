@@ -36,6 +36,7 @@ Documento de traspaso para continuar el desarrollo en otra conversación. Proyec
 - Combos: se descuenta en **unidades**, no en bandejas, usando la fórmula de arriba.
 - Anular una venta revierte: trigger `trg_venta_anular` para productos simples, `revertir_inventario_detalle` + `_sumar_inventario` (Python) para combos.
 - Edición manual de cantidades (`ModalEditarCantidades`, `cntActualizarCantidades`) normaliza con la misma fórmula y registra en `auditoria` (`datos_anteriores`/`datos_nuevos` en JSON).
+- **Valor del inventario (2026-11-08):** `GET /inventarios/valor` devuelve `{ valor_detal, valor_mayor }` (COP, floats) calculado a **precio de venta por bandejas completas**, ignorando stock negativo e incluyendo solo productos activos, sin combos. `Inventario.jsx` lo muestra en dos `KpiCard` arriba del listado; es global (no depende de página ni búsqueda) y se refresca tras editar cantidades o registrar producción.
 
 ## 4. Combos (catálogo vs. personalizados)
 

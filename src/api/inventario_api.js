@@ -19,6 +19,11 @@ export const putInventario = (id, data) =>
 export const getProductosBajoStock = () =>
     api.get("/inventarios/bajo-stock");
 
+// Valor total del inventario (global, sin paginación ni búsqueda).
+// Devuelve { valor_detal, valor_mayor } en pesos COP.
+export const getValorInventario = () =>
+    api.get("/inventarios/valor");
+
 // Agrega esto junto a tu putInventario ya existente (para stock_minimo)
 export const putInventarioCantidades = (id, data) =>
   api.put(`/inventarios/${id}/cantidades/`, data)

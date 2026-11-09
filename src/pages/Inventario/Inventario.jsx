@@ -2,9 +2,11 @@ import { useState, useEffect,useMemo, useRef } from 'react'
 import {
   Search, AlertTriangle, Package,
   TrendingDown, CheckCircle, Layers,
-  Pencil, X, RefreshCw, Plus, ClipboardList, Boxes
+  Pencil, X, RefreshCw, Plus, ClipboardList, Boxes,
+  Banknote, Warehouse
 } from 'lucide-react'
 import useInventarioStore from '@/store/useInventarioStore'
+import KpiCard from '@/components/KpiCard'
 import { putInventario, putInventarioCantidades } from '@/api/inventario_api'
 import { postProduccion, getProducciones } from '@/api/producciones_api'
 import { getProductos } from '@/api/productos_api'
@@ -581,7 +583,8 @@ export default function Inventario() {
   const {
     inventario, total, pagina, total_paginas,
     bajoStock, cargando, error,
-    fetchInventario, fetchBajoStock, busqueda
+    fetchInventario, fetchBajoStock, busqueda,
+    valor_detal, valor_mayor, cargandoValor, fetchValorInventario
   } = useInventarioStore()
 
   const [busquedaInput, setBusquedaInput] = useState(busqueda || '')
@@ -595,6 +598,9 @@ export default function Inventario() {
   useEffect(() => {
     fetchInventario(1)
     fetchBajoStock()
+    // El valor total es global: se pide al entrar, no depende de la página
+    // ni del buscador.
+    fetchValorInventario()
     return () => clearTimeout(debounceRef.current)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -611,6 +617,8 @@ export default function Inventario() {
   const cargar = (p = 1) => {
     fetchInventario(p)
     fetchBajoStock()
+    // Tras editar cantidades o registrar producción el valor cambia.
+    fetchValorInventario()
   }
 
   // El backend ya filtra por `q`; la tabla solo pinta la página recibida.
@@ -693,6 +701,35 @@ export default function Inventario() {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* ═══ VALOR DEL INVENTARIO (global) ═══ */}
+      {/* Total del inventario, independiente de la página y del buscador.
+          Si la consulta falla, la cifra queda en "—" (sin alertas). */}
+      <p className="text-[11px] text-slate-400 mb-2">
+        Valor del inventario · por bandejas completas · ignora stock negativo y combos · solo productos activos
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-7">
+        <KpiCard
+          label="Valor al detal"
+          value={valor_detal}
+          cargando={cargandoValor}
+          icon={Banknote}
+          ring="ring-emerald-400/40"
+          iconCol="text-emerald-300"
+          currency
+          hint="Precio de venta al detal"
+        />
+        <KpiCard
+          label="Valor al por mayor"
+          value={valor_mayor}
+          cargando={cargandoValor}
+          icon={Warehouse}
+          ring="ring-sky-400/40"
+          iconCol="text-sky-300"
+          currency
+          hint="Precio de venta al por mayor"
+        />
       </div>
 
       {/* alerta bajo stock */}

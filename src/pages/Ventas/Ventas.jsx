@@ -23,6 +23,7 @@ import {
   Receipt,
   Printer,
   CircleCheckBig,
+  Motorbike,
 } from "lucide-react";
 import useVentasStore from "@/store/useVentasStore";
 import NuevaVentaModal from "@/components/nuevaVentaModal";
@@ -41,6 +42,9 @@ import { formatearFechaColombia } from "@/utils/formatearFecha";
 import usePorConfirmarStore from "@/store/usePorConfirmarStore";
 import KpiCard from "@/components/KpiCard";
 import MedioPagoBadge from "@/components/MedioPagoBadge";
+import ModalCompra from "@/components/ModalCompra";
+import useComprasStore from "@/store/useComprasStore";
+import useProveedoresStore from "@/store/useProveedoresStore";
 
 // ══════════════════════════════════════════
 // CONFIGURACION DE ESTILOS
@@ -182,6 +186,12 @@ export default function Ventas() {
   const [ventaAEditar, setVentaAEditar] = useState(null);
   const { cargarVenta } = useEditarVentaStore();
   const [entregarId, setEntregarId] = useState(null);
+  // Venta cuyo domicilio se va a pagar al domiciliario (abre ModalCompra en categoría Domicilio).
+  const [ventaDomicilio, setVentaDomicilio] = useState(null);
+  // Aviso al anular una venta que ya tenía compras de domicilio (el backend no las anula).
+  const [avisoAnulacion, setAvisoAnulacion] = useState(null);
+  const crearCompra = useComprasStore((st) => st.crearCompra);
+  const { proveedoresActivos, fetchProveedoresActivos } = useProveedoresStore();
   const [entregando, setEntregando] = useState(false);
   const [buscando, setBuscando] = useState(false)
   const debounceRef = useRef(null)
@@ -468,7 +478,16 @@ export default function Ventas() {
     if (!eliminarId) return;
     setAnulando(true);
     try {
-      await anularVenta(eliminarId);
+      const res = await anularVenta(eliminarId);
+      const info = res?.data?.datos ?? res?.data ?? {};
+      if (Number(info.compras_domicilio) > 0) {
+        setAvisoAnulacion({
+          ventaId: eliminarId,
+          cantidad: Number(info.compras_domicilio),
+          total: Number(info.compras_domicilio_total) || 0,
+          mensaje: info.advertencia || "",
+        });
+      }
       // Refresco silencioso conservando página, búsqueda y filtros.
       fetchVentas(pagina, 20, balance?.corte_id, busqueda, { silent: true });
       cargarIngresosCorte(); // refrescar el KPI de ingresos del corte
@@ -982,6 +1001,28 @@ export default function Ventas() {
                               className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-500 transition-all hover:bg-emerald-600 hover:border-emerald-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-1 cursor-pointer"
                             >
                               <CircleCheckBig size={15} />
+                            </button>
+                          )}
+                          {/* Pagar domicilio al domiciliario: compra ligada a esta venta.
+                              Se deshabilita cuando ya se pagó el total del domicilio. */}
+                          {Number(v.valor_domicilio) > 0 && !esAnulada && (
+                            <button
+                              type="button"
+                              disabled={Boolean(v.domicilio_compra_completa)}
+                              title={v.domicilio_compra_completa ? "Domicilio ya pagado" : "Pagar domicilio"}
+                              aria-label={`Pagar el domicilio de la venta ${v.id_venta}`}
+                              onClick={() => {
+                                fetchProveedoresActivos();
+                                setVentaDomicilio({
+                                  id_venta: v.id_venta,
+                                  nombre_cliente: v.nombre_cliente,
+                                  valor_domicilio: v.valor_domicilio,
+                                  domicilio_pendiente_compra: v.domicilio_pendiente_compra,
+                                });
+                              }}
+                              className="w-8 h-8 rounded-lg flex items-center justify-center bg-white border border-slate-200 text-slate-500 transition-all hover:bg-violet-600 hover:border-violet-600 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-500 focus-visible:ring-offset-1 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white disabled:hover:border-slate-200 disabled:hover:text-slate-500"
+                            >
+                              <Motorbike size={15} />
                             </button>
                           )}
                           {!esAnulada && (
@@ -1866,6 +1907,53 @@ export default function Ventas() {
             </div>
           </div>
         </div>
+      )}
+      {avisoAnulacion && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+          <div role="alertdialog" aria-modal="true" className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 modal-card">
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center shrink-0">
+                <AlertTriangle size={20} className="text-amber-600" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-800 m-0">
+                  Venta #{String(avisoAnulacion.ventaId).padStart(3, "0")} anulada
+                </h3>
+                <p className="text-sm text-slate-600 mt-2 mb-0">
+                  Esta venta tenía {avisoAnulacion.cantidad}{" "}
+                  {avisoAnulacion.cantidad === 1 ? "compra" : "compras"} de domicilio por{" "}
+                  <strong>${avisoAnulacion.total.toLocaleString("es-CO")}</strong>. Las compras{" "}
+                  <strong>no se anulan automáticamente</strong> (el egreso ya quedó en su corte).
+                  Si corresponde, elimínalas manualmente en Compras.
+                </p>
+                {avisoAnulacion.mensaje && (
+                  <p className="text-xs text-slate-400 mt-2 mb-0">{avisoAnulacion.mensaje}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex justify-end mt-5">
+              <button
+                type="button"
+                onClick={() => setAvisoAnulacion(null)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl py-2.5 px-5"
+              >
+                Entendido
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {ventaDomicilio && (
+        <ModalCompra
+          compra={null}
+          proveedores={proveedoresActivos}
+          ventaFija={ventaDomicilio}
+          onClose={() => setVentaDomicilio(null)}
+          onGuardar={async (data, medioPago) => {
+            await crearCompra(data, medioPago);
+            fetchVentas(pagina, 20, balance?.corte_id, busqueda, { silent: true });
+          }}
+        />
       )}
       <NuevaVentaModal
         open={modalNuevaVenta}

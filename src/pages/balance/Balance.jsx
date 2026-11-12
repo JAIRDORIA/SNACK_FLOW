@@ -44,6 +44,13 @@ export default function Balance() {
   const saldoPendiente = balance?.saldo_pendiente_ventas ?? 0
   const saldoInicial = balance?.saldo_inicial ?? 0
   const total_compras = balance?.total_compras ?? 0
+  // Domicilios: dinero de paso (no es ingreso). Respaldo a 0 si el backend aún no devuelve los campos.
+  const domCobrados = balance?.domicilios_cobrados ?? 0
+  const domPagados = balance?.domicilios_pagados ?? 0
+  const domDiferencia = balance?.diferencia_domicilios ?? (domCobrados - domPagados)
+  const comprasInsumos = balance?.compras_insumos ?? total_compras
+  const comprasDomicilios = balance?.compras_domicilios ?? 0
+  const fmtCOP = (v) => `$${Number(v || 0).toLocaleString('es-CO')}`
 
   // Modal de saldos de cuentas (se abre desde la card Transferencias).
   const [mostrarSaldosCuentas, setMostrarSaldosCuentas] = useState(false)
@@ -176,6 +183,27 @@ export default function Balance() {
             currency
           />
         ))}
+      </div>
+
+      {/* Domicilios y desglose de compras (el domicilio no es ingreso: se cobra y se paga al domiciliario) */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden mb-6 lg:mb-8">
+        <div className="sm:px-6 sm:py-4 border-b border-gray-100 py-3 px-4">
+          <h2 className="text-sm sm:text-base font-semibold text-slate-700">Domicilios y compras del corte</h2>
+        </div>
+        <dl className="grid grid-cols-2 lg:grid-cols-5 gap-4 sm:p-6 p-4">
+          {[
+            { t: 'Domicilios cobrados', v: domCobrados, c: 'text-slate-800' },
+            { t: 'Domicilios pagados', v: domPagados, c: 'text-violet-600' },
+            { t: 'Diferencia', v: domDiferencia, c: domDiferencia < 0 ? 'text-rose-600' : 'text-emerald-600' },
+            { t: 'Compras de insumos', v: comprasInsumos, c: 'text-slate-800' },
+            { t: 'Compras de domicilios', v: comprasDomicilios, c: 'text-slate-800' },
+          ].map((x) => (
+            <div key={x.t}>
+              <dt className="text-xs text-slate-500 uppercase tracking-wider">{x.t}</dt>
+              <dd className={`mt-1 text-base sm:text-lg font-semibold ${x.c}`}>{fmtCOP(x.v)}</dd>
+            </div>
+          ))}
+        </dl>
       </div>
 
       {/* Resumen del próximo corte */}
@@ -390,15 +418,15 @@ export default function Balance() {
             <div className="sm:p-6 overflow-y-auto p-4">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 sm:mb-6 mb-4">
                 <div className="bg-indigo-50 sm:p-4 rounded-xl text-center p-3">
-                  <p className="text-xs text-slate-500 mb-1">Total Ventas</p>
+                  <p className="text-xs text-slate-500 mb-1">Ventas (productos)</p>
                   <p className="text-lg sm:text-xl font-bold text-indigo-600">
                     ${detalleCorte.totalVentas.toLocaleString('es-CO')}
                   </p>
                 </div>
                 <div className="bg-rose-50 sm:p-4 rounded-xl text-center p-3">
-                  <p className="text-xs text-slate-500 mb-1">Total Compras</p>
+                  <p className="text-xs text-slate-500 mb-1">Compras de insumos</p>
                   <p className="text-lg sm:text-xl font-bold text-rose-600">
-                    ${detalleCorte.totalCompras.toLocaleString('es-CO')}
+                    ${(detalleCorte.totalComprasInsumos ?? detalleCorte.totalCompras).toLocaleString('es-CO')}
                   </p>
                 </div>
                 <div  className={`p-3 sm:p-4 rounded-xl text-center ${detalleCorte.utilidad >= 0 ? 'bg-emerald-50' : 'bg-red-50'}`}>

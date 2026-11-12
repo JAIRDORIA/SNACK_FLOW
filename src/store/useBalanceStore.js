@@ -85,8 +85,13 @@ fetchDetalleCorte: async (corteId) => {
       get().fetchTodasLasPaginas(getCompras, corteId, 'compras'),
     ])
 
-    const totalVentas = ventas.reduce((sum, v) => sum + (v.total || 0), 0)
+    // Ingreso = solo productos (el domicilio es dinero de paso). Si la venta no trae
+    // subtotal_productos se cae a total.
+    const totalVentas = ventas.reduce((sum, v) => sum + (v.subtotal_productos ?? v.total ?? 0), 0)
     const totalCompras = compras.reduce((sum, c) => sum + (c.total || 0), 0)
+    const totalComprasInsumos = compras
+      .filter((c) => c.categoria !== 'domicilio')
+      .reduce((sum, c) => sum + (c.total || 0), 0)
 
     set({
       detalleCorte: {
@@ -95,7 +100,8 @@ fetchDetalleCorte: async (corteId) => {
         compras,
         totalVentas,
         totalCompras,
-        utilidad: totalVentas - totalCompras
+        totalComprasInsumos,
+        utilidad: totalVentas - totalComprasInsumos
       },
       cargandoDetalleCorte: false
     })

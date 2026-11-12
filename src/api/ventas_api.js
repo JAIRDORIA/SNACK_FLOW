@@ -30,3 +30,18 @@ export const getVentaDetalle = (id) =>
 
 export const getVentaComprobante = (id) => 
     api.get(`/ventas/${id}/comprobante`)
+// Ventas con domicilio (selector de compras de domicilio). Filtra y pagina en servidor.
+export const getVentasConDomicilio = (pagina = 1, limite = 20, q = '', soloPendientes = true) => {
+    let url = `/ventas/con-domicilio?pagina=${pagina}&limite=${limite}`
+    if (q) url += `&q=${encodeURIComponent(q)}`
+    if (soloPendientes) url += `&solo_pendientes=true`
+    return api.get(url)
+}
+
+// Ventas por día de la semana (semanas: 1-8)
+export const getVentasPorDiaSemana = (semanas = 3) =>
+    api.get(`/ventas/por-dia-semana?semanas=${semanas}`)
+
+// Serie diaria de ventas cobradas (modo: "corte" | "dias"; dias: 1-366)
+export const getVentasSerieDiaria = (modo = 'corte', dias = 30) =>
+    api.get(`/ventas/serie-diaria?modo=${modo}&dias=${dias}`)

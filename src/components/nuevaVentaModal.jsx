@@ -1434,6 +1434,7 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
                       >
                         Cantidad
                       </th>
+                      <th className="w-10 py-2 px-1" aria-label="Quitar"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1496,6 +1497,22 @@ export default function NuevaVentaModal({ open, onClose, onVentaCreada }) {
 
                             className="w-20 text-center border border-slate-200 rounded text-sm p-1.5"
                           />
+                        </td>
+                        <td className="py-1 px-1 text-center">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              // Solo quita de la copia local del combo; el catálogo no cambia.
+                              setProductosEditados(
+                                productosEditados.filter((_, idx) => idx !== i),
+                              );
+                              setErrorCombo("");
+                            }}
+                            className="w-8 h-8 rounded-lg hover:bg-rose-50 flex items-center justify-center"
+                            aria-label="Quitar producto del combo"
+                          >
+                            <X size={16} color="#e11d48" />
+                          </button>
                         </td>
                       </tr>
                     ))}

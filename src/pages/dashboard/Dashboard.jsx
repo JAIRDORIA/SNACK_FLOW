@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef } from 'react'
 import { Wallet, TrendingUp, ShoppingCart, DollarSign, CreditCard, ChevronLeft, ChevronRight } from 'lucide-react'
 import useDashboardStore from '@/store/useDashboardStore'
+import VentasPorDiaSemana from '@/components/VentasPorDiaSemana'
+import VentasDelCorte from '@/components/VentasDelCorte'
+import ProductosSinMovimiento from '@/components/ProductosSinMovimiento'
 
 export default function Dashboard() {
   const { balance, clientesTop, productosTop, cargando, error, fetchDashboard } = useDashboardStore()
@@ -111,14 +114,7 @@ const statsCards = [
 
       {/* título */}
       <div style={{ marginBottom: 'clamp(16px, 3vw, 32px)' }}>
-        <h1 className="m-0" style={{
-          fontSize: 'clamp(18px, 4vw, 28px)',
-          fontWeight: 700,
-          color: '#000000',
-          textTransform: 'uppercase',
-          letterSpacing: '0.02em',
-          wordBreak: 'break-word'
-        }}>
+        <h1 className="m-0" style={{ fontSize: 'clamp(28px, 2vw, 34px)', fontWeight: 600, color: '#1f2937' }}>
           Información General del Corte #{balance?.corte_numero ?? '...'}
         </h1>
       </div>
@@ -193,7 +189,7 @@ const statsCards = [
                 style={{
                   background: '#1B1D2E',
                   borderRadius: '12px',
-                  padding: 'clamp(16px, 2.5vw, 28px) clamp(12px, 2vw, 24px)',
+                  padding: 'clamp(10px, 1.6vw, 18px) clamp(12px, 2vw, 20px)',
                   cursor: 'default',
                   transition: 'all 0.2s',
                   display: window.innerWidth < 768 ? 'none' : 'block'
@@ -207,10 +203,10 @@ const statsCards = [
                   e.currentTarget.style.boxShadow = 'none'
                 }}
               >
-                <div style={{ marginBottom: 'clamp(12px, 2vw, 20px)' }}>
+                <div style={{ marginBottom: 'clamp(8px, 1.2vw, 12px)' }}>
                   <div style={{
-                    width: 'clamp(40px, 6vw, 56px)',
-                    height: 'clamp(40px, 6vw, 56px)',
+                    width: 'clamp(32px, 4.5vw, 42px)',
+                    height: 'clamp(32px, 4.5vw, 42px)',
                     background: 'rgba(19,21,34,0.5)',
                     border: `2px solid ${stat.ringColor}`,
                     borderRadius: '12px',
@@ -218,18 +214,18 @@ const statsCards = [
                     alignItems: 'center',
                     justifyContent: 'center'
                   }}>
-                    <Icon size={window.innerWidth < 1024 ? 22 : 26} color={stat.iconColor} />
+                    <Icon size={window.innerWidth < 1024 ? 18 : 20} color={stat.iconColor} />
                   </div>
                 </div>
-                <p className="mt-0 mr-0 mb-2.5 ml-0" style={{
+                <p className="mt-0 mr-0 mb-1.5 ml-0" style={{
                   color: 'rgba(255,255,255,0.85)',
-                  fontSize: 'clamp(13px, 1.8vw, 18px)'
+                  fontSize: 'clamp(11px, 1.3vw, 14px)'
                 }}>
                   {stat.title}
                 </p>
                 <p className="m-0" style={{
                   color: 'white',
-                  fontSize: 'clamp(20px, 3.5vw, 28px)',
+                  fontSize: 'clamp(17px, 2.4vw, 22px)',
                   fontWeight: 600
                 }}>
                   ${stat.value.toLocaleString('es-CO')}
@@ -345,6 +341,17 @@ const statsCards = [
             />
           ))}
         </div>
+      </div>
+
+      {/* ventas del corte: ancho completo */}
+      <div className="mb-6">
+        <VentasDelCorte />
+      </div>
+
+      {/* ventas por día + productos sin movimiento: lado a lado en escritorio, apiladas en móvil */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <VentasPorDiaSemana />
+        <ProductosSinMovimiento />
       </div>
 
       {/* tablas - responsive */}

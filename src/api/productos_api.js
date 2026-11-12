@@ -42,3 +42,7 @@ export const eliminarProducto = (id) =>
 // Extra: más vendidos para dashboard
 export const getProductosMasVendidos = (limite = 5) =>
   api.get(`/productos/mas-vendidos?limite=${limite}`);
+
+// Productos activos con stock sin ventas hace N días (dias: 1-365, limite: 1-50)
+export const getProductosSinMovimiento = (dias = 15, limite = 5) =>
+  api.get('/productos/sin-movimiento', { params: { dias, limite } });

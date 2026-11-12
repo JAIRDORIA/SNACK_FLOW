@@ -163,6 +163,9 @@ src/store/
 ├── useAuditoriaStore.js
 ├── useBalanceStore.js
 ├── useComprasStore.js
+├── useVentasPorDiaStore.js     # métrica ventas por día de la semana (Dashboard)
+├── useSerieDiariaStore.js      # serie diaria de ventas cobradas (Dashboard, tarjeta Ventas del corte)
+├── useSinMovimientoStore.js    # productos sin movimiento (Dashboard)
 ├── useDashboardStore.js
 ├── useEditarVentaStore.js
 ├── useInventarioStore.js
@@ -206,6 +209,10 @@ src/components/
 ├── ProductsManager.jsx   # Gestión de productos (CRUD)
 ├── combosmanager.jsx     # Gestión de combos (CRUD)
 │
+├── VentasPorDiaSemana.jsx    # Tarjeta Dashboard: ventas por día de la semana (barras)
+├── VentasDelCorte.jsx        # Tarjeta Dashboard: serie diaria de ventas cobradas (línea/área)
+├── ProductosSinMovimiento.jsx # Tarjeta Dashboard: productos con stock sin ventas en N días (barras)
+│
 ├── nuevaVentaModal.jsx       # Modal: crear venta (incluye combos)
 ├── EditarVentaModal.jsx      # Modal: editar venta
 ├── NuevoAbonoModal.jsx       # Modal: registrar abono a venta
@@ -237,7 +244,7 @@ src/pages/
 ├── Inventario/
 │   └── Inventario.jsx         # Ver/editar inventario (bandejas + sueltas)
 ├── compras/
-│   └── Compras.jsx            # Compras a proveedores
+│   └── Compras.jsx            # Compras a proveedores (KPIs leen `resumen` del store; `q` busca descripción/proveedor/id)
 ├── balance/
 │   └── Balance.jsx            # Balance del corte actual
 ├── cortes/
@@ -378,3 +385,12 @@ src/utils/
 **Nota (paginación y búsqueda en servidor, 2026-11-03):** Préstamos, proveedores, inventario y productos paginan y buscan en el backend. Los stores guardan `total`, `pagina`, `limite`, `total_paginas` y `busqueda`; las pantallas envían `q` con debounce de ~400 ms, reinician a página 1 y descartan respuestas viejas con un contador de secuencia. En préstamos, `GET /prestamos/` también devuelve `resumen` (`total_prestado`, `total_abonado`, `saldo_por_cobrar`, `pendientes`, `pagados`): el store lo mantiene y la pantalla usa esos valores para las KPI globales; los tabs siguen contando la página y el pie usa `saldoPagina`. Detalle por endpoint en `SnackFlow_contexto (1).md` §11.
 
 **Nota (valor del inventario, 2026-11-08):** `Inventario.jsx` muestra dos `KpiCard` (componente compartido) con el **valor global** del inventario: "Valor al detal" y "Valor al por mayor". Se alimentan de `GET /inventarios/valor` (`getValorInventario()` en `api/inventario_api.js`), que devuelve `{ valor_detal, valor_mayor }` en COP; el store guarda `valor_detal`, `valor_mayor`, `cargandoValor` y `errorValor` (flags propios, para no disparar el spinner ni el error del listado). No dependen de paginación ni búsqueda: se piden al montar y se refrescan al guardar ediciones de cantidades/stock mínimo o registrar producción (vía `cargar()`).
+
+**Nota (métricas de ventas del Dashboard, 2026-11-10):** `Dashboard.jsx` coloca `VentasPorDiaSemana` y `VentasDelCorte` en una misma fila (`grid grid-cols-1 lg:grid-cols-2 gap-6`), debajo de las cards KPI y arriba de las tablas.
+
+- **`VentasPorDiaSemana.jsx`** (barras con divs, sin librería): usa `getVentasPorDiaSemana(semanas)` (`GET /ventas/por-dia-semana?semanas=1-8`, en `api/ventas_api.js`) y `useVentasPorDiaStore` (`semanas`=3, `datos`, `loading`, `error`; ignora respuestas viejas). No calcula nada en cliente; error/403 muestra estado vacío con "Reintentar" sin cerrar sesión. El filtro tiene la etiqueta visible "Últimas semanas"; cada barra muestra su monto (`fmtMonto`) encima de forma permanente, y al hover/focus el tooltip reemplaza ese monto por monto + cantidad de ventas (columnas con `tabIndex=0` y `aria-label`).
+- **`VentasDelCorte.jsx`** (SVG propio, línea + área): consume `GET /ventas/serie-diaria?modo=corte|dias&dias=30` con `getVentasSerieDiaria(modo, dias)` y `useSerieDiariaStore` (`modo`, `datos`, `loading`, `error`; contador para descartar respuestas viejas). La leyenda usa `datos.total` (nunca `balance.total_ventas`); el eje Y se calcula con 4 intervalos "bonitos" desde el máximo diario. El viewport muestra 7 días exactos (`anchoDia = anchoViewport / 7`), con scroll horizontal por rueda/trackpad, arrastre pointer, touch y snap por día; los chevrons (44×44, solo `lg`) avanzan una página. Eje Y, rejilla y tooltip quedan fijos; la línea, puntos y eje X acompañan el scroll. Al cargar y cambiar de modo abre en el día más reciente. Teclado: el grupo es focusable, flechas/Home/End mueven el punto activo, Enter/Espacio fija y Escape suelta; `aria-live` anuncia el punto activo. Estados: skeleton con altura fija, error con "Reintentar", 404/`datos=null` como vacío tranquilo y serie en cero como línea plana. Animaciones (dibujo de línea, fade del área, stagger de puntos, count-up del total) se desactivan con `prefers-reduced-motion`.
+
+**Nota (2026-11-12):** `Dashboard.jsx` ahora pone `VentasDelCorte` a todo el ancho y, en la fila siguiente, `VentasPorDiaSemana` + `ProductosSinMovimiento` (`grid lg:grid-cols-2`). Las 5 cards KPI se redujeron en altura y tamaño de texto. **`ProductosSinMovimiento.jsx`** consume `GET /productos/sin-movimiento?dias=7|15|30|60|90&limite=5` (`getProductosSinMovimiento` en `api/productos_api.js`) con `useSinMovimientoStore` (`dias`=15, `datos`, `loading`, `error`; descarta respuestas viejas). Barras con degradé morado SnackFlow (`#a59bff→#5842ff`), `nunca_vendido` se indica bajo el nombre; no calcula en cliente. 403/error → estado vacío con "Reintentar".
+
+**Nota (compras de domicilio, 2026-11-11):** el domicilio ya no es ingreso. El modal de compra se extrajo a `src/components/ModalCompra.jsx` (lo usan `Compras.jsx` y `Ventas.jsx`) y tiene selector de **categoría** (`insumo` | `domicilio`); con `domicilio` exige una venta (`SelectorVentaDomicilio`, búsqueda en servidor con `GET /ventas/con-domicilio?solo_pendientes=true`, descarta respuestas viejas) y sugiere como costo `domicilio_pendiente_compra`. `useComprasStore` envía `categoria` y `venta_id` (solo con domicilio) y guarda `categoriaFiltro` (filtro en servidor; `getCompras` recibe `categoria` como 5.º parámetro). `Compras.jsx` muestra chip "Domicilio · venta #id" y filtro por categoría. `Ventas.jsx` agrega por fila (si `valor_domicilio > 0` y no anulada) un botón con icono `Motorbike` que abre `ModalCompra` con `ventaFija` (categoría bloqueada en Domicilio); se deshabilita con `domicilio_compra_completa`. `Balance.jsx` agrega la sección "Domicilios y compras del corte" (`domicilios_cobrados`, `domicilios_pagados`, `diferencia_domicilios`, `compras_insumos`, `compras_domicilios`). Ojo: `domicilio_pagado/pendiente` = cobro al cliente; `*_compra` = pago al domiciliario.

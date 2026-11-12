@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getInventario, getProductosBajoStock } from "@/api/inventario_api";
+import { getInventario, getProductosBajoStock, getValorInventario } from "@/api/inventario_api";
 
 // Ignora respuestas viejas al cambiar de término o de página.
 let fetchSeq = 0;
@@ -14,6 +14,13 @@ const useInventarioStore = create((set, get) => ({
     bajoStock: [],
     cargando: false,
     error: null,
+    // Valor total del inventario (global). `cargandoValor`/`errorValor` son
+    // flags propios: no deben activar el spinner de página ni la pantalla de
+    // error del listado.
+    valor_detal: null,
+    valor_mayor: null,
+    cargandoValor: false,
+    errorValor: null,
 
     // Igual que fetchInventario pero SIN tocar `cargando`. Necesario para
     // refrescos en segundo plano: `Inventario.jsx` hace `if (cargando) return
@@ -62,6 +69,26 @@ const useInventarioStore = create((set, get) => ({
             set({ bajoStock: res.data });
         } catch {
             set({ bajoStock: [] });
+        }
+    },
+
+    // Total global del inventario: no depende de la página ni de la búsqueda.
+    // Si falla, se conserva el último valor conocido (o null -> "—") y no se
+    // muestra ninguna alerta ni se cierra la sesión.
+    fetchValorInventario: async () => {
+        set({ cargandoValor: true, errorValor: null });
+        try {
+            const res = await getValorInventario();
+            set({
+                valor_detal: res.data?.valor_detal ?? null,
+                valor_mayor: res.data?.valor_mayor ?? null,
+                cargandoValor: false,
+            });
+        } catch (err) {
+            set({
+                cargandoValor: false,
+                errorValor: err.response?.data?.mensaje || "Error al cargar el valor del inventario",
+            });
         }
     }
 }));

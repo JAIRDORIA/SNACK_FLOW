@@ -1,16 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import {
-  Plus, Search, Pencil, Trash2, X,
-  AlertTriangle, ShoppingBag, DollarSign,
-  Calendar, Truck, SlidersHorizontal, ChevronDown,Loader2,
-  TrendingDown, BarChart3, CheckCircle2, FileText, Info
+  Plus, Search, Pencil, Trash2,
+  ShoppingBag, SlidersHorizontal, ChevronDown, Loader2,
+  TrendingDown, BarChart3, Bike
 } from 'lucide-react'
 import useComprasStore from '@/store/useComprasStore'
 import useProveedoresStore from '@/store/useProveedoresStore'
 import useDashboardStore from '@/store/useDashboardStore'
-import useMediosPagoStore from '@/store/useMediosPagoStore'
-import MedioPagoSelector, { medioPagoValido } from '@/components/MedioPagoSelector'
 import MedioPagoBadge from '@/components/MedioPagoBadge'
+import ModalCompra from '@/components/ModalCompra'
 
 // ── ESTILOS RESPONSIVE ──
 const responsiveStyles = `
@@ -71,235 +69,6 @@ const responsiveStyles = `
 `
 
 // ══════════════════════════════════════════
-// MODAL COMPRA
-// ══════════════════════════════════════════
-function ModalCompra({ compra, proveedores, onClose, onGuardar }) {
-  const { cuentas, cargado: cuentasCargadas, cargarCuentas } = useMediosPagoStore()
-
-  const [form, setForm] = useState({
-    id_proveedor: compra?.id_proveedor || '',
-    descripcion: compra?.descripcion || '',
-    costo_total: compra?.costo_total || '',
-    fecha_compra: compra?.fecha_compra
-      ? compra.fecha_compra.slice(0, 10)
-      : new Date().toISOString().slice(0, 10),
-  })
-
-  // Medio de pago separado del resto del formulario.
-  const [medio, setMedio] = useState(() => {
-    if (compra?.medio_pago !== 'transferencia') {
-      return { medio_pago: 'efectivo', medio_pago_id: null }
-    }
-    const idOriginal = compra?.medio_pago_id ?? null
-    const existe = idOriginal != null && cuentas.some(c => Number(c.id) === Number(idOriginal))
-    // Cuenta de sistema o inactiva: se deja sin cuenta (histórico).
-    if (cuentasCargadas && !existe) return { medio_pago: 'transferencia', medio_pago_id: null }
-    return { medio_pago: 'transferencia', medio_pago_id: idOriginal }
-  })
-  const [guardando, setGuardando] = useState(false)
-  const [errForm, setErrForm] = useState(null)
-  const [errorMedio, setErrorMedio] = useState('')
-  // Evita que la normalización del histórico pise una elección del usuario.
-  const medioTocadoRef = useRef(false)
-
-  useEffect(() => {
-    cargarCuentas()
-  }, [cargarCuentas])
-
-  const esTransferenciaOriginal = compra?.medio_pago === 'transferencia'
-  const idOriginal = compra?.medio_pago_id ?? null
-  const cuentaAsignable =
-    idOriginal != null && cuentas.some(c => Number(c.id) === Number(idOriginal))
-  // Cuenta de sistema "sin asignar" o cuenta ahora inactiva. Mientras las
-  // cuentas no hayan cargado solo se puede afirmar si la compra no trae id.
-  const esHistorico =
-    Boolean(compra) &&
-    esTransferenciaOriginal &&
-    !cuentaAsignable &&
-    (idOriginal == null || cuentasCargadas)
-
-  useEffect(() => {
-    if (!esHistorico || medioTocadoRef.current) return
-    setMedio({ medio_pago: 'transferencia', medio_pago_id: null })
-  }, [esHistorico])
-
-  const cambiarMedio = (value) => {
-    medioTocadoRef.current = true
-    setMedio(value)
-    if (errorMedio) setErrorMedio('')
-  }
-
-  const handleChange = (e) =>
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
-
-  const handleGuardar = async () => {
-    if (!form.id_proveedor) { setErrForm('Selecciona un proveedor.'); return }
-    if (!form.costo_total || isNaN(Number(form.costo_total)) || Number(form.costo_total) <= 0) {
-      setErrForm('Ingresa un costo total válido.'); return
-    }
-    if (!medioPagoValido(medio, esHistorico)) {
-      setErrorMedio('Selecciona la cuenta de transferencia.'); return
-    }
-    setGuardando(true); setErrForm(null); setErrorMedio('')
-    try {
-      await onGuardar(
-        { ...form, id_proveedor: Number(form.id_proveedor), costo_total: Number(form.costo_total) },
-        medio,
-      )
-      onClose()
-    } catch (err) {
-      setErrForm(
-        err.response?.data?.mensaje ||
-        err.response?.data?.error ||
-        'Error al guardar la compra.'
-      )
-    } finally { setGuardando(false) }
-  }
-
-  const inputBase = {
-    width: '100%', boxSizing: 'border-box', padding: '11px 16px 11px 40px',
-    border: '1.5px solid #e2e8f0', borderRadius: '10px', fontSize: '14px',
-    color: '#0f172a', background: '#fafafa', outline: 'none', transition: 'all 0.15s', fontFamily: 'inherit'
-  }
-  const focusIn = (e) => { e.target.style.border = '1.5px solid #5842ff'; e.target.style.background = '#ffffff' }
-  const focusOut = (e) => { e.target.style.border = '1.5px solid #e2e8f0'; e.target.style.background = '#fafafa' }
-
-  return (
-    <div className="p-4" style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.45)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50 }}>
-      <div className="modal-inner modal-card" style={{ background: '#ffffff', borderRadius: '20px', width: '100%', maxWidth: '480px', boxShadow: '0 24px 64px rgba(0,0,0,0.14)', fontFamily: "'Montserrat','Poppins',sans-serif" }}>
-
-        {/* Header */}
-        <div className="modal-header pt-6 pr-7 pb-5 pl-7" style={{ borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', flexShrink: 0 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'rgba(88,66,255,0.08)', border: '1px solid rgba(88,66,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <ShoppingBag size={20} color="#5842ff" />
-            </div>
-            <div>
-              <p className="m-0" style={{ fontWeight: 700, fontSize: '17px', color: '#0f172a' }}>
-                {compra ? 'Editar Compra' : 'Nueva Compra'}
-              </p>
-              <p className="mt-0.5 mr-0 mb-0 ml-0" style={{ fontSize: '13px', color: '#94a3b8' }}>
-                {compra ? 'Modifica los datos de la compra' : 'Registra una nueva adquisición'}
-              </p>
-            </div>
-          </div>
-          <button onClick={onClose} style={{ width: '32px', height: '32px', borderRadius: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-            <X size={15} color="#94a3b8" />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="modal-body py-6 px-7" style={{ display: 'flex', flexDirection: 'column', gap: '16px', minHeight: 0 }}>
-
-          {/* Proveedor */}
-          <div>
-            <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Proveedor <span style={{ color: '#f43f5e' }}>*</span>
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Truck size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-              <ChevronDown size={14} color="#cbd5e1" style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-              <select name="id_proveedor" value={form.id_proveedor} onChange={handleChange}
-                style={{ ...inputBase, appearance: 'none', cursor: 'pointer', paddingRight: '36px' }}
-                onFocus={focusIn} onBlur={focusOut}>
-                <option value="">Seleccionar proveedor...</option>
-                {proveedores.map(p => (
-                  <option key={p.id_proveedor} value={p.id_proveedor}>{p.nombre}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Descripción */}
-          <div>
-            <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Descripción / Insumos
-            </label>
-            <div style={{ position: 'relative' }}>
-              <FileText size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '14px', pointerEvents: 'none' }} />
-              <textarea name="descripcion" value={form.descripcion} onChange={handleChange}
-                placeholder="¿Qué se compró? Ej: Insumos, empaques..." rows={2}
-                style={{ ...inputBase, resize: 'none', lineHeight: '1.5' }}
-                onFocus={focusIn} onBlur={focusOut} />
-            </div>
-          </div>
-
-          {/* Costo + Fecha */}
-          <div className="form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-            <div>
-              <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Costo Total <span style={{ color: '#f43f5e' }}>*</span>
-              </label>
-              <div style={{ position: 'relative' }}>
-                <DollarSign size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-                <input type="number" inputMode="numeric" step="1" name="costo_total" value={form.costo_total} onChange={handleChange}
-                  placeholder="0" min="0" style={inputBase} onFocus={focusIn} onBlur={focusOut} />
-              </div>
-            </div>
-            <div>
-              <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-                Fecha de Compra
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Calendar size={15} color="#cbd5e1" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-                <input type="date" name="fecha_compra" value={form.fecha_compra} onChange={handleChange}
-                  style={inputBase} onFocus={focusIn} onBlur={focusOut} />
-              </div>
-            </div>
-          </div>
-          {/* Medio de pago */}
-          <div>
-            <label className="mb-1.5" style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
-              Medio de pago <span style={{ color: '#f43f5e' }}>*</span>
-            </label>
-            {esHistorico && (
-              <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 6px' }}>
-                Cuenta actual:{' '}
-                <strong style={{ color: '#0f172a' }}>
-                  {compra?.medio_pago_nombre || '—'}
-                </strong>
-              </p>
-            )}
-            <MedioPagoSelector
-              value={medio}
-              onChange={cambiarMedio}
-              disabled={guardando}
-              error={errorMedio}
-              permitirHistorico={esHistorico}
-            />
-          </div>
-
-
-          <div className="py-3 px-3.5" style={{ display: 'flex', alignItems: 'center', gap: '10px', background: '#f8fafc', border: '1px solid #f1f5f9', borderRadius: '10px' }}>
-            <Info size={15} color="#94a3b8" style={{ flexShrink: 0 }} />
-            <p className="m-0" style={{ fontSize: '12px', color: '#64748b' }}>La compra se asociará al corte activo automáticamente.</p>
-          </div>
-
-          {errForm && (
-            <div className="py-3 px-3.5" style={{ display: 'flex', alignItems: 'flex-start', gap: '10px', background: '#fff1f2', border: '1.5px solid #fecdd3', borderRadius: '10px' }}>
-              <AlertTriangle size={15} color="#f43f5e" className="mt-0" style={{ flexShrink: 0 }} />
-              <p className="m-0" style={{ fontSize: '13px', color: '#e11d48' }}>{errForm}</p>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="modal-footer modal-footer-wrap safe-bottom pt-4 pr-7 pl-7" style={{ borderTop: '1px solid #f1f5f9', display: 'flex', gap: '10px', flexShrink: 0 }}>
-          <button onClick={onClose} className="p-2.5" style={{ flex: 1, borderRadius: '10px', border: '1.5px solid #e2e8f0', background: 'white', fontSize: '14px', fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>
-            Cancelar
-          </button>
-          <button onClick={handleGuardar} disabled={guardando}
-            className="p-2.5" style={{ flex: 1, borderRadius: '10px', border: 'none', background: guardando ? '#a5b4fc' : '#5842ff', color: 'white', fontSize: '14px', fontWeight: 600, cursor: guardando ? 'not-allowed' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '7px' }}>
-            <CheckCircle2 size={15} />
-            {guardando ? 'Guardando...' : compra ? 'Guardar Cambios' : 'Crear Compra'}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ══════════════════════════════════════════
 // MODAL ELIMINAR
 // ══════════════════════════════════════════
 function ModalEliminar({ compra, onClose, onConfirmar }) {
@@ -344,7 +113,7 @@ export default function Compras() {
   const {
     compras, cargando, error,
     fetchCompras, crearCompra, editarCompra, eliminarCompra,
-    corteIdFiltro, cortes, fetchCortes, pagina, limite, total_paginas,total
+    corteIdFiltro, categoriaFiltro, cortes, fetchCortes, pagina, limite, total_paginas,total, resumen
   } = useComprasStore()
   const { proveedoresActivos, fetchProveedoresActivos } = useProveedoresStore()
   const { balance } = useDashboardStore()
@@ -392,8 +161,9 @@ export default function Compras() {
     return matchP
   })
 
-  const totalCompras = lista.reduce((acc, c) => acc + (c.costo_total || 0), 0)
-  const promedio = lista.length ? totalCompras / lista.length : 0
+  const cantidadCompras = resumen?.cantidad_compras ?? 0
+  const totalCompras = resumen?.total_gastado ?? 0
+  const promedio = cantidadCompras ? totalCompras / cantidadCompras : 0
   const nFiltros = filtroProveedor ? 1 : 0
 
   const abrirCrear = () => { setCompraEditar(null); setModalFormOpen(true) }
@@ -431,7 +201,7 @@ export default function Compras() {
       {/* ═══ KPI CARDS ═══ */}
       <div className="grid-kpi">
         {[
-          { icon: <ShoppingBag size={20} color="#8b5cf6" />, borderColor: '#8b5cf6', value: lista.length, label: 'Total Compras', isMoney: false },
+          { icon: <ShoppingBag size={20} color="#8b5cf6" />, borderColor: '#8b5cf6', value: cantidadCompras, label: 'Total Compras', isMoney: false },
           { icon: <TrendingDown size={20} color="#f43f5e" />, borderColor: '#f43f5e', value: totalCompras, label: 'Total Egresado', isMoney: true },
           { icon: <BarChart3 size={20} color="#f59e0b" />, borderColor: '#f59e0b', value: promedio, label: 'Promedio x Compra', isMoney: true },
         ].map((card, i) => (
@@ -456,7 +226,7 @@ export default function Compras() {
         <div className="toolbar-container py-4 px-6" style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
           <div className="search-box" style={{ position: 'relative', width: '320px' }}>
             <Search size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', pointerEvents: 'none' }} />
-            <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar por descripción..."
+            <input value={busqueda} onChange={e => setBusqueda(e.target.value)} placeholder="Buscar por descripción, proveedor o ID..."
               className="pt-2.5 pr-4 pb-2.5 pl-11" style={{ width: '100%', boxSizing: 'border-box', border: '1px solid #e2e8f0', borderRadius: '8px', fontSize: '14px', color: '#0f172a', background: '#ffffff', outline: 'none', fontFamily: 'inherit' }}
               onFocus={e => e.target.style.border = '1px solid #5842ff'}
               onBlur={e => e.target.style.border = '1px solid #e2e8f0'}
@@ -498,6 +268,14 @@ export default function Compras() {
             )}
           </div>
 
+          <select value={categoriaFiltro} onChange={e => fetchCompras(1, limite, corteIdFiltro, busqueda, e.target.value)}
+            aria-label="Filtrar por categoría"
+            className="py-2.5 px-4" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', background: '#ffffff', color: '#475569', fontSize: '14px', fontWeight: 500, cursor: 'pointer', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}>
+            <option value="">Todas las categorías</option>
+            <option value="insumo">Insumos</option>
+            <option value="domicilio">Domicilios</option>
+          </select>
+
           <select value={corteIdFiltro ?? ''} onChange={e => fetchCompras(1, limite, e.target.value ? Number(e.target.value) : null, busqueda)}
             className="py-2.5 px-4" style={{ border: '1px solid #e2e8f0', borderRadius: '8px', background: '#ffffff', color: '#475569', fontSize: '14px', fontWeight: 500, cursor: 'pointer', outline: 'none', fontFamily: 'inherit', boxSizing: 'border-box' }}>
             <option value="">Corte actual</option>
@@ -533,6 +311,11 @@ export default function Compras() {
                     {c.nombre_proveedor || '—'}
                   </td>
                   <td className="py-4 px-6" style={{ fontSize: '14px', color: '#475569' }}>
+                    {c.categoria === 'domicilio' && (
+                      <span className="inline-flex items-center gap-1 mr-2 py-0.5 px-2" style={{ fontSize: '11px', fontWeight: 700, color: '#6d28d9', background: '#f5f3ff', border: '1px solid #ddd6fe', borderRadius: '999px' }}>
+                        <Bike size={11} /> Domicilio{c.venta_id ? ` · venta #${c.venta_id}` : ''}{c.venta_cliente ? ` · ${c.venta_cliente}` : ''}
+                      </span>
+                    )}
                     {c.descripcion || <span style={{ color: '#cbd5e1' }}>—</span>}
                   </td>
                   <td className="py-4 px-6" style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
@@ -586,6 +369,14 @@ export default function Compras() {
                 <span className="card-label">Proveedor</span>
                 <span className="card-value" style={{ fontWeight: 600, color: '#111827' }}>{c.nombre_proveedor || '—'}</span>
               </div>
+              {c.categoria === 'domicilio' && (
+                <div className="card-row">
+                  <span className="card-label">Categoría</span>
+                  <span className="card-value" style={{ fontWeight: 600, color: '#6d28d9' }}>
+                    Domicilio{c.venta_id ? ` · venta #${c.venta_id}` : ''}{c.venta_cliente ? ` · ${c.venta_cliente}` : ''}
+                  </span>
+                </div>
+              )}
               {c.descripcion && (
                 <div className="card-row">
                   <span className="card-label">Descripción</span>
